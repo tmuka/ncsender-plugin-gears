@@ -504,6 +504,15 @@ if (typeof module !== 'undefined' && module.exports) {
   // The rack's tip is rounded a little more than the bit, so the bit is
   // never asked for a sharper corner than it has.
   var BIT_MARGIN = 1.02;
+  // The fewest teeth more a ring needs than its pinion, by pressure angle
+  // (x10), so their tips don't collide. Meshing pinions of 12 to 50 teeth
+  // found 13 (growing with the pinion), 8 and 5 the least that run clear;
+  // these keep a margin. The tests mesh pairs at these.
+  var RING_DIFF = { 145: 16, 200: 12, 250: 10 };
+  // A ring's teeth a little short of a full addendum, so their tips clear
+  // the pinion's root rounding (a full one touched it by 0.02 mm with
+  // 24-28 tooth pinions and a 1/8" bit).
+  var RING_TIP = 0.95;
 
   // m: module; z: teeth; pressureDeg; backlash (mm on the pitch circle,
   // shared by the pair, so each gear is thinned by half); clearance (mm
@@ -707,6 +716,80 @@ if (typeof module !== 'undefined' && module.exports) {
     out.rootFillet = rho;
     return out;
   }
+  // An internal (ring) gear of z teeth: its opening is an external
+  // gear's outline turned inside out, each space an involute "tooth" of
+  // the same base circle, widened by the ring's share of the backlash and
+  // reaching m + c past the pitch circle; its tips at m inside (no lower
+  // than the base circle). Cut from inside, the bit rounds the spaces'
+  // outer corners: `opening` is that, as cut (CCW), `path` the bit's
+  // center (CW, inside it). The ring is W wide outside its roots.
+  var invol = function (x) { return Math.tan(x) - x; };
+  function ringOpening(b, z) {
+    // The ring's tips stop short of the pinion's root rounding (the
+    // cutter's, rho (1 - sin a) up from the root) by a tenth of rho, and at
+    // most RING_TIP m deep.
+    var rho = Math.max(b.bitRadius * BIT_MARGIN, 0.3 * b.m), tipDepth = Math.min(RING_TIP * b.m, b.m + b.c - rho * (1 - Math.sin(b.alpha)) - 0.1 * rho);
+    var rp = b.rp, rb = b.rb, a = b.alpha, Ro = rp + b.m + b.c, Ri = Math.max(rp - tipDepth, rb * 1.001);
+    var psi = function (R) { return Math.PI / (2 * z) + b.backlash / (4 * rp) + invol(a) - invol(Math.acos(Math.min(1, rb / R))); };
+    // Where a space's flanks meet: it can't go deeper than that.
+    if (psi(Ro) < 1e-4) { var lo = Ri, hi = Ro; for (var it = 0; it < 60; it++) { var md = (lo + hi) / 2; if (psi(md) > 1e-4) lo = md; else hi = md; } Ro = lo; }
+    var n = 60, Rs = [];
+    for (var i = 0; i <= n; i++) Rs.push(Ri + (Ro - Ri) * (1 - Math.cos(Math.PI / 2 * i / n)));
+    var pts = [], half = Math.PI / z;
+    for (var k = 0; k < z; k++) {
+      var c = k * 2 * half;
+      arc(pts, Ri, c - 2 * half + psi(Ri), c - psi(Ri));
+      for (i = 0; i <= n; i++) pts.push(polar(Rs[i], c - psi(Rs[i])));
+      arc(pts, Ro, c - psi(Ro), c + psi(Ro));
+      for (i = n; i >= 0; i--) pts.push(polar(Rs[i], c + psi(Rs[i])));
+    }
+    return { pts: dedupe(pts), Ri: Ri, Ro: Ro, psi: psi, trimmed: Ri > rp - tipDepth + 1e-9, pointed: Ro < rp + b.m + b.c - 1e-6, tipDepth: tipDepth };
+  }
+  function makeRing(p) {
+    var b = basics(p), z = p.teeth, W = p.rim, r = b.bitRadius, out = { kind: 'ring', basics: b, problem: null, notes: [] };
+    if (!(b.m > 0) || !(z >= 12) || Math.round(z) !== z) { out.problem = 'a ring gear needs 12 or more teeth, and the tooth size more than 0'; return out; }
+    if (!(W > 0)) { out.problem = 'Rim Width must be more than 0'; return out; }
+    if (b.c < b.cMin - 1e-9) { out.need = { clearance: b.cMin }; out.problem = 'Tip Clearance must be at least ' + b.cMin.toFixed(2) + ' mm with this bit: the root is rounded to fit it, and the other gear\u2019s tips would hit the rounding'; return out; }
+    var op = ringOpening(b, z);
+    if (op.Ro < b.rp + b.m + 0.25 * b.c) { out.problem = 'the ring\u2019s tooth spaces come to a point before the pinion\u2019s tips reach their bottom: fewer teeth on the ring, 20° rather than 25°, or more backlash'; return out; }
+    if (!p.noBitCheck && !(b.m >= minModule(p) - 1e-9)) {
+      var mm = minModule(p), rk = rack(b);
+      out.need = { module: mm, bit: 2 * rk.rhoMax / BIT_MARGIN };
+      out.problem = 'the bit is too big for these teeth: the bottom of a tooth space fits a bit up to ' + out.need.bit.toFixed(2) + ' mm; use teeth of at least ' + mm.toFixed(2) + ' mm module, or a smaller bit';
+      return out;
+    }
+    var tipLand = (2 * Math.PI / z - 2 * op.psi(op.Ri)) * op.Ri;
+    if (!(tipLand > 0)) { out.problem = 'the ring\u2019s teeth come to a point: more teeth, or 20° rather than 25°'; return out; }
+    if (tipLand < 0.25 * b.m) out.notes.push('pointed ring teeth: ' + tipLand.toFixed(2) + ' mm across at the tip');
+    if (op.trimmed) out.notes.push('the ring\u2019s teeth are cut short at the base circle (' + (op.Ri - (b.rp - op.tipDepth)).toFixed(2) + ' mm), as this few need');
+    // The bit's center inside the opening (CW), and the opening as cut: grown back out.
+    // What's cut is everything within a bit radius of the bit's path (its
+    // center, CW inside the opening): the opening with its spaces' outer
+    // corners rounded.
+    out.opening = op.pts;
+    // Started in the middle of a ring tooth's tip (a root arc of the
+    // opening), never at a space's narrow end, where the offset loops.
+    var rev = op.pts.slice().reverse(), k0 = 0, best = Infinity, aim = Math.PI / z;
+    rev.forEach(function (q, i) { var dd = Math.abs(Math.atan2(q.y, q.x) - aim) + Math.abs(Math.hypot(q.x, q.y) - op.Ri); if (dd < best) { best = dd; k0 = i; } });
+    // Offset a hair more, then simplified to 0.003 mm (as toolPath), so it
+    // has no tiny steps and never comes nearer the teeth than r.
+    out.openingPath = simplifyClosed(dedupe(trimLoops(offsetOutward(rev.slice(k0).concat(rev.slice(0, k0)), r + 0.0035, null, true))), 0.003);
+    out.basics = Object.assign({}, b, { z: z, rim: W, ri: op.Ri, rRoot: op.Ro, rOut: op.Ro + W, ra: op.Ro + W });
+    out.outline = circlePts(op.Ro + W);
+    return out;
+  }
+  function circlePts(R) { var pts = []; arc(pts, R, 0, 2 * Math.PI * (1 - 1e-9)); return dedupe(pts); }
+  // A pinion (zP) inside a ring (zR): how far apart their centers are, the
+  // contact ratio, and whether their tips would collide (too few teeth
+  // between them).
+  function ringPair(p, zP, zR) {
+    var a = p.pressureDeg * Math.PI / 180, m = p.module, rP = m * zP / 2, rR = m * zR / 2, cd = rR - rP;
+    var len = Math.sqrt(Math.pow(rP + m, 2) - Math.pow(rP * Math.cos(a), 2)) - Math.sqrt(Math.pow(Math.max(rR - RING_TIP * m, rR * Math.cos(a)), 2) - Math.pow(rR * Math.cos(a), 2)) + cd * Math.sin(a);
+    var out = { centerDistance: cd, ratio: zR / zP, contactRatio: len / (Math.PI * m * Math.cos(a)) };
+    var minDiff = RING_DIFF[Math.round(p.pressureDeg * 10)] || 12;
+    if (zR - zP < minDiff) out.problem = 'the ring needs at least ' + minDiff + ' more teeth than the pinion at ' + p.pressureDeg + '° (' + (zP + minDiff) + ' or more), or their tips collide';
+    return out;
+  }
   // Rack and pinion: how far the rack goes a turn, and the contact ratio.
   function rackPair(p, z) {
     var a = p.pressureDeg * Math.PI / 180, m = p.module, rp = m * z / 2, rb = rp * Math.cos(a);
@@ -789,10 +872,11 @@ if (typeof module !== 'undefined' && module.exports) {
   // travel) by r: arcs round the outside corners, and the loops an offset
   // makes in tight inside corners trimmed. Starts at the offset of the
   // point farthest from the center, which is always on the final path.
-  function offsetOutward(pts, r, arcStep) {
+  function offsetOutward(pts, r, arcStep, keepStart) {
     arcStep = arcStep || 5 * Math.PI / 180;
     var n = pts.length, start = 0, far = -1;
-    for (var i = 0; i < n; i++) { var d = pts[i].x * pts[i].x + pts[i].y * pts[i].y; if (d > far) { far = d; start = i; } }
+    // keepStart: the caller's first point is already a safe place to start.
+    if (!keepStart) for (var i = 0; i < n; i++) { var d = pts[i].x * pts[i].x + pts[i].y * pts[i].y; if (d > far) { far = d; start = i; } }
     var P = [];
     for (i = 0; i < n; i++) P.push(pts[(start + i) % n]);
     var seg = [];
@@ -805,6 +889,8 @@ if (typeof module !== 'undefined' && module.exports) {
       var s0 = seg[(i - 1 + n) % n], s1 = seg[i], v = P[i];
       var cross = s0.dx * s1.dy - s0.dy * s1.dx, dot = s0.dx * s1.dx + s0.dy * s1.dy;
       var turn = Math.atan2(cross, dot);
+      // Straight back on itself (the end of a narrow slot): an outside corner, rounded, never a miter.
+      if (dot < -0.9999 && Math.abs(cross) < 1e-3) turn = Math.PI;
       if (turn > 1e-9) {
         // Outside corner: round it.
         var b0 = Math.atan2(s0.ny, s0.nx), steps = Math.max(1, Math.ceil(turn / arcStep));
@@ -885,7 +971,7 @@ if (typeof module !== 'undefined' && module.exports) {
     return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
   }
 
-  return { basics: basics, rack: rack, gear: gear, makeRack: makeRack, rackPair: rackPair, toolPath: toolPath, minModule: minModule, minClearance: minClearance, friendlyModule: friendlyModule, pair: pair,
+  return { basics: basics, rack: rack, gear: gear, makeRack: makeRack, rackPair: rackPair, makeRing: makeRing, ringPair: ringPair, RING_DIFF: RING_DIFF, toolPath: toolPath, minModule: minModule, minClearance: minClearance, friendlyModule: friendlyModule, pair: pair,
            offsetOutward: offsetOutward, trimLoops: trimLoops, simplify: simplify, simplifyClosed: simplifyClosed, distToSegment: distToSegment, MODULES: MODULES };
 });
 /* END lib/gear-geometry.cjs */</script>
@@ -1375,6 +1461,29 @@ if (typeof module !== 'undefined' && module.exports) {
     }
     return { holes: out, problems: probs };
   }
+  // A ring gear's screw holes: Gear B's Lightening Holes count and Bore
+  // size, evenly round the middle of its rim, between its teeth.
+  function ringHoles(g, info, o) {
+    var out = [], probs = [], n = Math.round(g.holes || 0), b = info.basics, d = g.bore, mid = (b.rRoot + b.rOut) / 2;
+    if (n > 0) {
+      if (!(d >= o.bitDiameter - 1e-6)) probs.push('The ring’s screw holes must be at least the bit’s diameter (Gear B’s Bore)');
+      else if (d > b.rim - 2 * Math.max(1, 0.5 * o.bitDiameter)) probs.push('The ring’s screw holes don’t fit in its rim: smaller holes, or a wider Rim Width');
+      else for (var k = 0; k < n; k++) { var a = (k + 0.5) * TAU / n; out.push({ label: 'Ring screw hole ' + (k + 1), diameter: d, shape: 'round', dx: mid * Math.cos(a), dy: mid * Math.sin(a) }); }
+    }
+    return { holes: out, problems: probs };
+  }
+  // A closed path cut through in depth passes, ramping in from s0, with
+  // tabs (path-length intervals) on the passes below their top.
+  function profile(L, sg, s0, tabs, o) {
+    var tabTop = tabs.length ? o.depth - o.tabs.height : null, levels = depthLevels(o.depth, o.depthOfCut, tabTop), start = pointAt(sg, s0), prev = 0;
+    L.push('G0 X' + f4(start.x) + ' Y' + f4(start.y));
+    L.push('G0 Z' + f3(o.hop));
+    levels.forEach(function (d) {
+      lap(L, sg, s0, tabTop != null && d > tabTop + 1e-9 ? tabs : [], -d, -tabTop, -prev, o.feedRate, o.plungeFeedRate);
+      prev = d;
+    });
+    L.push('G0 Z' + f3(o.hop));
+  }
   // Tabs on the tips of n teeth spread round the gear (its center at cx,
   // cy): path-length intervals Tab Width plus the bit wide, centered on
   // each tip.
@@ -1412,19 +1521,62 @@ if (typeof module !== 'undefined' && module.exports) {
     var base = { module: o.module, pressureDeg: o.pressureDeg, backlash: o.backlash, clearance: o.clearance, bitRadius: r };
     var which = o.job === 'both' ? ['A', 'B'] : o.job === 'frame' ? [] : [o.job];
     // A typed center distance matters to the frame's holes; one gear, or both side by side, don't mesh.
-    var rack = o.gears.B.kind === 'rack';
-    var info = {}, pr = rack ? G.rackPair(base, o.gears.A.teeth) : G.pair(Object.assign({ centerDistance: o.job === 'frame' ? o.centerDistance : null }, base), o.gears.A.teeth, o.gears.B.teeth);
-    if (pr.problem) problems.push(pr.problem);
+    var rack = o.gears.B.kind === 'rack', ring = o.gears.B.kind === 'ring';
+    var info = {}, pr = rack ? G.rackPair(base, o.gears.A.teeth) : ring ? G.ringPair(base, o.gears.A.teeth, o.gears.B.teeth) : G.pair(Object.assign({ centerDistance: o.job === 'frame' ? o.centerDistance : null }, base), o.gears.A.teeth, o.gears.B.teeth);
+    if (pr.problem && !(ring && o.job === 'A')) problems.push(pr.problem);
+    if (ring && o.job === 'frame') problems.push('Frame Holes is for two gears: the pinion’s axle goes ' + pr.centerDistance.toFixed(3) + ' mm from the ring’s center');
     if (rack && o.job === 'frame') problems.push('Frame Holes is for two gears: mount the rack with its pitch line ' + pr.pitchRadius.toFixed(3) + ' mm from the pinion’s axle');
     ['A', 'B'].forEach(function (k) {
-      info[k] = k === 'B' && rack ? G.makeRack(Object.assign({ teeth: o.gears.B.teeth, height: o.gears.B.rackHeight }, base)) : G.gear(Object.assign({ teeth: o.gears[k].teeth }, base));
-      if (info[k].problem && (which.indexOf(k) >= 0 || (o.job === 'frame' && !rack))) problems.push('Gear ' + k + ': ' + info[k].problem);
+      info[k] = k === 'B' && rack ? G.makeRack(Object.assign({ teeth: o.gears.B.teeth, height: o.gears.B.rackHeight }, base))
+        : k === 'B' && ring ? G.makeRing(Object.assign({ teeth: o.gears.B.teeth, rim: o.gears.B.rim }, base)) : G.gear(Object.assign({ teeth: o.gears[k].teeth }, base));
+      if (info[k].problem && (which.indexOf(k) >= 0 || (o.job === 'frame' && !rack && !ring))) problems.push('Gear ' + k + ': ' + info[k].problem);
       (info[k].notes || []).forEach(function (n) { if (which.indexOf(k) >= 0) notes.push('Gear ' + k + ': ' + n); });
     });
     if (!(o.depth > 0)) problems.push('Total Depth must be more than 0');
     if (!(o.depthOfCut > 0)) problems.push('Depth of Cut must be more than 0');
     if (o.tabs && o.tabs.count > 0 && !(o.tabs.height < o.depth)) problems.push('Tab Height must be less than Total Depth');
-    return { problems: problems, notes: notes, info: info, pair: pr, which: which, base: base, rack: rack };
+    return { problems: problems, notes: notes, info: info, pair: pr, which: which, base: base, rack: rack, ring: ring };
+  }
+
+  // A ring gear: its teeth from inside (the bit's center CW inside the
+  // opening for conventional milling), tabs on the ring's tooth tips so
+  // the middle stays put; then its outside, tabs evenly round it.
+  function cutRing(L, pl, info, sx, sy, o, p, parts) {
+    var b = info.basics, r = o.bitDiameter / 2, cx = pl.x + sx, cy = pl.y + sy, nT = o.tabs && o.tabs.count > 0 ? o.tabs.count : 0;
+    var half = nT ? (o.tabs.width + o.bitDiameter) / 2 : 0;
+    // inside: true for the opening (its path CW, conventional inside); false for the outside (CCW, conventional outside).
+    var place = function (pts, inside) {
+      var path = pts.slice();
+      if (o.direction === 'climb') path.reverse();
+      return path.map(function (q) { return { x: q.x + cx, y: q.y + cy }; });
+    };
+    var nearest = function (sg, x, y) {
+      var bs = 0, bd = Infinity;
+      sg.segs.forEach(function (g) {
+        var dx = g.b.x - g.a.x, dy = g.b.y - g.a.y, l2 = dx * dx + dy * dy, ax = g.a.x - cx, ay = g.a.y - cy;
+        var u = l2 > 0 ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / l2)) : 0, dd = Math.hypot(x - ax - u * dx, y - ay - u * dy);
+        if (dd < bd) { bd = dd; bs = g.at + u * g.len; }
+      });
+      return bs;
+    };
+    var cutOne = function (path, title, at) {
+      var sg = segmentsOf(path), tabs = [];
+      for (var k = 0; k < nT; k++) { var q = at(k); var st = nearest(sg, q.x, q.y); tabs.push([st - half, st + half]); }
+      var q0 = at(nT >= 2 ? 0.5 : -0.25), s0 = nearest(sg, q0.x, q0.y);
+      tabs = mergeTabs(tabs, s0, sg.total);
+      if (tabs.reduce(function (a, iv) { return a + iv[1] - iv[0]; }, 0) > 0.5 * sg.total) { p.problems.push('The ring’s tabs would cover half its edge or more: fewer or narrower tabs'); return; }
+      L.push(comment(title + (tabs.length ? ', ' + tabs.length + ' tabs ' + o.tabs.height + ' mm high' : '')));
+      profile(L, sg, s0, tabs, o);
+      parts.push({ key: 'B', x: cx, y: cy, path: path });
+    };
+    var z = b.z, tipR = b.ri - r;
+    cutOne(place(info.openingPath, true), 'Ring teeth: ' + z + ', from inside', function (k) {
+      var a = (Math.floor(k * z / Math.max(1, nT)) + 0.5) * TAU / z;
+      return { x: tipR * Math.cos(a), y: tipR * Math.sin(a) };
+    });
+    var out = [], R = b.rOut + r, n = Math.max(72, Math.ceil(TAU * R / 0.5));
+    for (var i = 0; i < n; i++) out.push({ x: R * Math.cos(i * TAU / n), y: R * Math.sin(i * TAU / n) });
+    cutOne(place(out, false), 'Ring outside: ' + (2 * b.rOut).toFixed(3) + ' mm across', function (k) { var a = (k + 0.5) * TAU / Math.max(1, nT); return { x: R * Math.cos(a), y: R * Math.sin(a) }; });
   }
 
   // The whole program. All lengths mm, feeds mm/min.
@@ -1445,7 +1597,7 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     var holes = [];
     placed.forEach(function (pl) {
-      var gh = pl.key === 'B' && p.rack ? rackHoles(o.gears.B, p.info.B, o) : gearHoles(o.gears[pl.key], p.info[pl.key], o, 'Gear ' + pl.key);
+      var gh = pl.key === 'B' && p.rack ? rackHoles(o.gears.B, p.info.B, o) : pl.key === 'B' && p.ring ? ringHoles(o.gears.B, p.info.B, o) : gearHoles(o.gears[pl.key], p.info[pl.key], o, 'Gear ' + pl.key);
       gh.problems.forEach(function (q) { p.problems.push(q); });
       pl.holes = gh.holes.map(function (h) { return Object.assign({}, h, { x: pl.x + h.dx, y: pl.y + h.dy, depth: o.depth }); });
     });
@@ -1470,9 +1622,10 @@ if (typeof module !== 'undefined' && module.exports) {
     var sx = 0, sy = 0;
     if (o.origin === 'front-left') { sx = -ext.x0; sy = -ext.y0; }
     var unitNote = o.imperial ? ' (the program is in mm; G20 at the end puts the machine back in inches)' : '';
-    L.push(comment('Gears: ' + (o.job === 'frame' ? 'frame holes' : p.which.map(function (k) { return (k === 'B' && p.rack ? 'a rack of ' : 'Gear ' + k + ' ') + o.gears[k].teeth + ' teeth'; }).join(', '))));
+    L.push(comment('Gears: ' + (o.job === 'frame' ? 'frame holes' : p.which.map(function (k) { return (k === 'B' && p.rack ? 'a rack of ' : k === 'B' && p.ring ? 'a ring gear of ' : 'Gear ' + k + ' ') + o.gears[k].teeth + ' teeth'; }).join(', '))));
     L.push(comment('Module ' + (+o.module.toFixed(4)) + ' mm, ' + o.pressureDeg + ' deg pressure angle, backlash ' + o.backlash + ' mm, tip clearance ' + (+p.info.A.basics.c.toFixed(3)) + ' mm' + (o.clearance == null ? ' (auto)' : '')));
-    L.push(comment(p.rack ? 'Rack and pinion: ' + o.gears.A.teeth + ' teeth on the pinion, the rack ' + p.pair.travel.toFixed(3) + ' mm a turn, its pitch line ' + p.pair.pitchRadius.toFixed(3) + ' mm from the pinion’s axle'
+    L.push(comment(p.ring ? 'Ring and pinion: ' + o.gears.B.teeth + ':' + o.gears.A.teeth + ', the pinion’s axle ' + p.pair.centerDistance.toFixed(3) + ' mm from the ring’s center'
+      : p.rack ? 'Rack and pinion: ' + o.gears.A.teeth + ' teeth on the pinion, the rack ' + p.pair.travel.toFixed(3) + ' mm a turn, its pitch line ' + p.pair.pitchRadius.toFixed(3) + ' mm from the pinion’s axle'
       : 'Pair ' + o.gears.A.teeth + ':' + o.gears.B.teeth + ', center distance ' + p.pair.centerDistance.toFixed(3) + ' mm'));
     L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? 'axle hole A' : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : 'Gear ' + p.which[0] + '’s center'))));
     L.push(comment('Bit ' + o.bitDiameter + ' mm, feed ' + o.feedRate + ' mm/min, plunge ' + o.plungeFeedRate + ' mm/min, ' + o.spindleRpm + ' RPM' + unitNote));
@@ -1491,6 +1644,7 @@ if (typeof module !== 'undefined' && module.exports) {
     placed.forEach(function (pl) {
       var info = p.info[pl.key];
       pl.holes.forEach(function (h) { hole(L, Object.assign({}, h, { x: h.x + sx, y: h.y + sy }), oo); });
+      if (info.kind === 'ring') { cutRing(L, pl, info, sx, sy, o, p, parts); return; }
       var path = G.toolPath(info, r, 0.003).slice();
       // With the spindle turning clockwise (M3), climb milling runs
       // clockwise round the outside of a part; conventional, counter-
@@ -1554,7 +1708,7 @@ if (typeof module !== 'undefined' && module.exports) {
   }
 
   return { generate: generate, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners,
-           boreOutline: boreOutline, boreReach: boreReach, bone: bone, rackHoles: rackHoles, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE };
+           boreOutline: boreOutline, boreReach: boreReach, bone: bone, rackHoles: rackHoles, ringHoles: ringHoles, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE };
 });
 /* END lib/gear-gcode.cjs */</script>
 

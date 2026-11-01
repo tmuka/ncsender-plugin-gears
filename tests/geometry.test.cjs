@@ -135,3 +135,29 @@ test('a rack meshes with its pinion along a whole pitch, never touching', () => 
     assert.ok(gap <= want + 0.01 && gap >= 0.8 * want, `${z}T m${m} ${pa}°: closest ${gap.toFixed(4)}, flank gap ${want.toFixed(4)}`);
   }
 });
+
+test('a ring gear meshes with its pinion, at the fewest teeth more it allows', () => {
+  // Cut from inside, the ring is everything within a bit radius of the bit's
+  // path; each pinion point near the ring must be inside that, to within
+  // 0.02 mm (the outlines' own sampling).
+  for (const [zP, m, pa, B, r] of [[12, 3.5, 20, 0.3, 1.5875], [24, 3.5, 20, 0.3, 1.5875], [30, 5, 14.5, 0.3, 1.5875], [18, 5, 25, 0.3, 1.5875], [24, 7.3, 20, 0.3, 3.175], [40, 2, 20, 0.2, 0.5]]) {
+    const zR = zP + G.RING_DIFF[Math.round(pa * 10)], p = { module: m, pressureDeg: pa, backlash: B, bitRadius: r };
+    const P = G.gear({ ...p, teeth: zP }), R = G.makeRing({ ...p, teeth: zR, rim: 10 });
+    assert.equal(P.problem || R.problem, null);
+    assert.equal(G.ringPair(p, zP, zR).problem, undefined);
+    const cd = (zR - zP) * m / 2, op = G.simplifyClosed(P.outline, 0.002), ring = R.openingPath;
+    let worst = 0;
+    for (let s = 0; s <= 24; s++) {
+      const th = (2 * Math.PI / zP) * s / 24, a = turn(op, th).map((q) => ({ x: q.x + cd, y: q.y })), rt = turn(ring, th * zP / zR);
+      const segs = rt.map((q, i) => [q, rt[(i + 1) % rt.length]]).filter(([u]) => Math.hypot(u.x, u.y) > R.basics.rp - 3 * m);
+      for (const q of a.filter((q) => Math.hypot(q.x, q.y) > R.basics.rp - 2 * m)) {
+        if (inside(q, rt)) continue;
+        let d = Infinity;
+        for (const [u, v] of segs) d = Math.min(d, G.distToSegment(q, u, v));
+        worst = Math.max(worst, d - r);
+      }
+    }
+    assert.ok(worst <= 0.02, `${zP} in ${zR}, m${m} ${pa}° bit ${2 * r}: the pinion goes ${worst.toFixed(3)} mm past the ring's cut`);
+  }
+  assert.match(G.ringPair({ module: 3, pressureDeg: 20 }, 20, 30).problem, /at least 12 more teeth/);
+});

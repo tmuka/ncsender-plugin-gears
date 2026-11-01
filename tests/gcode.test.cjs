@@ -300,3 +300,48 @@ test('a rack: cut a bit radius out from it, tabs on its bottom edge, screw holes
   assert.match(bad({ rackHeight: 0 }), /Rack Height must be more than 0/);
   assert.match(GC.generate({ ...base, job: 'frame', gears: { A: base.gears.A, B: { kind: 'rack', teeth: 12, rackHeight: 12 } } }).problems.join(), /Frame Holes is for two gears/);
 });
+
+test('a ring gear: its teeth cut from inside a bit radius from them, its outside, tabs, screw holes, safe', () => {
+  const r = base.bitDiameter / 2;
+  for (const job of ['B', 'both']) for (const direction of ['conventional', 'climb']) {
+    const o = { ...base, job, direction, gears: { A: { teeth: 18, bore: 8, holes: 0 }, B: { kind: 'ring', teeth: 36, rim: 12, bore: 4, holes: 4 } } };
+    const res = GC.generate(o);
+    assert.deepEqual(res.problems, []);
+    const R = G.makeRing({ module: o.module, pressureDeg: o.pressureDeg, backlash: o.backlash, clearance: o.clearance, bitRadius: r, teeth: 36, rim: 12 });
+    const part = res.parts.find((q) => q.key === 'B'), op = R.opening, oc = op.concat([op[0]]);
+    const moves = run(res.gcode);
+    const inner = moves.filter((m) => /Ring teeth/.test(m.section) && m.g === 1 && m.z < 0);
+    assert.ok(inner.length > 100);
+    // Every bit center inside the opening and a bit radius or more from it (the teeth aren't cut into).
+    for (let i = 0; i < inner.length; i += 3) {
+      const q = { x: inner[i].x - part.x, y: inner[i].y - part.y };
+      let d = Infinity;
+      for (let j = 0; j + 1 < oc.length; j++) d = Math.min(d, G.distToSegment(q, oc[j], oc[j + 1]));
+      assert.ok(d > r - 0.002, `${job} ${direction}: the bit ${(r - d).toFixed(4)} into a ring tooth at ${inner[i].line}`);
+      assert.ok(Math.hypot(q.x, q.y) < R.basics.rRoot, `${job}: outside the opening at ${inner[i].line}`);
+    }
+    // Conventional: CW inside (negative area), climb CCW.
+    const ring = inner.filter((m) => Math.abs(m.z + o.depth) < 1e-6 && Math.abs(m.z0 + o.depth) < 1e-6);
+    const area = ring.reduce((s, m) => s + m.x0 * m.y - m.x * m.y0, 0);
+    assert.ok(direction === 'conventional' ? area < 0 : area > 0, `${job} ${direction}: inside cut the wrong way round`);
+    // The outside: a bit radius out from the rim.
+    const outer = moves.filter((m) => /Ring outside/.test(m.section) && m.g === 1 && m.z < 0);
+    for (const m of outer) assert.ok(Math.abs(Math.hypot(m.x - part.x, m.y - part.y) - (R.basics.rOut + r)) < 0.01, `${job}: outside cut off the rim at ${m.line}`);
+    // Tabs: on the ring's tooth tips inside, and round the outside.
+    const tabTop = o.depth - o.tabs.height;
+    const innerLifts = inner.filter((m) => Math.abs(m.z + tabTop) < 1e-6 && m.z0 < m.z - 1e-6);
+    assert.ok(innerLifts.length >= 3);
+    for (const m of innerLifts) assert.ok(Math.abs(Math.hypot(m.x - part.x, m.y - part.y) - (R.basics.ri - r)) < 1.5 * o.module, `${job}: an inside tab off the tooth tips at ${m.line}`);
+    assert.ok(outer.filter((m) => Math.abs(m.z + tabTop) < 1e-6 && m.z0 < m.z - 1e-6).length >= 3);
+    assert.equal(res.gcode.split('\n').filter((l) => /^\(Ring screw hole/.test(l)).length, 4);
+    for (const m of moves) {
+      assert.ok(m.z >= -o.depth - 1e-6, m.line);
+      if (m.g === 0) assert.ok(m.z >= 0 || (m.x === m.x0 && m.y === m.y0), 'rapid at depth: ' + m.line);
+      if (m.g > 0 && m.z < m.z0 - 1e-6 && m.z < 0) assert.ok(m.f * (m.z0 - m.z) / Math.hypot(m.len, m.z0 - m.z) <= o.plungeFeedRate * 1.02, m.line);
+    }
+  }
+  const bad = (B) => GC.generate({ ...base, job: 'both', gears: { A: { teeth: 18, bore: 8, holes: 0 }, B: { kind: 'ring', teeth: 36, rim: 12, bore: 4, holes: 4, ...B } } }).problems.join(' | ');
+  assert.match(bad({ bore: 11 }), /screw holes don’t fit in its rim/);
+  assert.match(bad({ teeth: 24 }), /at least 12 more teeth/);
+  assert.match(GC.generate({ ...base, job: 'frame', gears: { A: base.gears.A, B: { kind: 'ring', teeth: 36, rim: 12 } } }).problems.join(), /Frame Holes is for two gears/);
+});
