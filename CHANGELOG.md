@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 **Bores for more shafts, and gears spaced to the distance you need.**
 
