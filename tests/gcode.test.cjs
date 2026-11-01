@@ -128,3 +128,51 @@ test('a hex bore: cleared to the flats, a dog-bone reaching each corner, the fra
   assert.match(frame.gcode, /Axle hole A: 14\.66 mm/);
   assert.deepEqual(GC.generate({ ...o, gears: { A: { teeth: 36, bore: 3.2, boreShape: 'hex', holes: 0 }, B: base.gears.B } }).problems, ['Gear A’s Hex Bore must be wider across the flats than the bit']);
 });
+
+test('review fixes: no gouge with Gear B, front-left, or wide tabs; tabs on tips; climb and conventional', () => {
+  const outlineOf = (o, k) => {
+    const g = G.gear({ module: o.module, teeth: o.gears[k].teeth, pressureDeg: o.pressureDeg, backlash: o.backlash, clearance: o.clearance, bitRadius: o.bitDiameter / 2 });
+    const out = G.simplifyClosed(g.outline, 0.001);
+    return { g, oc: out.concat([out[0]]) };
+  };
+  for (const o of [{ ...base, job: 'both' }, { ...base, origin: 'front-left' }, { ...base, tabs: { count: 6, width: 40, height: 1.5 } }, { ...base, tabs: { count: 12, width: 20, height: 1.5 } }]) {
+    const r = GC.generate(o);
+    assert.deepEqual(r.problems, []);
+    for (const part of r.parts) {
+      const { g, oc } = outlineOf(o, part.key);
+      const moves = run(r.gcode).filter((m) => new RegExp('Gear ' + part.key + ' teeth').test(m.section) && m.g === 1 && m.z < 0);
+      for (let i = 0; i < moves.length; i += 5) {
+        const q = { x: moves[i].x - part.x, y: moves[i].y - part.y };
+        let d = Infinity;
+        for (let j = 0; j + 1 < oc.length; j++) d = Math.min(d, G.distToSegment(q, oc[j], oc[j + 1]));
+        assert.ok(d > o.bitDiameter / 2 - 0.0002, `${JSON.stringify({ job: o.job, origin: o.origin, tabs: o.tabs })} Gear ${part.key} gouged ${(o.bitDiameter / 2 - d).toFixed(3)} at ${moves[i].line}`);
+      }
+      // Each tab lift is near a tooth tip of its own gear.
+      const tabTop = o.depth - o.tabs.height, pitch = 2 * Math.PI / g.basics.z;
+      for (const m of moves.filter((m) => Math.abs(m.z + tabTop) < 1e-6 && m.z0 < m.z - 1e-6)) {
+        const x = m.x - part.x, y = m.y - part.y, a = Math.atan2(y, x), off = Math.abs(((a / pitch) % 1 + 1.5) % 1 - 0.5) * pitch * Math.hypot(x, y);
+        assert.ok(off < (o.tabs.width + o.bitDiameter) / 2 + 0.5, `Gear ${part.key} tab ${off.toFixed(2)} mm off a tip`);
+      }
+    }
+  }
+  // Conventional runs counter-clockwise round the outside and clockwise (G2) in holes; climb the other way.
+  const area = (o) => {
+    const mv = run(GC.generate(o).gcode).filter((m) => /Gear A teeth/.test(m.section) && m.g === 1 && Math.abs(m.z + o.depth) < 1e-6);
+    return mv.reduce((s, m) => s + m.x0 * m.y - m.x * m.y0, 0);
+  };
+  assert.ok(area(base) > 0 && area({ ...base, direction: 'climb' }) < 0);
+  assert.match(GC.generate(base).gcode, /\nG2 X/);
+  assert.doesNotMatch(GC.generate(base).gcode, /\nG3 X/);
+  assert.doesNotMatch(GC.generate({ ...base, direction: 'climb' }).gcode, /\nG2 X/);
+  // A bore too big for the gear, and tabs covering too much, are refused.
+  assert.match(GC.generate({ ...base, module: 4, gears: { A: { teeth: 12, bore: 60, holes: 0 }, B: base.gears.B } }).problems.join(), /Bore is too big/);
+  assert.match(GC.generate({ ...base, tabs: { count: 12, width: 50, height: 1.5 } }).problems.join(), /tabs would cover/);
+  // A Tip Clearance under what the bit's rounding needs is refused; blank picks it.
+  assert.match(G.gear({ module: 4, teeth: 30, pressureDeg: 20, backlash: 0.3, clearance: 0.1, bitRadius: 1.5875 }).problem, /Tip Clearance must be at least/);
+  const auto = G.gear({ module: 3.4, teeth: 30, pressureDeg: 20, backlash: 0.3, bitRadius: 1.5875 });
+  assert.ok(auto.basics.c >= auto.basics.cMin && !auto.problem);
+  // The smallest module for a typed clearance cuts, and a bit smaller doesn't.
+  const mm = G.minModule({ pressureDeg: 20, bitRadius: 1.5875, backlash: 0.3, clearance: 1.2 });
+  assert.equal(G.gear({ module: mm * 1.001, teeth: 30, pressureDeg: 20, backlash: 0.3, clearance: 1.2, bitRadius: 1.5875 }).problem, null);
+  assert.ok(G.gear({ module: mm * 0.99, teeth: 30, pressureDeg: 20, backlash: 0.3, clearance: 1.2, bitRadius: 1.5875 }).problem);
+});

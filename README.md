@@ -19,10 +19,11 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   same tooth size and pressure angle mesh.
 - **Teeth your bit can cut.** The bottom of each tooth space is rounded to at least the bit's radius,
   so a round end mill reaches all of it. That sets the smallest teeth a bit can cut, which the Teeth
-  card shows with a link to use it (a 1/8" bit: about 3.4 mm module, Diametral Pitch 7; a 1/4" bit
+  card shows with a link to use it (a 1/8" bit: about 3.2 mm module, Diametral Pitch 7; a 1/4" bit
   twice that). Teeth too small for the bit are refused with what to change.
 - **Clearances for real materials.** **Backlash** (play between the teeth, 0.3 mm by default) and
-  **Tip Clearance** (room at the root, a quarter module by default).
+  **Tip Clearance** (room at the root: blank is a quarter module, or more when the bit's rounding at
+  the root needs it so the other gear's tips clear it; a typed one under that is refused).
 - **Gear bodies:** a **Bore** for the axle, round or **Hex** (sized across the flats, such as 12.7 mm
   for a 1/2" hex shaft, with a small notch in each corner so a sharp-cornered shaft fits), and
   **Lightening Holes** in a ring between the hub and the teeth. Holes are cleared out from the
