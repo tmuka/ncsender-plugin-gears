@@ -420,7 +420,7 @@
           <li><b>Ring Teeth</b> on Gear B's menu makes it a ring with its teeth inside, Gear A its pinion turning inside it, the same way. The ring needs at least 12 more teeth than the pinion at 20° (10 at 25°, 16 at 14.5°). It has a <b>Rim Width</b> outside its teeth, with screw holes (Gear B's Bore and Holes fields); it's cut from inside with tabs on its tooth tips, so the middle stays put, then round its outside.</li>
           <li><b>Rack Teeth</b> on Gear B's menu makes it a straight rack, Gear A its pinion: the same teeth, on a bar <b>Rack Height</b> deep, with screw holes (Gear B's Bore and Holes fields) along it, cut from outside with tabs on its bottom edge. The preview rolls the pinion along it; the facts say how far the rack goes a turn and where to mount it from the pinion's axle. Frame Holes is for two gears.</li>
           <li>Gear B's label menu takes the <b>Ratio A:B</b> instead of its teeth (3 for 3:1): Gear B's teeth are worked out to the nearest whole tooth, with the real ratio shown.</li>
-          <li><b>Start from the Center Distance</b>: type where the axles go, then the <b>Ratio</b> (how it should turn) or <b>Gear A Outside Ø</b> (how big Gear A is), and pick one of the pairs that mesh there: <b>Coarse</b> (fewest, biggest teeth: strongest, easiest to cut), <b>Balanced</b> or <b>Fine</b> (the most teeth the bit can cut: smoother). Each says its teeth, tooth size, pressure angle (20&deg;, or 25&deg; for a small gear when the bit allows), the ratio it really makes, the outside diameters and the biggest bit that cuts it. A tap fills in the Teeth card, where everything can still be changed. A small gear&rsquo;s teeth may be undercut (thin at the root): the list says so; a longer distance gives it more teeth.</li>
+          <li><b>Start from the Center Distance</b>: type where the axles go, then the <b>Ratio</b> (how it should turn) or <b>Gear A Outside Ø</b> (how big Gear A is), and pick one of the pairs that mesh there: <b>Coarse</b> (fewest, biggest teeth: strongest, easiest to cut), <b>Balanced</b> or <b>Fine</b> (the most teeth the bit can cut: smoother). Each says its teeth, tooth size, pressure angle (20&deg;, or 25&deg; for a small gear when the bit allows), the ratio it really makes, the outside diameters and the biggest bit that cuts it. Typing in the card picks Balanced (or the kind you last tapped) straight away, filling in the Teeth card so the gears always mesh at that distance; tap another to change it. A blank Ratio is the one the teeth make now. Everything in the Teeth card can still be changed. A small gear&rsquo;s teeth may be undercut (thin at the root): the list says so; a longer distance gives it more teeth.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
@@ -2098,17 +2098,29 @@ if (typeof module !== 'undefined' && module.exports) {
       (exact ? '' : ' (the nearest whole tooth; try other teeth on Gear A for an exact ratio)') + '.';
   }
   // Start from the Center Distance: the pairs that mesh there, from the
-  // ratio or Gear A's size, coarse to fine, to tap. A tap fills the Teeth
-  // card (teeth, tooth size, pressure angle), where it can still be changed.
+  // ratio or Gear A's size, coarse to fine. Typing in this card picks one
+  // straight away (Balanced, or the kind last tapped), so the Teeth card
+  // always meshes at the distance; a tap picks another. The Teeth card can
+  // still be changed by hand. A blank Ratio is the one the teeth make now.
   function showSolutions(s, errs) {
     var byRatio = $('gr-design-by').value === 'ratio';
     $('gr-design-ratio').hidden = !byRatio; $('gr-design-od').hidden = byRatio;
     var box = $('gr-solutions');
-    if (isRack() || isRing()) { box.innerHTML = ''; return; }
+    if (isRack() || isRing()) { box.innerHTML = ''; state.autoPick = false; return; }
     var given = byRatio ? 'gr-design-ratio' : 'gr-design-od';
-    if (errs['gr-cd'] || errs[given]) { box.innerHTML = ''; return; }
-    var r = G.solvePairs({ centerDistance: s['gr-cd'], byRatio: byRatio, ratio: byRatio ? s['gr-design-ratio'] : null, outsideA: byRatio ? null : s['gr-design-od'],
+    if (errs['gr-cd'] || errs[given]) { box.innerHTML = ''; state.autoPick = false; return; }
+    var nowRatio = s['gr-teeth-a'] > 0 && s['gr-teeth-b'] > 0 && !errs['gr-teeth-a'] && !errs['gr-teeth-b'] ? s['gr-teeth-a'] / s['gr-teeth-b'] : null;
+    $('gr-design-ratio').placeholder = nowRatio ? parseFloat(nowRatio.toFixed(3)) + ' (as now)' : '';
+    var ratio = byRatio ? (s['gr-design-ratio'] > 0 ? s['gr-design-ratio'] : nowRatio) : null;
+    var r = G.solvePairs({ centerDistance: s['gr-cd'], byRatio: byRatio, ratio: ratio, outsideA: byRatio ? null : s['gr-design-od'],
       bitRadius: (s['gr-bit'] || 0) / 2, backlash: s['gr-backlash'] || 0, clearance: s['gr-clearance'] != null && !errs['gr-clearance'] ? s['gr-clearance'] : undefined });
+    var auto = state.autoPick;
+    state.autoPick = false;
+    if (auto && r.options) {
+      var want = r.options.filter(function (o) { return o.kind === (state.designKind || 'balanced'); })[0] || r.options[Math.floor((r.options.length - 1) / 2)];
+      var meshes = s['gr-teeth-a'] === want.teethA && s['gr-teeth-b'] === want.teethB && Math.abs(moduleFromSize() - want.module) < 1e-6;
+      if (!meshes) { applySolution(want, s['gr-cd']); return; }
+    }
     if (r.problem) {
       box.innerHTML = '<span class="gr-hint">' + (/^(a |Gear)/.test(r.problem) ? 'Type ' + esc(r.problem) + ' to see the pairs that mesh at that distance.' :
         'None fits: the ' + show(s['gr-bit']) + ' ' + state.unit + ' bit is too big for teeth that small, or the distance too short for the ratio.') + '</span>';
@@ -2122,11 +2134,11 @@ if (typeof module !== 'undefined' && module.exports) {
       return '<button type="button" class="gr-solution' + (picked ? ' gr-picked' : '') + '">' +
         '<span class="gr-solution-kind">' + { coarse: 'Coarse', balanced: 'Balanced', fine: 'Fine' }[o.kind] + '</span>' +
         '<span><b>' + o.teethA + ' and ' + o.teethB + ' teeth</b>, ' + SIZE_NAMES[mode] + ' ' + sizeText(o.module, mode) + (mode === 'cp' ? u : '') + ', ' + o.pressureDeg + '&deg;</span>' +
-        '<span class="gr-solution-more">' + turn(o.ratio) + (byRatio && Math.abs(o.ratio - s['gr-design-ratio']) < 1e-9 ? ' exactly' : '') +
+        '<span class="gr-solution-more">' + turn(o.ratio) + (byRatio && Math.abs(o.ratio - ratio) < 1e-9 ? ' exactly' : '') +
         ', &Oslash;' + show(o.outsideA) + ' and &Oslash;' + show(o.outsideB) + u + ', bit up to ' + show(o.maxBit) + u +
         (o.undercut ? '; ' + small + '&rsquo;s teeth are undercut (thin at the root)' : '') + '</span></button>';
-    }).join('') + '<span class="gr-hint">' + (r.options.length > 1 ? 'Coarse: fewer, bigger teeth (strongest, easiest to cut). Fine: more, smaller teeth (smoother). ' : '') + 'A tap fills in the Teeth card below.</span>';
-    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { applySolution(r.options[i], s['gr-cd']); }); });
+    }).join('') + '<span class="gr-hint">' + (r.options.length > 1 ? 'Coarse: fewer, bigger teeth (strongest, easiest to cut). Fine: more, smaller teeth (smoother). ' : '') + 'The one picked fills in the Teeth card below; tap another to change it.</span>';
+    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { state.designKind = r.options[i].kind; applySolution(r.options[i], s['gr-cd']); }); });
   }
   function applySolution(o, cd) {
     if ($('gr-b-mode').value === 'ratio') { $('gr-b-mode').value = 'teeth'; fitLabelSelects(); }
@@ -2799,6 +2811,7 @@ if (typeof module !== 'undefined' && module.exports) {
     $('gr-close').addEventListener('click', function () { save(true); window.postMessage({ type: 'close-plugin-dialog' }, '*'); });
     ROOT.addEventListener('input', function (e) {
       if (e.target.id === 'gr-turn') { state.turn = +e.target.value; spin(); return; }
+      if (/^gr-(cd|design-ratio|design-od)$/.test(e.target.id)) state.autoPick = true;
       if (/^gr-(rpm|feed|plunge|step|frame-step)$/.test(e.target.id) && e.isTrusted) state.feedsAuto = false;
       touch();
     });
@@ -2816,6 +2829,7 @@ if (typeof module !== 'undefined' && module.exports) {
         if (m > 0) writeSize(m); else if (state.size) state.size.mode = $('gr-size-mode').value;
       }
       if (id === 'gr-size') e.target.dataset.touched = '1';
+      if (id === 'gr-design-by') state.autoPick = true;
       if (e.target.classList.contains('gr-label-select')) fitLabelSelects();
       if (/^gr-bore-(shape-)?[ab]$|^gr-holes-(style-)?[ab]$/.test(id)) boreExtras(/^gr-bore-/.test(id));
       if (id === 'gr-b-mode' && $('gr-b-mode').value === 'ratio' && read('gr-teeth-a') > 0 && read('gr-teeth-b') > 0) write('gr-ratio', parseFloat((read('gr-teeth-a') / read('gr-teeth-b')).toFixed(4)));
