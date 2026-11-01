@@ -42,3 +42,9 @@ UI: the test kit at `~/Documents/projects/ncsender-plugin-testkit` (its README i
 (`pi.sh debug`, `pi.sh tunnel`, `connectPi`, `openPlugin(page, 'com.tmuka.gears', 'Gears', '.gr-nav')`);
 speed with `frozen` / `profile`. On the Pi (0.1.0, warm, measured 2026-11-01 with a 2.5 s settle so the run note is included): opening ~270 ms (the first open after a restart ~550 ms); a new tooth count ~100-170 ms; Animate ~33 fps. Most of opening is the two gears and their paths (`spaceWidth`, `trimLoops`). Gears and their bit paths are kept for reuse (`gear`, `toolPath`), since the preview, the run note and Generate ask for the same ones; the run note's `programMinutes` scans the program by hand (a pair is ~40,000 lines). Install
 a test build on the Pi: `curl -F plugin=@dist/<zip> http://<pi>:8090/api/plugins/install`.
+
+**Releasing:** bump `version` in both `manifest.json` and `package.json`, add `## <version>` to CHANGELOG.md
+(optionally `## <version>: <a few words>`, which become the release title), commit, then tag `v<version>` and
+push the tag. `.github/workflows/release.yml` runs the tests, checks the tag matches the manifest, builds the zip
+with `.scripts/build.sh`, publishes the release with that CHANGELOG section, and announces it on Discord when the
+repo has a `DISCORD_WEBHOOK_URL` secret.
