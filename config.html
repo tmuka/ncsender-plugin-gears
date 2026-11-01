@@ -481,8 +481,8 @@ if (typeof module !== 'undefined' && module.exports) {
       w.push(0);
     }
     var poly = rackPolygon(b, rk);
-    var S = Math.sqrt(Math.max(0, b.ra * b.ra - b.rf * b.rf)) + rk.hwTop + 2 * b.m;
-    var ds = Math.max(b.m / 200, 0.002), nt = Math.ceil(2 * S / ds);
+    var S = Math.sqrt(Math.max(0, b.ra * b.ra - b.rf * b.rf)) + rk.hwTop + 0.5 * b.m;
+    var ds = Math.max(b.m / 100, 0.002), nt = Math.ceil(2 * S / ds);
     var gx = new Float64Array(poly.length), gy = new Float64Array(poly.length);
     for (var s = 0; s <= nt; s++) {
       var shift = -S + 2 * S * s / nt, t = shift / b.rp, ct = Math.cos(-t), st = Math.sin(-t);
@@ -527,7 +527,27 @@ if (typeof module !== 'undefined' && module.exports) {
   // The gear's outline, counter-clockwise, tooth 0 centered on +X, with
   // what it says about the design. `problem` is set (and the outline may be
   // missing) when it can't be cut as asked.
+  // The last few gears worked out, as the preview, the run note and
+  // Generate ask for the same ones.
+  var kept = [];
   function gear(p) {
+    var key = JSON.stringify([p.module, p.teeth, p.pressureDeg, p.backlash || 0, p.clearance, p.bitRadius || 0]);
+    for (var i = 0; i < kept.length; i++) if (kept[i].key === key) return kept[i].g;
+    var g = makeGear(p);
+    kept.unshift({ key: key, g: g });
+    if (kept.length > 6) kept.pop();
+    return g;
+  }
+  // The bit's path round a gear, kept with the gear: offset tol farther
+  // out, then simplified to within tol, so a chord never cuts into the
+  // gear (it's between r and r + 2 tol from it).
+  function toolPath(g, r, tol) {
+    g.paths = g.paths || {};
+    var k = r + '|' + tol;
+    if (!g.paths[k]) g.paths[k] = simplifyClosed(offsetOutward(simplifyClosed(g.outline, 0.0005), r + tol + 0.0005), tol);
+    return g.paths[k];
+  }
+  function makeGear(p) {
     var b = basics(p);
     var out = { basics: b, problem: null, notes: [] };
     if (!(b.m > 0) || !(b.z >= 4) || Math.round(b.z) !== b.z) { out.problem = 'teeth must be a whole number, 4 or more, and the tooth size more than 0'; return out; }
@@ -646,7 +666,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // crossing joins them. Loops from an offset are local, so only the next
   // `window` segments are looked at.
   function trimLoops(path, window) {
-    window = window || 800;
+    window = window || 300;
     var p = path.slice(), changed = true, guard = 0;
     while (changed && guard++ < 20) {
       changed = false;
@@ -706,7 +726,7 @@ if (typeof module !== 'undefined' && module.exports) {
     return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
   }
 
-  return { basics: basics, rack: rack, gear: gear, minModule: minModule, friendlyModule: friendlyModule, pair: pair,
+  return { basics: basics, rack: rack, gear: gear, toolPath: toolPath, minModule: minModule, friendlyModule: friendlyModule, pair: pair,
            offsetOutward: offsetOutward, trimLoops: trimLoops, simplify: simplify, simplifyClosed: simplifyClosed, distToSegment: distToSegment, MODULES: MODULES };
 });
 /* END lib/gear-geometry.cjs */</script>
@@ -989,8 +1009,7 @@ if (typeof module !== 'undefined' && module.exports) {
     placed.forEach(function (pl) {
       var info = p.info[pl.key];
       pl.holes.forEach(function (h) { hole(L, Object.assign({}, h, { x: h.x + sx, y: h.y + sy }), oo); });
-      var path = G.offsetOutward(G.simplifyClosed(info.outline, 0.001), r);
-      path = G.simplifyClosed(path, 0.002);
+      var path = G.toolPath(info, r, 0.003).slice();
       // Conventional milling on an outside cut runs clockwise round the part.
       if (o.direction !== 'climb') path.reverse();
       path = path.map(function (q) { return { x: q.x + pl.x + sx, y: q.y + pl.y + sy }; });
@@ -1153,7 +1172,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var g = G.gear(p);
     if (!g.problem) {
       g.draw = G.simplifyClosed(g.outline, Math.max(0.01, o.module / 200));
-      g.path = G.simplifyClosed(G.offsetOutward(G.simplifyClosed(g.outline, 0.002), p.bitRadius), 0.01);
+      g.path = G.simplifyClosed(G.toolPath(g, p.bitRadius, 0.003), 0.02);
     }
     state.cache[key] = { k: k, v: g };
     return g;
@@ -1300,31 +1319,46 @@ if (typeof module !== 'undefined' && module.exports) {
     note.classList.toggle('gr-bad-note', !!bad);
     if (p.bad.length) { note.textContent = 'Fix ' + (p.bad.length === 1 ? 'one field' : p.bad.length + ' fields') + ' to generate; Generate points ' + (p.bad.length === 1 ? 'it' : 'them') + ' out.'; return; }
     if (p.res.problems.length) { note.textContent = p.res.problems[0].charAt(0).toUpperCase() + p.res.problems[0].slice(1) + '.'; return; }
-    var lines = p.res.gcode.split('\n'), min = programMinutes(lines, state.maxFeedMm || 3000), e = p.res.extent;
+    var min = programMinutes(p.res.gcode, state.maxFeedMm || 3000), e = p.res.extent;
     note.textContent = 'About ' + (min < 1.5 ? '1 min' : Math.round(min) + ' min') + '. Cuts ' + show(e.x1 - e.x0) + ' × ' + show(e.y1 - e.y0) + ' ' + state.unit + '.';
   }
-  var WORD_RE = /(?:^|\s)([A-Z])(-?[\d.]+)/g;
-  function lineWords(line) { var w = {}, m; WORD_RE.lastIndex = 0; while ((m = WORD_RE.exec(line))) if (!(m[1] in w)) w[m[1]] = +m[2]; return w; }
-  function programMinutes(lines, rapid) {
-    var p = { x: 0, y: 0, z: 0 }, f = 1000, min = 0;
-    lines.forEach(function (line) {
-      line = line.split(';')[0];
-      var g = /^G([0-4])\b/.exec(line);
-      if (!g || /G53/.test(line)) return;
-      var w = lineWords(line), v = function (k, dflt) { return k in w ? w[k] : dflt; };
-      if (g[1] === '4') { min += v('P', 0) / 60; return; }
-      if (w.F) f = w.F;
-      var q = { x: v('X', p.x), y: v('Y', p.y), z: v('Z', p.z) }, len;
-      if (g[1] === '2' || g[1] === '3') {
-        var cx = p.x + v('I', 0), cy = p.y + v('J', 0), rr = Math.hypot(p.x - cx, p.y - cy);
-        var a = Math.atan2(q.y - cy, q.x - cx) - Math.atan2(p.y - cy, p.x - cx);
-        if (g[1] === '3' && a <= 0) a += 2 * Math.PI;
-        if (g[1] === '2' && a >= 0) a -= 2 * Math.PI;
-        len = Math.hypot(rr * Math.abs(a), q.z - p.z);
-      } else len = Math.hypot(q.x - p.x, q.y - p.y, q.z - p.z);
-      min += len / (g[1] === '0' ? rapid : f);
-      p = q;
-    });
+  // Roughly how long a program runs, in minutes: each move at its feed
+  // (rapids at the machine's max), dwells, arcs by their length. Reads
+  // each line once, by hand: programs run to tens of thousands of lines.
+  function programMinutes(text, rapid) {
+    var x = 0, y = 0, z = 0, f = 1000, min = 0, i = 0, n = text.length;
+    while (i < n) {
+      var e = text.indexOf('\n', i); if (e < 0) e = n;
+      if (text.charCodeAt(i) === 71) {
+        var g = -1, X = x, Y = y, Z = z, I = 0, J = 0, P = 0, F = 0, j = i;
+        while (j < e) {
+          var c = text[j];
+          if (c === ';' || c === '(') break;
+          if (c >= 'A' && c <= 'Z') {
+            var k = j + 1; while (k < e && text[k] !== ' ') k++;
+            var v = +text.slice(j + 1, k);
+            if (c === 'G' && g < 0 && v <= 4) g = v; else if (c === 'G' && v === 53) { g = -2; break; }
+            else if (c === 'X') X = v; else if (c === 'Y') Y = v; else if (c === 'Z') Z = v;
+            else if (c === 'I') I = v; else if (c === 'J') J = v; else if (c === 'P') P = v; else if (c === 'F') F = v;
+            j = k;
+          } else j++;
+        }
+        if (F) f = F;
+        if (g === 4) min += P / 60;
+        else if (g >= 0) {
+          var len;
+          if (g === 2 || g === 3) {
+            var cx = x + I, cy = y + J, rr = Math.hypot(I, J), a = Math.atan2(Y - cy, X - cx) - Math.atan2(y - cy, x - cx);
+            if (g === 3 && a <= 0) a += 2 * Math.PI;
+            if (g === 2 && a >= 0) a -= 2 * Math.PI;
+            len = Math.hypot(rr * Math.abs(a), Z - z);
+          } else len = Math.hypot(X - x, Y - y, Z - z);
+          min += len / (g === 0 ? rapid : f);
+          x = X; y = Y; z = Z;
+        }
+      }
+      i = e + 1;
+    }
     return min;
   }
 

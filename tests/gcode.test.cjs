@@ -58,7 +58,7 @@ test('the teeth are cut a bit radius out from the gear, never into it', () => {
     for (let i = 0; i < teeth.length; i += 7) {
       let d = Infinity;
       for (let j = 0; j + 1 < oc.length; j++) d = Math.min(d, G.distToSegment(teeth[i], oc[j], oc[j + 1]));
-      assert.ok(d > 1.5875 - 0.003, `cut ${d.toFixed(4)} from the gear at ${teeth[i].line}`);
+      assert.ok(d > 1.5875 - 0.0002 && d < 1.5875 + 0.01, `cut ${d.toFixed(4)} from the gear at ${teeth[i].line}`);
     }
   }
 });
