@@ -263,3 +263,40 @@ test('spoke windows: cleared to their rounded edges, the spokes and hub left who
   }
   assert.match(GC.generate({ ...base, gears: { A: { teeth: 36, bore: 8, holes: 12, holeStyle: 'spokes', spokeWidth: 26 }, B: base.gears.B } }).problems.join(), /spoke windows are too narrow/);
 });
+
+test('a rack: cut a bit radius out from it, tabs on its bottom edge, screw holes in its bar, safe', () => {
+  const r = base.bitDiameter / 2;
+  for (const job of ['B', 'both']) for (const direction of ['conventional', 'climb']) {
+    const o = { ...base, job, direction, gears: { A: { teeth: 18, bore: 8, holes: 0 }, B: { kind: 'rack', teeth: 12, rackHeight: 12, bore: 4, holes: 3 } } };
+    const res = GC.generate(o);
+    assert.deepEqual(res.problems, []);
+    const part = res.parts.find((q) => q.key === 'B'), R = G.makeRack({ module: o.module, pressureDeg: o.pressureDeg, backlash: o.backlash, clearance: o.clearance, bitRadius: r, teeth: 12, height: 12 });
+    const out = G.simplifyClosed(R.outline, 0.001), oc = out.concat([out[0]]);
+    const moves = run(res.gcode);
+    const teeth = moves.filter((m) => /Rack teeth/.test(m.section) && m.g === 1 && m.z < 0);
+    assert.ok(teeth.length > 100);
+    for (let i = 0; i < teeth.length; i += 3) {
+      const q = { x: teeth[i].x - part.x, y: teeth[i].y - part.y };
+      let d = Infinity;
+      for (let j = 0; j + 1 < oc.length; j++) d = Math.min(d, G.distToSegment(q, oc[j], oc[j + 1]));
+      assert.ok(d > r - 0.0002 && d < r + 0.01, `${job} ${direction}: cut ${d.toFixed(4)} from the rack at ${teeth[i].line}`);
+    }
+    // Tabs: lifts on the bottom edge only.
+    const tabTop = o.depth - o.tabs.height, lifts = teeth.filter((m) => Math.abs(m.z + tabTop) < 1e-6 && m.z0 < m.z - 1e-6);
+    assert.ok(lifts.length >= 3);
+    for (const m of lifts) assert.ok(Math.abs(m.y - part.y - (R.basics.bottom - r)) < 0.01, `${job}: a tab off the bottom edge at ${m.line}`);
+    // Screw holes in the bar, under the roots.
+    const holes = res.gcode.split('\n').filter((l) => /^\(Rack screw hole/.test(l));
+    assert.equal(holes.length, 3);
+    // Nothing below Total Depth, no rapids at depth, Z no faster than the Plunge Rate.
+    for (const m of moves) {
+      assert.ok(m.z >= -o.depth - 1e-6, m.line);
+      if (m.g === 0) assert.ok(m.z >= 0 || (m.x === m.x0 && m.y === m.y0), 'rapid at depth: ' + m.line);
+      if (m.g > 0 && m.z < m.z0 - 1e-6 && m.z < 0) assert.ok(m.f * (m.z0 - m.z) / Math.hypot(m.len, m.z0 - m.z) <= o.plungeFeedRate * 1.02, m.line);
+    }
+  }
+  const bad = (B) => GC.generate({ ...base, job: 'B', gears: { A: base.gears.A, B: { kind: 'rack', teeth: 12, rackHeight: 12, bore: 4, holes: 3, ...B } } }).problems.join(' | ');
+  assert.match(bad({ bore: 11 }), /screw holes don’t fit in its bar/);
+  assert.match(bad({ rackHeight: 0 }), /Rack Height must be more than 0/);
+  assert.match(GC.generate({ ...base, job: 'frame', gears: { A: base.gears.A, B: { kind: 'rack', teeth: 12, rackHeight: 12 } } }).problems.join(), /Frame Holes is for two gears/);
+});

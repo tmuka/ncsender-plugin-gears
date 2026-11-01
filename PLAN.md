@@ -67,7 +67,7 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
 
 ## Later versions
 
-- **0.2: more gear types.** Internal (ring) gear and rack; compound gears (two gears on one hub, for gear
+- **0.2: more gear types.** Rack (done after 0.2.0); internal (ring) gear; compound gears (two gears on one hub, for gear
   trains); a gear train designer (chain several pairs to a target ratio, e.g. 60:1 for a clock).
 - **0.3: pin and lantern gears.** Wandel's favorite for wooden clocks: pins (dowels) in a lantern pinion,
   cycloidal teeth on the wheel; drill-hole output for the pins.

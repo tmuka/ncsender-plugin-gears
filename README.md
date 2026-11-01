@@ -37,6 +37,12 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   on tooth tips, where they're easy to sand off. Conventional or Climb.
 - **Both gears in one program**, side by side with a **Gap Between**, or either one; X0 Y0 at the
   gear's center or the front-left corner of the cuts.
+- **Rack and pinion:** Gear B's menu can make it a straight **rack** with that many teeth, Gear A
+  its pinion: the same tooth size, pressure angle, backlash and bit-rounded roots, on a bar **Rack
+  Height** deep under the teeth, with screw holes along it (Gear B's Bore and Holes fields become
+  the screw holes' size and count). It's cut from outside with tabs on its flat bottom edge. The
+  preview rolls the pinion along it, and the facts give the rack's travel a turn and where to mount
+  it: its pitch line and bottom edge from the pinion's axle.
 - **Ratio:** Gear B's field can take the ratio A:B instead of its teeth (3 for 3:1); Gear B's teeth
   are worked out to the nearest whole tooth and the real ratio shown.
 - **Center Distance:** blank is the gears' own. Type the distance the axles must be and either

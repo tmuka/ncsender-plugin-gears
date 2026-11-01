@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### ✨ New
+- **Rack and pinion:** Gear B's menu can make it a **rack** of N teeth, with Gear A as its pinion: the
+  rack's straight teeth match the gears' (backlash shared, roots rounded to the bit), on a bar **Rack
+  Height** deep with screw holes along it, cut from outside with tabs on its bottom edge. The preview
+  rolls the pinion along it; the facts give the rack's travel a turn and where to mount it from the
+  pinion's axle.
+
 ## 0.2.0
 
 **Bores for more shafts, and gears spaced to the distance you need.**

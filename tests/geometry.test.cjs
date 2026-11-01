@@ -111,3 +111,27 @@ test('at the closest center distance allowed, the teeth still clear', () => {
     }
   }
 });
+
+test('a rack meshes with its pinion along a whole pitch, never touching', () => {
+  for (const [z, m, pa, B, r] of [[18, 3.5, 20, 0.3, 1.5875], [12, 4, 20, 0.3, 1.5875], [10, 6, 25, 0.4, 1.5875], [24, 2, 14.5, 0.2, 0.4]]) {
+    const p = { module: m, pressureDeg: pa, backlash: B, bitRadius: r };
+    const P = G.gear({ ...p, teeth: z }), R = G.makeRack({ ...p, teeth: 12, height: 8 });
+    assert.equal(P.problem || R.problem, null);
+    const rp = m * z / 2, xs = 6 * Math.PI * m, op = G.simplifyClosed(P.outline, 0.001), orr = G.simplifyClosed(R.outline, 0.001);
+    let gap = Infinity;
+    for (let s = -12; s <= 12; s++) {
+      const th = (2 * Math.PI / z) * s / 24;
+      // The pinion over a space with a tooth pointing down, rolling: the rack moves rp θ.
+      const a = turn(op, -Math.PI / 2 + th).map((q) => ({ x: q.x + xs, y: q.y + rp }));
+      const b = orr.map((q) => ({ x: q.x + rp * th, y: q.y }));
+      const nearA = a.filter((q) => q.y < m + 0.5), nearB = b.filter((q) => q.y > -m - 1 && Math.abs(q.x - xs) < 3 * m * Math.PI);
+      for (const q of nearA) assert.ok(!inside(q, b), `${z}T rack: overlap at step ${s}`);
+      for (const q of nearB) assert.ok(!inside(q, a), `${z}T rack: overlap at step ${s}`);
+      for (const q of nearA) for (let i = 0; i + 1 < nearB.length; i++) if (Math.abs(nearB[i].x - q.x) < 5) gap = Math.min(gap, G.distToSegment(q, nearB[i], nearB[i + 1]));
+    }
+    // On the flanks the gap is the backlash's; the rack's sharp tip corner
+    // passes the pinion's rounded root a little closer, never touching.
+    const want = B * Math.cos(pa * Math.PI / 180) / 2;
+    assert.ok(gap <= want + 0.01 && gap >= 0.8 * want, `${z}T m${m} ${pa}°: closest ${gap.toFixed(4)}, flank gap ${want.toFixed(4)}`);
+  }
+});
