@@ -75,6 +75,22 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
 - Profile shift for small pinions; helical gears are out of scope for a 3-axis router.
 - Optional printable template (SVG) for anyone cutting on a bandsaw.
 
+## Next: start from the center distance (idea, 2026-11-01)
+
+The user found picking the tooth size (module, circular pitch), pressure angle and backlash first unfriendly.
+Keep them all, but lead with what a builder knows:
+
+- **Center Distance first.** The first field is the distance between the axles. Teeth for Gear A and
+  Gear B (or one count plus the ratio), and the tooth size fills itself to mesh at that distance: module =
+  2 × distance / (teeth A + teeth B), or the nearest standard size with the gap taken up as backlash.
+  Pressure angle 20°, backlash and clearance keep their defaults, under an "Advanced" fold.
+- **Or a gear's size first.** Type Gear A's or Gear B's outside (or pitch) diameter instead, and the
+  other values follow from it and the teeth.
+- **In the preview.** Draggable handles on the picture: drag Gear B's center to set the center
+  distance, drag a gear's edge to set its diameter, with the value shown beside the handle and a tap to
+  type it. The fields and the picture stay in step. Touch-sized handles for the Pi.
+- Whatever is typed last wins; the others show as filled (greyed "auto") until typed over.
+
 ## How it's built
 
 Same pattern as QuickCut and Spoilboard Toolbox, so it's familiar and testable:
