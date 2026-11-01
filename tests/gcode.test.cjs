@@ -36,7 +36,7 @@ function run(gcode) {
 
 test('nothing below Total Depth, no rapids at depth, Z never faster than the Plunge Rate', () => {
   for (const o of [base, { ...base, job: 'both' }, { ...base, job: 'frame' }, { ...base, gears: { A: { teeth: 12, bore: 3.175, holes: 0 }, B: base.gears.B }, module: 4 }, { ...base, gears: { A: { teeth: 36, bore: 12.7, boreShape: 'hex', holes: 5 }, B: base.gears.B } },
-    { ...base, direction: 'climb', gears: { A: { teeth: 36, bore: 14, boreShape: 'dflat', flat: 12, holes: 5 }, B: { teeth: 18, bore: 10, boreShape: 'keyway', keyWidth: 3.2, keyDepth: 1.5 } }, job: 'both' }]) {
+    { ...base, direction: 'climb', gears: { A: { teeth: 36, bore: 14, boreShape: 'dflat', flat: 12, holes: 5 }, B: { teeth: 18, bore: 10, boreShape: 'keyway', keyWidth: 3.3, keyDepth: 1.5 } }, job: 'both' }]) {
     const r = GC.generate(o);
     assert.deepEqual(r.problems, []);
     for (const m of run(r.gcode)) {
@@ -219,7 +219,7 @@ test('a D bore and a keyed bore: cleared to their edges, never past, notches rea
   const bad = (g) => GC.generate({ ...base, gears: { A: { teeth: 36, bore: 14, holes: 0, ...g }, B: base.gears.B } }).problems.join(' | ');
   assert.match(bad({ boreShape: 'dflat', flat: 14 }), /Across the Flat must be less than the bore/);
   assert.match(bad({ boreShape: 'dflat', flat: 3 }), /Across the Flat must be more than the bit/);
-  assert.match(bad({ boreShape: 'keyway', keyWidth: 2, keyDepth: 2 }), /Key Width must be at least the bit/);
+  assert.match(bad({ boreShape: 'keyway', keyWidth: 3.2, keyDepth: 2 }), /Key Width must be a little more than the bit/);
   assert.match(bad({ boreShape: 'keyway', keyWidth: 4, keyDepth: 0 }), /Key Depth must be more than 0/);
 });
 
@@ -229,9 +229,12 @@ test('a typed center distance: frame holes at it, the range that works, refused 
   assert.deepEqual(res.problems, []);
   assert.ok(res.holes.some((h) => Math.abs(h.x - (nat + 0.5)) < 1e-9));
   const pr = G.pair({ ...base, centerDistance: nat + 0.5 }, 36, 18);
-  assert.ok(Math.abs(pr.backlash - (0.3 + 2 * 0.5 * Math.tan(20 * Math.PI / 180))) < 1e-9 && pr.contactRatio < G.pair(base, 36, 18).contactRatio);
-  assert.match(GC.generate({ ...base, centerDistance: nat - 1 }).problems.join(), /too close/);
-  assert.match(GC.generate({ ...base, centerDistance: nat + 10 }).problems.join(), /too far/);
+  assert.ok(pr.backlash > 0.3 + 2 * 0.5 * Math.tan(20 * Math.PI / 180) && pr.contactRatio < G.pair(base, 36, 18).contactRatio);
+  const frame = { ...base, job: 'frame', depth: 19, depthOfCut: 3 };
+  assert.match(GC.generate({ ...frame, centerDistance: nat - 1 }).problems.join(), /too close/);
+  assert.match(GC.generate({ ...frame, centerDistance: nat + 10 }).problems.join(), /too far/);
+  // A single gear, or both side by side, don't mesh: a typed distance doesn't stop them.
+  assert.deepEqual(GC.generate({ ...base, centerDistance: nat + 10 }).problems, []);
 });
 
 test('spoke windows: cleared to their rounded edges, the spokes and hub left whole', () => {

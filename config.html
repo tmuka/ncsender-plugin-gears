@@ -714,17 +714,24 @@ if (typeof module !== 'undefined' && module.exports) {
       var ap = Math.acos(Math.min(1, cd0 * Math.cos(a) / cd)), rbA = rA * Math.cos(a), rbB = rB * Math.cos(a);
       return (Math.sqrt(Math.pow(rA + m, 2) - rbA * rbA) + Math.sqrt(Math.pow(rB + m, 2) - rbB * rbB) - cd * Math.sin(ap)) / (Math.PI * m * Math.cos(a));
     };
+    // Backlash round the pitch circle at a working distance: the involute
+    // function's growth with the working pressure angle.
+    var inv = function (x) { return Math.tan(x) - x; };
+    var backlashAt = function (cd) { return B + 2 * cd0 * (inv(Math.acos(Math.min(1, cd0 * Math.cos(a) / cd))) - inv(a)); };
     var out = { naturalDistance: cd0, centerDistance: cd0, ratio: zA / zB, contactRatio: contactAt(cd0), backlash: B, spread: 0 };
-    // Closer: down to 0.05 mm of backlash left. Wider: while 1.1 teeth stay in contact.
-    out.minDistance = cd0 - Math.max(0, B - 0.05) / (2 * Math.tan(a));
+    // Closer: down to 0.05 mm of backlash left, and no more than the tip
+    // clearance has to spare over what the bit's root rounding needs.
+    // Wider: while 1.1 teeth stay in contact.
+    var c = p.clearance != null ? p.clearance : Math.max(0.25 * m, minClearance(m, p.pressureDeg, p.bitRadius));
+    out.minDistance = cd0 - Math.max(0, Math.min(Math.max(0, B - 0.05) / (2 * Math.tan(a)), c - minClearance(m, p.pressureDeg, p.bitRadius)));
     var lo = cd0, hi = cd0 + 2 * m;
     for (var i = 0; i < 50; i++) { var mid = (lo + hi) / 2; if (contactAt(mid) >= 1.1) lo = mid; else hi = mid; }
     out.maxDistance = lo;
     if (p.centerDistance > 0 && Math.abs(p.centerDistance - cd0) > 1e-6) {
       var cd = p.centerDistance;
-      out.centerDistance = cd; out.spread = cd - cd0; out.backlash = B + 2 * (cd - cd0) * Math.tan(a); out.contactRatio = contactAt(cd);
-      if (cd < out.minDistance - 1e-6) out.problem = 'the Center Distance is too close: the teeth would bind (' + out.minDistance.toFixed(2) + ' mm or more, or Fit Tooth Size)';
-      else if (cd > out.maxDistance + 1e-6) out.problem = 'the Center Distance is too far: the teeth would lose contact (' + out.maxDistance.toFixed(2) + ' mm or less, or Fit Tooth Size)';
+      out.centerDistance = cd; out.spread = cd - cd0; out.backlash = cd >= cd0 ? backlashAt(cd) : B - 2 * (cd0 - cd) * Math.tan(a); out.contactRatio = contactAt(cd);
+      if (cd < out.minDistance - 1e-6) out.problem = 'the Center Distance is too close: the teeth would bind (' + out.minDistance.toFixed(3) + ' mm or more, or Fit Tooth Size)';
+      else if (cd > out.maxDistance + 1e-6) out.problem = 'the Center Distance is too far: the teeth would lose contact (' + out.maxDistance.toFixed(3) + ' mm or less, or Fit Tooth Size)';
     }
     return out;
   }
@@ -986,7 +993,7 @@ if (typeof module !== 'undefined' && module.exports) {
     }
     if (h.shape === 'keyway') {
       var hw = h.keyWidth / 2, top = R + h.keyDepth, a0 = Math.asin(Math.min(1, hw / R));
-      // From the keyway's right wall round the circle to its left wall.
+      // From the keyway's left wall round the circle to its right wall.
       var from = Math.PI / 2 + a0, to = Math.PI / 2 - a0 + TAU;
       n = Math.ceil((to - from) / step);
       for (i = 0; i <= n; i++) { a = from + (to - from) * i / n; pts.push({ x: R * Math.cos(a), y: R * Math.sin(a) }); }
@@ -1096,7 +1103,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if (h.shape === 'window') { windowHole(L, h, o, levels); return; }
     L.push('G0 X' + f4(h.x) + ' Y' + f4(h.y));
     L.push('G0 Z' + f3(o.hop));
-    if (R < 0.01) {
+    if (R < 0.01 && h.shape !== 'keyway') {
       // The bit's own size: plunge, lifting out between pecks to clear chips.
       var z = 0;
       levels.forEach(function (d) {
@@ -1261,9 +1268,10 @@ if (typeof module !== 'undefined' && module.exports) {
         else if (!(g.flat < g.bore - 0.01)) probs.push(label + '’s Across the Flat must be less than the bore');
         else if (!(g.flat > g.bore / 2)) probs.push(label + '’s Across the Flat must be more than half the bore (the flat past the middle)');
       }
+      if (shape === 'keyway' && !(g.bore >= o.bitDiameter + 0.1)) probs.push(label + '’s Keyed Bore must be wider than the bit (' + (o.bitDiameter + 0.1).toFixed(2) + ' mm or more)');
       if (shape === 'keyway') {
         bore.keyWidth = g.keyWidth; bore.keyDepth = g.keyDepth;
-        if (!(g.keyWidth >= o.bitDiameter - 1e-6)) probs.push(label + '’s Key Width must be at least the bit’s diameter');
+        if (!(g.keyWidth >= o.bitDiameter + 0.05 - 1e-9)) probs.push(label + '’s Key Width must be a little more than the bit’s diameter (' + (o.bitDiameter + 0.05).toFixed(2) + ' mm or more), so its corners can be notched for a square key');
         else if (!(g.keyWidth < g.bore - 0.01)) probs.push(label + '’s Key Width must be less than the bore');
         if (!(g.keyDepth > 0)) probs.push(label + '’s Key Depth must be more than 0');
       }
@@ -1278,12 +1286,14 @@ if (typeof module !== 'undefined' && module.exports) {
     if (n > 0 && g.holeStyle === 'spokes') {
       var hubS = boreR + Math.max(g.hub || 0, 0.15 * info.basics.rf, o.bitDiameter), rimS = info.basics.rf - Math.max(g.rim || 0, 1.5 * info.basics.m);
       var w = g.spokeWidth > 0 ? g.spokeWidth : Math.max(1.5 * o.bitDiameter, 0.12 * rimS);
+      if (g.spokeWidth > 0 && g.spokeWidth < o.bitDiameter) probs.push(label + '’s Spoke Width must be at least the bit’s diameter (' + o.bitDiameter.toFixed(2) + ' mm), so the spokes hold');
       var win = { N: n, Ri: hubS, Ro: rimS, w: w, rc: 0, angle: 0 }, mid = windowMiddle(win);
       if (n < 2) probs.push(label + '’s Spokes must be 2 or more');
       else if (!(rimS > hubS) || !(mid.T >= r + 0.1)) probs.push(label + '’s spoke windows are too narrow for the bit: fewer or thinner spokes, or a bigger gear');
       else {
         // Corners rounded a little past the bit, more in a big window.
-        win.rc = Math.min(0.9 * mid.T, Math.max(1.25 * r, 0.12 * (rimS - hubS)));
+        // Never tighter than the bit can cut, so the preview is what's cut.
+        win.rc = Math.max(r, Math.min(0.9 * mid.T, Math.max(1.25 * r, 0.12 * (rimS - hubS))));
         for (var j = 0; j < n; j++) out.push({ label: label + ' window ' + (j + 1), shape: 'window', diameter: 0, dx: 0, dy: 0, reach: rimS,
           win: Object.assign({}, win, { angle: (j + 0.5) * TAU / n }) });
       }
@@ -1341,7 +1351,8 @@ if (typeof module !== 'undefined' && module.exports) {
     var problems = [], notes = [], r = o.bitDiameter / 2;
     var base = { module: o.module, pressureDeg: o.pressureDeg, backlash: o.backlash, clearance: o.clearance, bitRadius: r };
     var which = o.job === 'both' ? ['A', 'B'] : o.job === 'frame' ? [] : [o.job];
-    var info = {}, pr = G.pair(Object.assign({ centerDistance: o.centerDistance }, base), o.gears.A.teeth, o.gears.B.teeth);
+    // A typed center distance matters to the frame's holes; one gear, or both side by side, don't mesh.
+    var info = {}, pr = G.pair(Object.assign({ centerDistance: o.job === 'frame' ? o.centerDistance : null }, base), o.gears.A.teeth, o.gears.B.teeth);
     if (pr.problem) problems.push(pr.problem);
     ['A', 'B'].forEach(function (k) {
       info[k] = G.gear(Object.assign({ teeth: o.gears[k].teeth }, base));

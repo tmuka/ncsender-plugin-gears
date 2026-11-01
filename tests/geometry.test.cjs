@@ -96,3 +96,18 @@ test('spread apart to a typed center distance, the pair meshes with the backlash
   const ap = Math.acos(nat * Math.cos(20 * Math.PI / 180) / cd), want = pr.backlash * Math.cos(ap) / 2;
   assert.ok(Math.abs(gap - want) < 0.03, `closest ${gap.toFixed(4)}, want about ${want.toFixed(4)}`);
 });
+
+test('at the closest center distance allowed, the teeth still clear', () => {
+  for (const [m, pa, zA, zB, B, r] of [[1.5, 20, 40, 20, 0.3, 0.5], [1, 14.5, 40, 30, 0.3, 0.4], [3.5, 14.5, 36, 18, 1.0, 1.5875], [3.5, 20, 36, 18, 1.0, 1.5875]]) {
+    const p = { module: m, pressureDeg: pa, backlash: B, bitRadius: r };
+    const cd = G.pair(p, zA, zB).minDistance, A = G.gear({ ...p, teeth: zA }), Bg = G.gear({ ...p, teeth: zB });
+    assert.equal(A.problem || Bg.problem, null);
+    const oa = G.simplifyClosed(A.outline, 0.001), ob = G.simplifyClosed(Bg.outline, 0.001);
+    for (let s = 0; s <= 24; s++) {
+      const d = (2 * Math.PI / zA) * s / 24, a = turn(oa, d), b = turn(ob, Math.PI + Math.PI / zB - d * zA / zB, cd);
+      const nearA = a.filter((q) => q.x > cd - Bg.basics.ra - 0.5), nearB = b.filter((q) => q.x < A.basics.ra + 0.5);
+      for (const q of nearA) assert.ok(!inside(q, b), `${m} ${pa}° ${zA}:${zB} B ${B}: overlap at step ${s}, ${cd.toFixed(3)} apart`);
+      for (const q of nearB) assert.ok(!inside(q, a), `${m} ${pa}° ${zA}:${zB} B ${B}: overlap at step ${s}`);
+    }
+  }
+});
