@@ -1,14 +1,39 @@
 # Gears
 
-Design a pair of spur gears and cut them straight from [ncSender](https://github.com/siganberg/ncSender):
-pick the teeth, watch them mesh, press **Generate**. For toys, clocks, winches, marble machines and
-gear-ratio demonstrations in plywood, MDF, hardwood, HDPE, acrylic or aluminum.
+**Real, working gears from your CNC in a few minutes.** Tell Gears how far apart the axles are and
+the ratio you want. It picks the teeth, shows them turning, and writes the G-code for
+[ncSender](https://github.com/siganberg/ncSender). Press **Generate**, cut, and they mesh.
+
+<p align="center"><img src="docs/gears-turning.gif" width="420" alt="A 24 and 12 tooth gear pair turning in the Gears preview"></p>
+
+Great for toys, clocks, winches, marble machines and gear-ratio demos, in plywood, MDF, hardwood,
+HDPE, acrylic or aluminum.
+
+## Three steps
+
+1. **Pick your bit.** Choose it from the tool table or type its size. Gears only offers teeth that
+   bit can cut.
+2. **Type the center distance and the ratio.** Tap one of the pairs that fit: coarse, balanced or
+   fine.
+3. **Press Generate.** Both gears come out in one program, nested close together to save stock.
+
+![The Gears dialog: a 2:1 pair at 90 mm, with three pairs to choose from](docs/dialog.png)
+
+## Racks and ring gears too
+
+Switch Gear B to a **rack** for straight-line motion, or to a **ring** for planetary gears and
+compact reductions.
+
+<p align="center">
+  <img src="docs/rack.png" width="380" alt="A pinion on a rack">
+  <img src="docs/ring.png" width="380" alt="A pinion inside a ring gear">
+</p>
 
 Inspired by Matthias Wandel's gear work at [woodgears.ca](https://woodgears.ca); for paper templates
 to cut on a bandsaw, use his (more complete) [gear template generator](https://woodgears.ca/gear/).
 Gears isn't affiliated with him: its geometry is the standard involute, written fresh.
 
-## What it makes
+## Everything it does
 
 - **A gear pair** that meshes: teeth for Gear A and Gear B, one tooth size (**Module**, **Diametral
   Pitch** or **Circular Pitch**, from the menu on its label), a **Pressure Angle** (14.5°, 20° or 25°).
