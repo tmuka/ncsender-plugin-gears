@@ -8,6 +8,11 @@
   Height** deep with screw holes along it, cut from outside with tabs on its bottom edge. The preview
   rolls the pinion along it; the facts give the rack's travel a turn and where to mount it from the
   pinion's axle.
+- **Ring gears:** Gear B's menu can make it a **ring** with its teeth inside, Gear A its pinion turning
+  inside it (at least 12 more teeth on the ring at 20°, 10 at 25°, 16 at 14.5°, so their tips clear).
+  The ring's teeth are shaped as cut from inside with your bit, and kept clear of the pinion's root
+  rounding; a **Rim Width** with screw holes; cut with tabs on its tooth tips (so the middle stays put)
+  and round its outside.
 
 ## 0.2.0
 

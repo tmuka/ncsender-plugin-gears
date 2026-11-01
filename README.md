@@ -43,6 +43,13 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   the screw holes' size and count). It's cut from outside with tabs on its flat bottom edge. The
   preview rolls the pinion along it, and the facts give the rack's travel a turn and where to mount
   it: its pitch line and bottom edge from the pinion's axle.
+- **Ring gears:** Gear B's menu can make it a **ring** (an internal gear) with its teeth inside and
+  Gear A its pinion turning inside it, the same way: for planetary gears and compact reductions. The
+  ring needs at least 12 more teeth than the pinion at 20° (10 at 25°, 16 at 14.5°), or their tips
+  collide. Its teeth are shaped as your bit cuts them from inside, a little short so they clear the
+  pinion's root rounding; it has a **Rim Width** outside its teeth with screw holes (Gear B's Bore and
+  Holes fields). It's cut from inside with tabs on its tooth tips, so the middle stays put until you
+  cut them, then round its outside.
 - **Ratio:** Gear B's field can take the ratio A:B instead of its teeth (3 for 3:1); Gear B's teeth
   are worked out to the nearest whole tooth and the real ratio shown.
 - **Center Distance:** blank is the gears' own. Type the distance the axles must be and either

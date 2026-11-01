@@ -16,7 +16,8 @@
   .gr-wrapper p { margin: 0 !important; line-height: 1.45; }
   .gr-container { display: flex; flex: 1; min-height: 0; }
   .gr-wrapper [hidden] { display: none !important; }
-  .gr-wrapper:not(.gr-is-rack) .gr-rack-only, .gr-wrapper.gr-is-rack .gr-not-rack { display: none !important; }
+  .gr-wrapper:not(.gr-is-rack) .gr-rack-only, .gr-wrapper:not(.gr-is-ring) .gr-ring-only,
+  .gr-wrapper.gr-is-rack .gr-not-special, .gr-wrapper.gr-is-ring .gr-not-special { display: none !important; }
   /* ncCAM's and Spoilboard Toolbox's size: almost full screen, 24 px clear
      all round, in landscape and portrait. */
   .plugin-dialog-container:has(.gr-wrapper) { max-height: none !important; max-width: none !important; }
@@ -246,13 +247,14 @@
           <div class="gr-row gr-row-4">
             <div class="gr-field"><label for="gr-teeth-a">Gear A Teeth</label><input class="gr-input" id="gr-teeth-a" title="Whole number, 6 or more."></div>
             <div class="gr-field">
-              <select class="gr-label-select" id="gr-b-mode" aria-label="Gear B by" title="Gear B's teeth; the ratio A:B (3 for 3:1: Gear B then has a third of Gear A's teeth, to the nearest whole tooth); or Rack Teeth: Gear B is a straight rack with that many teeth, and Gear A its pinion.">
-                <option value="teeth">Gear B Teeth</option><option value="ratio">Ratio A:B</option><option value="rack">Rack Teeth</option>
+              <select class="gr-label-select" id="gr-b-mode" aria-label="Gear B by" title="Gear B's teeth; the ratio A:B (3 for 3:1: Gear B then has a third of Gear A's teeth, to the nearest whole tooth); Rack Teeth: Gear B is a straight rack with that many teeth, and Gear A its pinion; or Ring Teeth: Gear B is a ring with teeth inside, Gear A its pinion turning inside it.">
+                <option value="teeth">Gear B Teeth</option><option value="ratio">Ratio A:B</option><option value="rack">Rack Teeth</option><option value="ring">Ring Teeth</option>
               </select>
               <input class="gr-input" id="gr-teeth-b" aria-labelledby="gr-b-mode" title="Whole number, 6 or more.">
               <input class="gr-input" id="gr-ratio" aria-labelledby="gr-b-mode" hidden title="How many turns Gear B makes for one of Gear A: 3 for 3:1, 0.5 for 1:2.">
             </div>
-            <div class="gr-field gr-not-rack"><label for="gr-cd">Center Distance</label><input class="gr-input" id="gr-cd" data-unit="length" placeholder="auto" title="Blank: the gears' own (the two pitch radii). Type a distance the axles must be, a little wider than their own, and the gears are spread to it: more backlash, which the facts show. Or press Fit Tooth Size to make the teeth mesh at exactly that distance. The frame's holes are drilled at it."></div>
+            <div class="gr-field gr-not-special"><label for="gr-cd">Center Distance</label><input class="gr-input" id="gr-cd" data-unit="length" placeholder="auto" title="Blank: the gears' own (the two pitch radii). Type a distance the axles must be, a little wider than their own, and the gears are spread to it: more backlash, which the facts show. Or press Fit Tooth Size to make the teeth mesh at exactly that distance. The frame's holes are drilled at it."></div>
+            <div class="gr-field gr-ring-only"><label for="gr-ring-w">Rim Width</label><input class="gr-input" id="gr-ring-w" data-unit="length" title="How wide the ring is outside its tooth roots: room for its screw holes, and stiffness."></div>
             <div class="gr-field gr-rack-only"><label for="gr-rack-h">Rack Height</label><input class="gr-input" id="gr-rack-h" data-unit="length" title="How deep the rack's bar is under its tooth roots: room for its screw holes, and stiffness."></div>
           </div>
           <div class="gr-hints"><span class="gr-hint" id="gr-ratio-hint"></span><span class="gr-hint" id="gr-min-size"></span><span class="gr-hint" id="gr-cd-hint"></span></div>
@@ -275,14 +277,16 @@
             </div>
             <div class="gr-field">
               <label class="gr-rack-only" for="gr-bore-b">Rack Screw Hole Ø</label>
-              <select class="gr-label-select gr-not-rack" id="gr-bore-shape-b" aria-label="Gear B bore shape" title="Round: a hole for a round axle, sized by its diameter. Hex: a hole for a hex shaft, sized across the flats (12.7 mm for a 1/2&quot; hex), with a notch in each corner so a sharp-cornered shaft fits. D: a round hole with one flat, for a D shaft (a motor's, say). Keyed: a round hole with a keyway slot.">
+              <label class="gr-ring-only" for="gr-bore-b">Ring Screw Hole Ø</label>
+              <select class="gr-label-select gr-not-special" id="gr-bore-shape-b" aria-label="Gear B bore shape" title="Round: a hole for a round axle, sized by its diameter. Hex: a hole for a hex shaft, sized across the flats (12.7 mm for a 1/2&quot; hex), with a notch in each corner so a sharp-cornered shaft fits. D: a round hole with one flat, for a D shaft (a motor's, say). Keyed: a round hole with a keyway slot.">
                 <option value="round">Gear B Bore</option><option value="hex">Gear B Hex Bore</option><option value="dflat">Gear B D Bore</option><option value="keyway">Gear B Keyed</option>
               </select>
               <input class="gr-input" id="gr-bore-b" data-unit="length" aria-labelledby="gr-bore-shape-b" title="Round, D and Keyed: the hole's diameter. Hex: across the flats. A little over the shaft's for a slip fit. 0: none.">
             </div>
             <div class="gr-field">
               <label class="gr-rack-only" for="gr-holes-b">Rack Screw Holes</label>
-              <select class="gr-label-select gr-not-rack" id="gr-holes-style-b" aria-label="Gear B lightening by" title="Lightening Holes: round holes in a ring between the hub and the teeth. Spokes: that many straight spokes from the hub to the rim, with windows between them, their corners rounded.">
+              <label class="gr-ring-only" for="gr-holes-b">Ring Screw Holes</label>
+              <select class="gr-label-select gr-not-special" id="gr-holes-style-b" aria-label="Gear B lightening by" title="Lightening Holes: round holes in a ring between the hub and the teeth. Spokes: that many straight spokes from the hub to the rim, with windows between them, their corners rounded.">
                 <option value="round">Gear B Lightening Holes</option><option value="spokes">Gear B Spokes</option>
               </select>
               <input class="gr-input" id="gr-holes-b" aria-labelledby="gr-holes-style-b" title="How many holes, or spokes. 0: none.">
@@ -370,6 +374,7 @@
           <li>Each pass ramps down along the path instead of plunging; Z never comes down faster than the <b>Plunge Rate</b>.</li>
           <li>A bore is <b>Round</b>, <b>Hex</b> (sized across the flats: 12.7 mm for a 1/2" hex shaft), <b>D</b> (round with one flat, for a D shaft such as a motor's: <b>Across the Flat</b> is from the flat to the far side) or <b>Keyed</b> (a keyway <b>Key Width</b> wide, at least the bit's, <b>Key Depth</b> past the bore). Pick with the menu on its label; type a little over the shaft's size for a slip fit. A round bit can't cut a sharp corner, so each sharp corner gets a small notch for the shaft's or key's corner to sit in.</li>
           <li><b>Lightening Holes</b> or <b>Spokes</b> (the menu on the label): round holes in a ring, or that many straight spokes from the hub to the rim with windows between them, their corners rounded a little past the bit. <b>Spoke Width</b> blank picks about an eighth of the rim's radius.</li>
+          <li><b>Ring Teeth</b> on Gear B's menu makes it a ring with its teeth inside, Gear A its pinion turning inside it, the same way. The ring needs at least 12 more teeth than the pinion at 20° (10 at 25°, 16 at 14.5°). It has a <b>Rim Width</b> outside its teeth, with screw holes (Gear B's Bore and Holes fields); it's cut from inside with tabs on its tooth tips, so the middle stays put, then round its outside.</li>
           <li><b>Rack Teeth</b> on Gear B's menu makes it a straight rack, Gear A its pinion: the same teeth, on a bar <b>Rack Height</b> deep, with screw holes (Gear B's Bore and Holes fields) along it, cut from outside with tabs on its bottom edge. The preview rolls the pinion along it; the facts say how far the rack goes a turn and where to mount it from the pinion's axle. Frame Holes is for two gears.</li>
           <li>Gear B's label menu takes the <b>Ratio A:B</b> instead of its teeth (3 for 3:1): Gear B's teeth are worked out to the nearest whole tooth, with the real ratio shown.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
@@ -1736,7 +1741,7 @@ if (typeof module !== 'undefined' && module.exports) {
     'gr-flat-a': ['length', 0, 500, 'Gear A Across the Flat', null], 'gr-flat-b': ['length', 0, 500, 'Gear B Across the Flat', null],
     'gr-keyw-a': ['length', 0, 500, 'Gear A Key Width', null], 'gr-keyw-b': ['length', 0, 500, 'Gear B Key Width', null],
     'gr-keyd-a': ['length', 0, 500, 'Gear A Key Depth', null], 'gr-keyd-b': ['length', 0, 500, 'Gear B Key Depth', null],
-    'gr-cd': ['length', 0, 5000, 'Center Distance', null], 'gr-rack-h': ['length', 1, 500, 'Rack Height', 12], 'gr-spoke-w': ['length', 0, 500, 'Spoke Width', null], 'gr-ratio': ['count', 0.01, 100, 'Ratio', 2],
+    'gr-cd': ['length', 0, 5000, 'Center Distance', null], 'gr-rack-h': ['length', 1, 500, 'Rack Height', 12], 'gr-ring-w': ['length', 1, 500, 'Rim Width', 12], 'gr-spoke-w': ['length', 0, 500, 'Spoke Width', null], 'gr-ratio': ['count', 0.01, 100, 'Ratio', 2],
     'gr-holes-a': ['whole', 0, 24, 'Gear A Lightening Holes', 5], 'gr-holes-b': ['whole', 0, 24, 'Gear B Lightening Holes', 0],
     'gr-depth': ['length', 0.05, 200, 'Total Depth', 12.5], 'gr-step': ['length', 0.05, 50, 'Depth of Cut', null],
     'gr-tabs': ['whole', 1, 12, 'Tabs', 3], 'gr-tab-w': ['length', 0.5, 50, 'Tab Width', 4], 'gr-tab-h': ['length', 0.1, 50, 'Tab Height', 1.5],
@@ -1801,11 +1806,12 @@ if (typeof module !== 'undefined' && module.exports) {
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
       // Named as the menus on their labels say: Gear A Spokes, Gear A D Bore...
       var nm = f[3], km = /^gr-(holes|bore)-([ab])$/.exec(id);
-      if (isRack() && id === 'gr-teeth-b') nm = 'Rack Teeth';
-      if (isRack() && id === 'gr-bore-b') nm = 'Rack Screw Hole Ø';
-      if (isRack() && id === 'gr-holes-b') nm = 'Rack Screw Holes';
-      if (km && !(isRack() && km[2] === 'b') && km[1] === 'holes' && $('gr-holes-style-' + km[2]).value === 'spokes') nm = nm.replace('Lightening Holes', 'Spokes');
-      if (km && !(isRack() && km[2] === 'b') && km[1] === 'bore') nm = nm.replace('Bore', { round: 'Bore', hex: 'Hex Bore', dflat: 'D Bore', keyway: 'Keyed Bore' }[$('gr-bore-shape-' + km[2]).value] || 'Bore');
+      var sp = isRack() ? 'Rack' : isRing() ? 'Ring' : null;
+      if (sp && id === 'gr-teeth-b') nm = sp + ' Teeth';
+      if (sp && id === 'gr-bore-b') nm = sp + ' Screw Hole Ø';
+      if (sp && id === 'gr-holes-b') nm = sp + ' Screw Holes';
+      if (km && !(sp && km[2] === 'b') && km[1] === 'holes' && $('gr-holes-style-' + km[2]).value === 'spokes') nm = nm.replace('Lightening Holes', 'Spokes');
+      if (km && !(sp && km[2] === 'b') && km[1] === 'bore') nm = nm.replace('Bore', { round: 'Bore', hex: 'Hex Bore', dflat: 'D Bore', keyway: 'Keyed Bore' }[$('gr-bore-shape-' + km[2]).value] || 'Bore');
       f = [f[0], f[1], f[2], nm, f[4]];
       if (v === null) { if (!optional) errs[id] = f[3] + ' is needed'; return; }
       if (isNaN(v)) { errs[id] = f[3] + ' must be a number'; return; }
@@ -1834,15 +1840,21 @@ if (typeof module !== 'undefined' && module.exports) {
       delete errs['gr-ratio'];
     }
     // A rack can have as few as 2 teeth; it needs its height, not a center distance.
-    if (isRack()) {
-      if (s['gr-teeth-b'] >= 2 && s['gr-teeth-b'] <= 400 && Math.round(s['gr-teeth-b']) === s['gr-teeth-b']) delete errs['gr-teeth-b'];
-      else if (errs['gr-teeth-b']) errs['gr-teeth-b'] = errs['gr-teeth-b'].replace('at least 6', 'at least 2');
+    // A rack can have as few as 2 teeth, a ring needs 12; neither has a center distance to type.
+    var minB = isRack() ? 2 : isRing() ? 12 : 6;
+    if (minB !== 6) {
+      var tb = s['gr-teeth-b'];
+      if (tb >= minB && tb <= 400 && Math.round(tb) === tb) delete errs['gr-teeth-b'];
+      else if (tb != null && !isNaN(tb) && Math.round(tb) === tb && tb < minB) errs['gr-teeth-b'] = (isRack() ? 'Rack' : 'Ring') + ' Teeth must be at least ' + minB;
       delete errs['gr-cd'];
-    } else delete errs['gr-rack-h'];
+    }
+    if (!isRack()) delete errs['gr-rack-h'];
+    if (!isRing()) delete errs['gr-ring-w'];
     s.module = m;
     return { s: s, errs: errs };
   }
   function isRack() { return $('gr-b-mode').value === 'rack'; }
+  function isRing() { return $('gr-b-mode').value === 'ring'; }
   function gearOpts(s, k) {
     return { teeth: s['gr-teeth-' + k], bore: s['gr-bore-' + k], boreShape: $('gr-bore-shape-' + k).value, holes: s['gr-holes-' + k],
              flat: s['gr-flat-' + k], keyWidth: s['gr-keyw-' + k], keyDepth: s['gr-keyd-' + k],
@@ -1856,8 +1868,9 @@ if (typeof module !== 'undefined' && module.exports) {
       spindleRpm: Math.round(s['gr-rpm']), spindleDelay: s['gr-delay'], mist: $('gr-mist').checked, flood: $('gr-flood').checked,
       depth: job === 'frame' ? s['gr-frame-depth'] : s['gr-depth'], depthOfCut: job === 'frame' ? s['gr-frame-step'] : s['gr-step'],
       tabs: $('gr-tabs-on').checked ? { count: s['gr-tabs'], width: s['gr-tab-w'], height: s['gr-tab-h'] } : null,
-      gears: { A: gearOpts(s, 'a'), B: Object.assign(gearOpts(s, 'b'), isRack() ? { kind: 'rack', rackHeight: s['gr-rack-h'], boreShape: 'round', holeStyle: 'round' } : {}) },
-      centerDistance: s['gr-cd'] > 0 && !isRack() ? s['gr-cd'] : null,
+      gears: { A: gearOpts(s, 'a'), B: Object.assign(gearOpts(s, 'b'), isRack() ? { kind: 'rack', rackHeight: s['gr-rack-h'], boreShape: 'round', holeStyle: 'round' }
+        : isRing() ? { kind: 'ring', rim: s['gr-ring-w'], boreShape: 'round', holeStyle: 'round' } : {}) },
+      centerDistance: s['gr-cd'] > 0 && !isRack() && !isRing() ? s['gr-cd'] : null,
       toolNumber: bitToolNumber(),
       frame: { A: s['gr-frame-a'], B: s['gr-frame-b'] },
       origin: job === 'frame' ? 'center' : $('gr-origin').value, direction: $('gr-direction').value, gap: s['gr-gap'],
@@ -1888,11 +1901,19 @@ if (typeof module !== 'undefined' && module.exports) {
   // ---------- Geometry (cached) ----------
   function gearInfo(o, key) {
     var p = { module: o.module, teeth: o.gears[key].teeth, pressureDeg: o.pressureDeg, backlash: o.backlash, clearance: o.clearance, bitRadius: o.bitDiameter / 2 };
-    var rack = key === 'B' && o.gears.B.kind === 'rack';
+    var rack = key === 'B' && o.gears.B.kind === 'rack', ring = key === 'B' && o.gears.B.kind === 'ring';
     if (rack) p.height = o.gears.B.rackHeight;
+    if (ring) p.rim = o.gears.B.rim;
     var k = JSON.stringify(p);
     if (state.cache[key] && state.cache[key].k === k) return state.cache[key].v;
-    var g = rack ? G.makeRack(p) : G.gear(p);
+    var g = rack ? G.makeRack(p) : ring ? G.makeRing(p) : G.gear(p);
+    if (ring && !g.problem) {
+      g.draw = g.outline;
+      g.drawOpening = G.simplifyClosed(g.opening, Math.max(0.01, o.module / 200));
+      g.path = G.simplifyClosed(g.openingPath, 0.02);
+      state.cache[key] = { k: k, v: g };
+      return g;
+    }
     if (!g.problem) {
       g.draw = G.simplifyClosed(g.outline, Math.max(0.01, o.module / 200));
       g.path = G.simplifyClosed(G.toolPath(g, p.bitRadius, 0.003), 0.02);
@@ -1928,7 +1949,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!blocking.length) {
       o = opts(s, $('gr-job').value);
       problems = gearProblems(o);
-      var pr0 = G.pair(o, o.gears.A.teeth, o.gears.B.teeth);
+      var pr0 = o.gears.B.kind === 'ring' ? G.ringPair(o, o.gears.A.teeth, o.gears.B.teeth) : o.gears.B.kind === 'rack' ? {} : G.pair(o, o.gears.A.teeth, o.gears.B.teeth);
       if (pr0.problem) problems.push(friendlyProblems([pr0.problem], o)[0]);
     }
     last = { s: s, errs: errs, o: o, problems: problems };
@@ -1942,18 +1963,19 @@ if (typeof module !== 'undefined' && module.exports) {
     box.innerHTML = problems.map(function (t) { return '<div>' + esc(t.charAt(0).toUpperCase() + t.slice(1)) + '</div>'; }).join('');
     facts();
     $('gr-origin-say').textContent = 'Zero X and Y at ' + ($('gr-origin').value === 'front-left' ? 'the front-left corner of what’s cut (a bit’s width outside the teeth)' :
-      ($('gr-job').value === 'B' ? (isRack() ? 'the rack’s middle' : 'Gear B’s center') : 'Gear A’s center') + ($('gr-job').value === 'both' ? (isRack() ? '; the rack is cut to its right' : '; Gear B is cut to its right') : '')) + '. Zero Z on the top of the stock.';
+      ($('gr-job').value === 'B' ? (isRack() ? 'the rack’s middle' : isRing() ? 'the ring’s center' : 'Gear B’s center') : 'Gear A’s center') + ($('gr-job').value === 'both' ? (isRack() ? '; the rack is cut to its right' : isRing() ? '; the ring is cut to its right' : '; Gear B is cut to its right') : '')) + '. Zero Z on the top of the stock.';
     scheduleNote();
     save();
   }
   // Ratio A:B: Gear B's teeth to the nearest whole tooth, written into its
   // field (hidden), and the ratio they really make.
   function applyRatio() {
-    var rack = isRack();
+    var rack = isRack(), ring = isRing();
     ROOT.classList.toggle('gr-is-rack', rack);
-    $('gr-job-b').textContent = rack ? 'Rack' : 'Gear B';
-    ROOT.querySelector('#gr-job option[value="both"]').textContent = rack ? 'Pinion and Rack' : 'Both Gears';
-    ROOT.querySelector('#gr-job option[value="A"]').textContent = rack ? 'Pinion (Gear A)' : 'Gear A';
+    ROOT.classList.toggle('gr-is-ring', ring);
+    $('gr-job-b').textContent = rack ? 'Rack' : ring ? 'Ring' : 'Gear B';
+    ROOT.querySelector('#gr-job option[value="both"]').textContent = rack ? 'Pinion and Rack' : ring ? 'Pinion and Ring' : 'Both Gears';
+    ROOT.querySelector('#gr-job option[value="A"]').textContent = rack || ring ? 'Pinion (Gear A)' : 'Gear A';
     var by = $('gr-b-mode').value === 'ratio';
     $('gr-teeth-b').hidden = by; $('gr-ratio').hidden = !by;
     var hint = $('gr-ratio-hint');
@@ -1969,7 +1991,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // Under the Center Distance: the gears' own, and Fit Tooth Size to mesh
   // at exactly the one typed (or why it can't, with the bit).
   function distanceHint(s, errs, minM) {
-    if (isRack()) { $('gr-cd-hint').textContent = ''; return; }
+    if (isRack() || isRing()) { $('gr-cd-hint').textContent = ''; return; }
     var el = $('gr-cd-hint'), zs = s['gr-teeth-a'] + s['gr-teeth-b'], cd = s['gr-cd'], u = ' ' + state.unit;
     if (!(s.module > 0) || !(zs > 0) || errs['gr-teeth-a'] || errs['gr-teeth-b']) { el.textContent = ''; return; }
     var own = s.module * zs / 2;
@@ -2000,6 +2022,15 @@ if (typeof module !== 'undefined' && module.exports) {
   function facts() {
     if (!last || !last.o) { $('gr-facts').innerHTML = ''; return; }
     var o = last.o, A = gearInfo(o, 'A'), B = gearInfo(o, 'B'), u = ' ' + state.unit;
+    if (o.gears.B.kind === 'ring') {
+      var gq = G.ringPair(o, o.gears.A.teeth, o.gears.B.teeth), gb = B.basics || {}, gparts = ['Ratio <b>' + parseFloat(gq.ratio.toFixed(3)) + ':1</b> (the pinion turns ' + parseFloat(gq.ratio.toFixed(3)) + ' times a turn of the ring, the same way)',
+        'The pinion’s axle <b>' + show(gq.centerDistance) + u + '</b> from the ring’s center',
+        gb.rOut ? 'Ring Ø <b>' + show(2 * gb.rOut) + u + '</b>, inside <b>' + show(2 * gb.ri) + u + '</b> across its teeth' : '', 'Pinion Ø <b>' + show(2 * A.basics.ra) + u + '</b>',
+        'Contact ratio <b>' + gq.contactRatio.toFixed(2) + '</b>'].filter(Boolean);
+      ['A', 'B'].forEach(function (k) { var g = k === 'A' ? A : B; (g.notes || []).forEach(function (n) { gparts.push((k === 'A' ? 'Pinion' : 'Ring') + ': ' + esc(n)); }); });
+      $('gr-facts').innerHTML = gparts.map(function (t) { return '<span>' + t + '</span>'; }).join('');
+      return;
+    }
     if (o.gears.B.kind === 'rack') {
       var rq = G.rackPair(o, o.gears.A.teeth), rb = B.basics || {}, rparts = ['Rack <b>' + show(rq.travel) + u + '</b> a turn',
         'Its pitch line <b>' + show(rq.pitchRadius) + u + '</b> from the pinion’s axle' + (rb.bottom != null ? ', its bottom edge <b>' + show(rq.pitchRadius - rb.bottom) + u + '</b>' : ''),
@@ -2023,6 +2054,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!last || !last.o) { svg.innerHTML = '<text x="0" y="0" text-anchor="middle" font-size="6">Fix the fields below to see the gears</text>'; svg.setAttribute('viewBox', '-100 -60 200 120'); return; }
     var o = last.o, A = gearInfo(o, 'A'), B = gearInfo(o, 'B');
     if (o.gears.B.kind === 'rack') { drawRack(o, A, B); return; }
+    if (o.gears.B.kind === 'ring') { drawRing(o, A, B); return; }
     var cd = G.pair(o, o.gears.A.teeth, o.gears.B.teeth).centerDistance;
     var raA = A.basics.ra, raB = B.basics.ra, pad = Math.max(o.bitDiameter * 2 + 4, 0.06 * (raA + raB + cd));
     var x0 = -raA - pad, x1 = cd + raB + pad, h = 2 * Math.max(raA, raB) + 2 * pad;
@@ -2088,6 +2120,36 @@ if (typeof module !== 'undefined' && module.exports) {
     svg.innerHTML = out.join('');
     spin();
   }
+  // Ring and pinion: the ring centered, the pinion inside it with its
+  // tooth 0 pointing at the ring's space on +X; both turn the same way.
+  function drawRing(o, A, R) {
+    var svg = $('gr-preview'), job = $('gr-job').value, showPath = $('gr-show-path').checked;
+    if (R.problem || A.problem) {
+      svg.setAttribute('viewBox', '-100 -60 200 120');
+      svg.innerHTML = '<text class="gr-bad-text" x="0" y="0" text-anchor="middle" font-size="6">' + (A.problem ? 'The pinion' : 'The ring') + ' can’t be cut</text>';
+      return;
+    }
+    var b = R.basics, cd = G.ringPair(o, o.gears.A.teeth, o.gears.B.teeth).centerDistance, pad = Math.max(o.bitDiameter * 2 + 4, 0.06 * b.rOut), w = b.rOut + pad;
+    svg.setAttribute('viewBox', (-w) + ' ' + (-w) + ' ' + 2 * w + ' ' + 2 * w);
+    var fs = 2 * w / 45, out = [], rh = GC.ringHoles(o.gears.B, R, o).holes, gh = GC.gearHoles(o.gears.A, A, o, 'Gear A').holes;
+    var circ = function (q) { var r = q.diameter / 2; return ' M' + (q.dx + r).toFixed(3) + ' ' + (-q.dy).toFixed(3) + ' a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0'; };
+    var holeD = function (q) { return q.shape && q.shape !== 'round' ? ' M' + GC.boreOutline(q).map(function (c) { return (q.dx + c.x).toFixed(3) + ' ' + (-q.dy - c.y).toFixed(3); }).join(' L') + ' Z' : circ(q); };
+    out.push('<g class="gr-gear" data-gear="B"><g class="gr-spin">');
+    out.push('<path class="gr-body gr-b' + (job === 'A' ? ' gr-off' : '') + '" fill-rule="evenodd" d="' + d(R.draw) + ' ' + d(R.drawOpening) + rh.map(circ).join('') + '"/>');
+    if (showPath && job !== 'A') out.push('<path class="gr-path" d="' + d(R.path) + '"/>');
+    out.push('<circle class="gr-mark" cx="' + (b.rp + b.m).toFixed(3) + '" cy="0" r="' + (b.m * 0.35).toFixed(3) + '"/>');
+    out.push('</g><circle class="gr-pitch" cx="0" cy="0" r="' + b.rp + '"/>');
+    out.push('<text x="0" y="' + (b.rOut + pad * 0.7).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">Ring · ' + b.z + ' teeth</text></g>');
+    out.push('<g class="gr-gear" data-gear="A" transform="translate(' + cd.toFixed(3) + ' 0)"><g class="gr-spin">');
+    out.push('<path class="gr-body' + (job === 'B' ? ' gr-off' : '') + '" fill-rule="evenodd" d="' + d(A.draw) + gh.map(holeD).join('') + '"/>');
+    if (showPath && job !== 'B') out.push('<path class="gr-path" d="' + d(A.path) + '"/>');
+    out.push('<circle class="gr-mark" cx="' + A.basics.rp.toFixed(3) + '" cy="0" r="' + (A.basics.m * 0.35).toFixed(3) + '"/>');
+    out.push('</g><circle class="gr-pitch" cx="0" cy="0" r="' + A.basics.rp + '"/>');
+    out.push('<text x="0" y="' + (A.basics.ra + fs * 1.1).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">A · ' + o.gears.A.teeth + ' teeth</text></g>');
+    out.push('<line class="gr-dim" x1="0" y1="0" x2="' + cd.toFixed(3) + '" y2="0" stroke-dasharray="2 3"/>');
+    svg.innerHTML = out.join('');
+    spin();
+  }
   // Turns the pair: A by the slider, B the other way by the ratio; B's
   // tooth 0 starts half a pitch off so a space faces A's tooth.
   function spin() {
@@ -2095,6 +2157,12 @@ if (typeof module !== 'undefined' && module.exports) {
     var o = last.o, zA = o.gears.A.teeth, zB = o.gears.B.teeth, a = state.turn;
     var gA = ROOT.querySelector('#gr-preview [data-gear="A"] .gr-spin'), gB = ROOT.querySelector('#gr-preview [data-gear="B"] .gr-spin');
     var slide = ROOT.querySelector('#gr-preview [data-gear="B"] .gr-slide');
+    if (o.gears.B.kind === 'ring') {
+      // Inside a ring both turn the same way, the ring slower by the ratio.
+      if (gA) gA.setAttribute('transform', 'rotate(' + (-a).toFixed(3) + ')');
+      if (gB) gB.setAttribute('transform', 'rotate(' + (-a * zA / zB).toFixed(3) + ')');
+      return;
+    }
     if (slide) {
       // Back and forth: the slider's turn as a swing, as far as the rack has teeth to go.
       var A = gearInfo(o, 'A'), R = gearInfo(o, 'B'), rp = A.basics.rp, sMax = Math.max(0, R.basics.length / 2 - 2 * R.basics.pitch);
@@ -2122,6 +2190,12 @@ if (typeof module !== 'undefined' && module.exports) {
   function drawFrame() {
     var r = settings(), s = r.s, svg = $('gr-frame-preview');
     showErrors(r.errs, false);
+    if (isRing()) {
+      svg.innerHTML = '';
+      $('gr-frame-facts').innerHTML = s.module > 0 && s['gr-teeth-a'] > 0 && s['gr-teeth-b'] > 0 ? '<span>Frame Holes is for two gears. The pinion’s axle goes <b>' + show(s.module * (s['gr-teeth-b'] - s['gr-teeth-a']) / 2) + ' ' + state.unit + '</b> from the ring’s center.</span>' : '';
+      scheduleNote();
+      return;
+    }
     if (isRack()) {
       svg.innerHTML = '';
       var rp = s.module * s['gr-teeth-a'] / 2;
@@ -2200,6 +2274,8 @@ if (typeof module !== 'undefined' && module.exports) {
     if ((m = /^Gear ([AB])’s Key Width/.exec(t))) return 'gr-keyw-' + m[1].toLowerCase();
     if ((m = /^Gear ([AB])’s Key Depth/.exec(t))) return 'gr-keyd-' + m[1].toLowerCase();
     if (/Center Distance/.test(t)) return 'gr-cd';
+    if (/^The (rack|ring)’s screw holes/.test(t)) return 'gr-bore-b';
+    if (/^The ring needs at least/.test(t)) return 'gr-teeth-b';
     if ((m = /^Gear ([AB])’s (lightening holes|spoke windows|Spokes)/.exec(t))) return 'gr-holes-' + m[1].toLowerCase();
     if ((m = /^Gear ([AB])’s tabs/.exec(t))) return 'gr-tab-w';
     if ((m = /^Axle Hole ([AB])/.exec(t))) return 'gr-frame-' + m[1].toLowerCase();
@@ -2271,6 +2347,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var o = opts(settings().s, view === 'frame' ? 'frame' : $('gr-job').value);
     var mode = $('gr-size-mode').value, size = { module: 'M', dp: 'DP', cp: 'CP' }[mode] + sizeText(o.module, mode);
     var name = view === 'frame' ? 'Gears-FrameHoles_' + o.gears.A.teeth + '-' + o.gears.B.teeth + '_' + size
+      : o.gears.B.kind === 'ring' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Ring' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Ring' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
       : o.gears.B.kind === 'rack' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Rack' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Rack' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
       : 'Gears-' + (o.job === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears[o.job].teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg';
     var btn = $('gr-gen-' + view), label = btn.textContent;
