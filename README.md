@@ -35,8 +35,9 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
 - **Cutting:** each gear's holes, then its teeth from outside a bit radius out; depth passes, each
   ramped down along the path at 5° or less (Z never faster than the Plunge Rate), and **Holding Tabs**
   on tooth tips, where they're easy to sand off. Conventional or Climb.
-- **Both gears in one program**, side by side with a **Gap Between**, or either one; X0 Y0 at the
-  gear's center or the front-left corner of the cuts.
+- **Both gears in one program**, nested to save stock: Gear B turned so its teeth face Gear A's spaces, as close as
+  the bit allows (one cut's width and 0.5 mm between them), with an optional **Gap Between** for a screw or clamp, or
+  sturdier tabs. Or either one alone; X0 Y0 at the gear's center or the front-left corner of the cuts.
 - **Rack and pinion:** Gear B's menu can make it a straight **rack** with that many teeth, Gear A
   its pinion: the same tooth size, pressure angle, backlash and bit-rounded roots, on a bar **Rack
   Height** deep under the teeth, with screw holes along it (Gear B's Bore and Holes fields become

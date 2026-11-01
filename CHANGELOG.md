@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Start from the Center Distance:** a card above Teeth; type the distance and the ratio (or Gear A's outside diameter), and
+  pick from the pairs that mesh there, coarse to fine, worked out for the bit.
+- **Both gears nested:** Gear B is turned to face Gear A's spaces and set as close as the bit allows, saving stock;
+  **Gap Between** is now extra space, 0 by default (a saved 6 mm, the old default, becomes 0).
+
 ### ✨ New
 - **Rack and pinion:** Gear B's menu can make it a **rack** of N teeth, with Gear A as its pinion: the
   rack's straight teeth match the gears' (backlash shared, roots rounded to the bit), on a bar **Rack

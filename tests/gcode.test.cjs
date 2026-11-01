@@ -143,7 +143,8 @@ test('review fixes: no gouge with Gear B, front-left, or wide tabs; tabs on tips
       const { g, oc } = outlineOf(o, part.key);
       const moves = run(r.gcode).filter((m) => new RegExp('Gear ' + part.key + ' teeth').test(m.section) && m.g === 1 && m.z < 0);
       for (let i = 0; i < moves.length; i += 5) {
-        const q = { x: moves[i].x - part.x, y: moves[i].y - part.y };
+        const tc = Math.cos(-part.turn), ts = Math.sin(-part.turn), lx = moves[i].x - part.x, ly = moves[i].y - part.y;
+        const q = { x: lx * tc - ly * ts, y: lx * ts + ly * tc };
         let d = Infinity;
         for (let j = 0; j + 1 < oc.length; j++) d = Math.min(d, G.distToSegment(q, oc[j], oc[j + 1]));
         assert.ok(d > o.bitDiameter / 2 - 0.0002, `${JSON.stringify({ job: o.job, origin: o.origin, tabs: o.tabs })} Gear ${part.key} gouged ${(o.bitDiameter / 2 - d).toFixed(3)} at ${moves[i].line}`);
@@ -151,7 +152,7 @@ test('review fixes: no gouge with Gear B, front-left, or wide tabs; tabs on tips
       // Each tab lift is near a tooth tip of its own gear.
       const tabTop = o.depth - o.tabs.height, pitch = 2 * Math.PI / g.basics.z;
       for (const m of moves.filter((m) => Math.abs(m.z + tabTop) < 1e-6 && m.z0 < m.z - 1e-6)) {
-        const x = m.x - part.x, y = m.y - part.y, a = Math.atan2(y, x), off = Math.abs(((a / pitch) % 1 + 1.5) % 1 - 0.5) * pitch * Math.hypot(x, y);
+        const x = m.x - part.x, y = m.y - part.y, a = Math.atan2(y, x) - part.turn, off = Math.abs(((a / pitch) % 1 + 1.5) % 1 - 0.5) * pitch * Math.hypot(x, y);
         assert.ok(off < (o.tabs.width + o.bitDiameter) / 2 + 0.5, `Gear ${part.key} tab ${off.toFixed(2)} mm off a tip`);
       }
     }
@@ -344,4 +345,28 @@ test('a ring gear: its teeth cut from inside a bit radius from them, its outside
   assert.match(bad({ bore: 11 }), /screw holes don’t fit in its rim/);
   assert.match(bad({ teeth: 24 }), /at least 12 more teeth/);
   assert.match(GC.generate({ ...base, job: 'frame', gears: { A: base.gears.A, B: { kind: 'ring', teeth: 36, rim: 12 } } }).problems.join(), /Frame Holes is for two gears/);
+});
+
+
+test('both gears nested: B turned to face A, one kerf between them, neither cut gouging the other gear', () => {
+  for (const [teethA, teethB] of [[36, 18], [30, 15], [40, 19]]) {
+    const o = { ...base, job: 'both', gears: { A: { ...base.gears.A, teeth: teethA }, B: { ...base.gears.B, teeth: teethB } } };
+    const r = GC.generate(o);
+    assert.deepEqual(r.problems, []);
+    const A = r.parts.find((p) => p.key === 'A'), B = r.parts.find((p) => p.key === 'B');
+    assert.ok(Math.abs(B.turn - (teethB % 2 === 0 ? Math.PI / teethB : 0)) < 1e-12);
+    const gA = G.gear({ module: o.module, teeth: teethA, pressureDeg: o.pressureDeg, backlash: o.backlash, clearance: o.clearance, bitRadius: o.bitDiameter / 2 });
+    const gB = G.gear({ module: o.module, teeth: teethB, pressureDeg: o.pressureDeg, backlash: o.backlash, clearance: o.clearance, bitRadius: o.bitDiameter / 2 });
+    // Closer than the old layout (both tip radii, two bit widths and 6 mm).
+    assert.ok(B.x - A.x < gA.basics.ra + gB.basics.ra + 2 * o.bitDiameter + 6 - 5, `${teethA}:${teethB} at ${(B.x - A.x).toFixed(2)}`);
+    // Each gear's cuts stay a bit radius (and the 0.5 mm margin, less sampling) off the other gear's outline.
+    const outline = (g, part) => { const c = Math.cos(part.turn), s = Math.sin(part.turn); return g.outline.map((q) => ({ x: part.x + q.x * c - q.y * s, y: part.y + q.x * s + q.y * c })); };
+    const oA = outline(gA, A), oB = outline(gB, B);
+    const moves = run(r.gcode).filter((m) => m.g === 1 && m.z < 0);
+    for (const [label, other] of [['Gear A teeth', oB], ['Gear B teeth', oA]]) {
+      let worst = Infinity;
+      for (const m of moves.filter((m) => m.section.includes(label))) for (const q of other) worst = Math.min(worst, Math.hypot(m.x - q.x, m.y - q.y));
+      assert.ok(worst >= o.bitDiameter / 2 + 0.2, `${teethA}:${teethB} ${label} comes ${worst.toFixed(3)} mm from the other gear`);
+    }
+  }
 });

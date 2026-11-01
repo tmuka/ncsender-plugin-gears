@@ -370,7 +370,7 @@
               <select class="gr-select" id="gr-origin" title="Where X and Y are zeroed on the machine."><option value="center">Gear's Center</option><option value="front-left">Front-Left</option></select></div>
             <div class="gr-field"><label for="gr-direction">Direction</label>
               <select class="gr-select" id="gr-direction" title="Conventional is gentler on lighter machines; Climb can leave a cleaner edge on a rigid one."><option value="conventional">Conventional</option><option value="climb">Climb</option></select></div>
-            <div class="gr-field"><label for="gr-gap">Gap Between</label><input class="gr-input" id="gr-gap" data-unit="length" title="Both Gears: stock left between the two cuts."></div>
+            <div class="gr-field"><label for="gr-gap">Gap Between</label><input class="gr-input" id="gr-gap" data-unit="length" title="Both Gears: Gear B is turned so its teeth face Gear A&rsquo;s spaces, and set as close as the bit allows (one cut&rsquo;s width and 0.5 mm between them). Extra space between them: room for a screw or clamp between the gears, or a sturdier strip for their holding tabs. 0: as close as the bit allows."></div>
           </div>
           <div class="gr-hint" id="gr-origin-say"></div>
         </div>
@@ -425,7 +425,7 @@
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
-          <li><b>Both Gears</b> puts Gear B beside Gear A with the <b>Gap Between</b> them. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
+          <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces and as close as the bit allows: one cut&rsquo;s width and 0.5&nbsp;mm between them, which saves stock. <b>Gap Between</b> adds space when you want it: room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack or ring gear keeps two cuts&rsquo; width and the gap. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
         </ul></div>
       </div>
@@ -1615,6 +1615,28 @@ if (typeof module !== 'undefined' && module.exports) {
     }).map(function (s) { return [s - half, s + half]; });
   }
 
+  // Both gears, nested: Gear B turned half a tooth when it has an even
+  // number of teeth (so a space of B faces a tooth of A along the line
+  // between them, as when they mesh), and as close as keeps their outlines
+  // `clear` apart everywhere: one kerf between them, less stock.
+  function nestTurn(zB) { return zB % 2 === 0 ? Math.PI / zB : 0; }
+  function nestedDistance(A, B, turn, clear) {
+    var c = Math.cos(turn), sn = Math.sin(turn), raA = A.basics.ra, raB = B.basics.ra;
+    var a = A.outline.filter(function (q) { return q.x > raA - 4 * A.basics.m; });
+    var b = B.outline.map(function (q) { return { x: q.x * c - q.y * sn, y: q.x * sn + q.y * c }; })
+      .filter(function (q) { return q.x < -raB + 4 * B.basics.m; });
+    var apart = function (d) {
+      for (var i = 0; i < b.length; i++) {
+        var bx = b[i].x + d, by = b[i].y;
+        for (var j = 0; j < a.length; j++) if (Math.abs(a[j].y - by) < clear && Math.hypot(a[j].x - bx, a[j].y - by) < clear) return false;
+      }
+      return true;
+    };
+    var lo = raA + raB - 3 * Math.max(A.basics.m, B.basics.m), hi = raA + raB + clear;
+    for (var k = 0; k < 30; k++) { var mid = (lo + hi) / 2; if (apart(mid)) hi = mid; else lo = mid; }
+    return hi;
+  }
+
   // A frame's axle hole when none is typed: the gear's bore, or for a hex
   // bore the hex's corners, so the shaft turns in it.
   function frameHole(g) { return g.boreShape === 'hex' ? g.bore / Math.cos(Math.PI / 6) : g.bore; }
@@ -1696,17 +1718,23 @@ if (typeof module !== 'undefined' && module.exports) {
   function generate(o) {
     var p = plan(o), r = o.bitDiameter / 2;
     if (p.problems.length) return { problems: p.problems, notes: p.notes, gcode: null };
-    var DEFAULTS = { hop: 5, stepoverPct: 40, gap: 6, direction: 'conventional' };
+    var DEFAULTS = { hop: 5, stepoverPct: 40, gap: 0, direction: 'conventional' };
     o = Object.assign({}, o);
     Object.keys(DEFAULTS).forEach(function (k) { if (o[k] == null) o[k] = DEFAULTS[k]; });
     var L = [], parts = [], placed = [];
-    // Gear A at (0, 0), B beside it in +X with gap between the cuts.
-    // A rack: its left end there, level with Gear A's middle; alone, centered on X0 Y0.
-    var xB = 0, rb = p.rack && p.info.B.basics;
-    if (p.which.length === 2) xB = p.info.A.basics.ra + (p.rack ? 0 : p.info.B.basics.ra) + 2 * o.bitDiameter + o.gap;
+    // Gear A at (0, 0), B beside it in +X: two gears nested (B turned to
+    // face A as they mesh, one kerf and 0.5 mm between them), a rack or a
+    // ring two kerfs off; and the Gap Between more. A rack: its left end
+    // there, level with Gear A's middle; alone, centered on X0 Y0.
+    var xB = 0, rb = p.rack && p.info.B.basics, turnB = 0;
+    var nested = p.which.length === 2 && !p.rack && !p.ring;
+    if (nested) {
+      turnB = nestTurn(p.info.B.basics.z);
+      xB = nestedDistance(p.info.A, p.info.B, turnB, o.bitDiameter + 0.5) + o.gap;
+    } else if (p.which.length === 2) xB = p.info.A.basics.ra + (p.rack ? 0 : p.info.B.basics.ra) + 2 * o.bitDiameter + o.gap;
     p.which.forEach(function (k) {
       if (k === 'B' && p.rack) placed.push({ key: k, x: p.which.length === 2 ? xB : -rb.length / 2, y: -(rb.bottom + rb.top) / 2 });
-      else placed.push({ key: k, x: k === 'B' && p.which.length === 2 ? xB : 0, y: 0 });
+      else placed.push({ key: k, x: k === 'B' && p.which.length === 2 ? xB : 0, y: 0, turn: k === 'B' ? turnB : 0 });
     });
     var holes = [];
     placed.forEach(function (pl) {
@@ -1763,7 +1791,9 @@ if (typeof module !== 'undefined' && module.exports) {
       // clockwise round the outside of a part; conventional, counter-
       // clockwise (the path's own way).
       if (o.direction === 'climb') path.reverse();
-      path = path.map(function (q) { return { x: q.x + pl.x + sx, y: q.y + pl.y + sy }; });
+      // Turned (Gear B nested): its teeth only; the bore and holes look the same at any turn.
+      var tc = Math.cos(pl.turn || 0), ts = Math.sin(pl.turn || 0);
+      path = path.map(function (q) { return { x: q.x * tc - q.y * ts + pl.x + sx, y: q.x * ts + q.y * tc + pl.y + sy }; });
       var sg = segmentsOf(path), s0 = 0, best = Infinity, tabs = [], isRack = info.kind === 'rack';
       // Where on the path is nearest a point (in the piece's own frame).
       var nearest = function (x, y) {
@@ -1782,12 +1812,12 @@ if (typeof module !== 'undefined' && module.exports) {
         s0 = nearest(info.basics.length * (nT >= 2 ? 1 / nT : nT === 1 ? 0.25 : 0.5), yb);
       } else {
         // Start in the middle of the space before tooth 0, deepest on the path.
-        var sa = -Math.PI / info.basics.z;
+        var sa = -Math.PI / info.basics.z + (pl.turn || 0);
         sg.segs.forEach(function (g) {
           var x = g.a.x - pl.x - sx, y = g.a.y - pl.y - sy, d = Math.hypot(x, y) + Math.abs(Math.atan2(y, x) - sa) * 1000;
           if (d < best) { best = d; s0 = g.at; }
         });
-        tabs = o.tabs && o.tabs.count > 0 ? tipTabs(sg, pl.x + sx, pl.y + sy, info.basics.z, o.tabs.count, o.tabs.width, o.bitDiameter, 0) : [];
+        tabs = o.tabs && o.tabs.count > 0 ? tipTabs(sg, pl.x + sx, pl.y + sy, info.basics.z, o.tabs.count, o.tabs.width, o.bitDiameter, pl.turn || 0) : [];
       }
       tabs = mergeTabs(tabs, s0, sg.total);
       if (tabs.reduce(function (a, iv) { return a + iv[1] - iv[0]; }, 0) > 0.5 * sg.total) {
@@ -1808,7 +1838,7 @@ if (typeof module !== 'undefined' && module.exports) {
         prev = d;
       });
       L.push('G0 Z' + f3(o.hop));
-      parts.push({ key: pl.key, x: pl.x + sx, y: pl.y + sy, path: path });
+      parts.push({ key: pl.key, x: pl.x + sx, y: pl.y + sy, turn: pl.turn || 0, path: path });
     });
     if (p.problems.length) return { problems: p.problems, notes: p.notes, gcode: null };
     L.push(safe + ' ; Safe Z');
@@ -1854,7 +1884,7 @@ if (typeof module !== 'undefined' && module.exports) {
     'gr-holes-a': ['whole', 0, 24, 'Gear A Lightening Holes', 5], 'gr-holes-b': ['whole', 0, 24, 'Gear B Lightening Holes', 0],
     'gr-depth': ['length', 0.05, 200, 'Total Depth', 12.5], 'gr-step': ['length', 0.05, 50, 'Depth of Cut', null],
     'gr-tabs': ['whole', 1, 12, 'Tabs', 3], 'gr-tab-w': ['length', 0.5, 50, 'Tab Width', 4], 'gr-tab-h': ['length', 0.1, 50, 'Tab Height', 1.5],
-    'gr-gap': ['length', 0, 200, 'Gap Between', 6],
+    'gr-gap': ['length', 0, 200, 'Gap Between', 0],
     'gr-frame-a': ['length', 0, 500, 'Axle Hole A', null], 'gr-frame-b': ['length', 0, 500, 'Axle Hole B', null],
     'gr-frame-depth': ['length', 0.05, 200, 'Total Depth', 19], 'gr-frame-step': ['length', 0.05, 50, 'Depth of Cut', null]
   };
@@ -2549,14 +2579,17 @@ if (typeof module !== 'undefined' && module.exports) {
       Object.keys(FIELDS).forEach(function (id) { var w = state.written[id], x = w && w.text === $(id).value ? w.v : read(id); if (x != null && !isNaN(x)) v[id] = x; });
       ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by'].forEach(function (id) { v[id] = $(id).value; });
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
-      v.module = moduleFromSize(); v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
+      v.module = moduleFromSize(); v.nested = true; v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
       fetch(BASE_URL + '/api/plugins/' + PLUGIN + '/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: v }) }).catch(function () {});
     };
     if (now) go(); else saveTimer = setTimeout(go, 800);
   }
   function restore() {
     var v = (initialConfig && initialConfig.v) || null;
-    var imperialDefaults = { 'gr-bit': 3.175, 'gr-backlash': 0.3048, 'gr-bore-a': 7.9375, 'gr-bore-b': 7.9375, 'gr-depth': 13.208, 'gr-tab-w': 3.96875, 'gr-tab-h': 1.5875, 'gr-gap': 6.35, 'gr-frame-depth': 19.558 };
+    var imperialDefaults = { 'gr-bit': 3.175, 'gr-backlash': 0.3048, 'gr-bore-a': 7.9375, 'gr-bore-b': 7.9375, 'gr-depth': 13.208, 'gr-tab-w': 3.96875, 'gr-tab-h': 1.5875, 'gr-frame-depth': 19.558 };
+    // Saved before both gears were nested: the old default gap (6 mm, a
+    // quarter inch) was room the nesting makes up; any other gap was chosen.
+    if (v && !v.nested && v['gr-gap'] != null && (Math.abs(v['gr-gap'] - 6) < 1e-6 || Math.abs(v['gr-gap'] - 6.35) < 1e-6)) v['gr-gap'] = 0;
     Object.keys(FIELDS).forEach(function (id) {
       var f = FIELDS[id], x = v && v[id] != null ? v[id] : (state.imperial && imperialDefaults[id] != null ? imperialDefaults[id] : f[4]);
       write(id, x);
