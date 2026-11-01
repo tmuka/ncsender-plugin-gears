@@ -24,17 +24,27 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
 - **Clearances for real materials.** **Backlash** (play between the teeth, 0.3 mm by default) and
   **Tip Clearance** (room at the root: blank is a quarter module, or more when the bit's rounding at
   the root needs it so the other gear's tips clear it; a typed one under that is refused).
-- **Gear bodies:** a **Bore** for the axle, round or **Hex** (sized across the flats, such as 12.7 mm
-  for a 1/2" hex shaft, with a small notch in each corner so a sharp-cornered shaft fits), and
-  **Lightening Holes** in a ring between the hub and the teeth. Holes are cleared out from the
-  middle, so nothing comes loose.
+- **Gear bodies:** a **Bore** for the axle: round; **Hex** (sized across the flats, such as 12.7 mm
+  for a 1/2" hex shaft); **D** (round with one flat, for a D shaft such as a motor's, sized by
+  **Across the Flat**); or **Keyed** (round with a keyway, **Key Width** at least the bit's and
+  **Key Depth** past the bore). Each sharp corner gets a small notch so a sharp-cornered shaft or key
+  fits. And **Lightening Holes** in a ring between the hub and the teeth. Holes are cleared out
+  from the middle, so nothing comes loose.
 - **Cutting:** each gear's holes, then its teeth from outside a bit radius out; depth passes, each
   ramped down along the path at 5° or less (Z never faster than the Plunge Rate), and **Holding Tabs**
   on tooth tips, where they're easy to sand off. Conventional or Climb.
 - **Both gears in one program**, side by side with a **Gap Between**, or either one; X0 Y0 at the
   gear's center or the front-left corner of the cuts.
+- **Center Distance:** blank is the gears' own. Type the distance the axles must be and either
+  spread the gears to it (a little wider: more backlash, shown with the contact ratio; too wide or
+  too close is refused with the range that works) or press **Fit Tooth Size** to make the teeth mesh
+  at exactly that distance. An idea: with Spoilboard Toolbox, the center-to-center spacing of your
+  spoilboard's holes or threaded inserts is a distance you can fit to, to try a pair on bolts in the
+  spoilboard (for a test: a bolt's thread wears a bore).
 - **Frame Holes:** the two axle holes in a frame board, exactly the center distance apart (round;
   for a hex bore, blank means across its corners so the shaft turns).
+- **Tool change:** click **Bit Diameter** to take the loaded tool's diameter from ncSender's tool
+  table; the program then starts with a tool change to it (M6).
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
   the machine's max feed and spindle range.

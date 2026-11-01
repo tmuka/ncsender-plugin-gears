@@ -78,3 +78,21 @@ test('few teeth are undercut and say so; 25° needs fewer', () => {
   assert.ok(!G.gear({ module: 4, teeth: 18, pressureDeg: 20, bitRadius: 1.5875 }).undercut);
   assert.ok(!G.gear({ module: 6, teeth: 12, pressureDeg: 25, bitRadius: 1.5875 }).undercut);
 });
+
+test('spread apart to a typed center distance, the pair meshes with the backlash it reports', () => {
+  const p = { module: 3.5, pressureDeg: 20, backlash: 0.3, bitRadius: 1.5875 }, zA = 36, zB = 18;
+  const nat = G.pair(p, zA, zB).centerDistance, pr = G.pair({ ...p, centerDistance: nat + 0.4 }, zA, zB);
+  const A = G.gear({ ...p, teeth: zA }), Bg = G.gear({ ...p, teeth: zB });
+  const cd = pr.centerDistance, oa = G.simplifyClosed(A.outline, 0.001), ob = G.simplifyClosed(Bg.outline, 0.001);
+  let gap = Infinity;
+  for (let s = 0; s <= 24; s++) {
+    const d = (2 * Math.PI / zA) * s / 24, a = turn(oa, d), b = turn(ob, Math.PI + Math.PI / zB - d * zA / zB, cd);
+    const nearA = a.filter((q) => q.x > cd - Bg.basics.ra - 0.5), nearB = b.filter((q) => q.x < A.basics.ra + 0.5);
+    for (const q of nearA) assert.ok(!inside(q, b), `overlap at step ${s}`);
+    for (const q of nearA) for (let i = 0; i + 1 < nearB.length; i++) if (Math.abs(nearB[i].y - q.y) < 10) gap = Math.min(gap, G.distToSegment(q, nearB[i], nearB[i + 1]));
+  }
+  // Round the pitch circle the backlash is pr.backlash; normal to the teeth, at the
+  // working pressure angle, half each side.
+  const ap = Math.acos(nat * Math.cos(20 * Math.PI / 180) / cd), want = pr.backlash * Math.cos(ap) / 2;
+  assert.ok(Math.abs(gap - want) < 0.03, `closest ${gap.toFixed(4)}, want about ${want.toFixed(4)}`);
+});

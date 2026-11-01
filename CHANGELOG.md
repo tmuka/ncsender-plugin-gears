@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+**Bores for more shafts, and gears spaced to the distance you need.**
+
+### ✨ New
+- **D and Keyed bores:** a round bore with one flat (for a D shaft, sized Across the Flat) or with a
+  keyway (Key Width and Key Depth), each sharp corner notched so the shaft or key fits.
+- **Center Distance:** type where the axles must be; the gears spread to it (with the extra backlash
+  and the contact ratio shown, and the range that works), or **Fit Tooth Size** meshes them at exactly
+  that distance. Frame Holes drills at it.
+- **Tool change:** click Bit Diameter to take the loaded tool from ncSender's tool table; the program
+  starts with M6 to it.
+
 ## 0.1.0
 
 **First version: a meshing gear pair from a dialog.**

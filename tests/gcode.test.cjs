@@ -35,7 +35,8 @@ function run(gcode) {
 }
 
 test('nothing below Total Depth, no rapids at depth, Z never faster than the Plunge Rate', () => {
-  for (const o of [base, { ...base, job: 'both' }, { ...base, job: 'frame' }, { ...base, gears: { A: { teeth: 12, bore: 3.175, holes: 0 }, B: base.gears.B }, module: 4 }, { ...base, gears: { A: { teeth: 36, bore: 12.7, boreShape: 'hex', holes: 5 }, B: base.gears.B } }]) {
+  for (const o of [base, { ...base, job: 'both' }, { ...base, job: 'frame' }, { ...base, gears: { A: { teeth: 12, bore: 3.175, holes: 0 }, B: base.gears.B }, module: 4 }, { ...base, gears: { A: { teeth: 36, bore: 12.7, boreShape: 'hex', holes: 5 }, B: base.gears.B } },
+    { ...base, direction: 'climb', gears: { A: { teeth: 36, bore: 14, boreShape: 'dflat', flat: 12, holes: 5 }, B: { teeth: 18, bore: 10, boreShape: 'keyway', keyWidth: 3.2, keyDepth: 1.5 } }, job: 'both' }]) {
     const r = GC.generate(o);
     assert.deepEqual(r.problems, []);
     for (const m of run(r.gcode)) {
@@ -175,4 +176,60 @@ test('review fixes: no gouge with Gear B, front-left, or wide tabs; tabs on tips
   const mm = G.minModule({ pressureDeg: 20, bitRadius: 1.5875, backlash: 0.3, clearance: 1.2 });
   assert.equal(G.gear({ module: mm * 1.001, teeth: 30, pressureDeg: 20, backlash: 0.3, clearance: 1.2, bitRadius: 1.5875 }).problem, null);
   assert.ok(G.gear({ module: mm * 0.99, teeth: 30, pressureDeg: 20, backlash: 0.3, clearance: 1.2, bitRadius: 1.5875 }).problem);
+});
+
+test('a D bore and a keyed bore: cleared to their edges, never past, notches reaching the sharp corners', () => {
+  const r = base.bitDiameter / 2, R = 7, depthMoves = (res, re) => run(res.gcode).filter((m) => re.test(m.section) && m.g === 1 && m.z < 0);
+  for (const direction of ['conventional', 'climb']) {
+    // D: 14 mm round, 12 across the flat (the flat across +X at x = 5).
+    const F = 12, fx = F - R, d = { ...base, direction, gears: { A: { teeth: 36, bore: 14, boreShape: 'dflat', flat: F, holes: 0 }, B: base.gears.B } };
+    let res = GC.generate(d);
+    assert.deepEqual(res.problems, []);
+    let mv = depthMoves(res, /d bore/);
+    const inD = (q, grow) => q.x <= fx - r + grow && Math.hypot(q.x, q.y) <= R - r + grow;
+    for (const m of mv) if (!/Corner relief/.test(m.raw)) assert.ok(inD(m, 1e-3), `${direction} D: past the edge at ${m.line}`);
+    const tips = mv.filter((m) => /Corner relief/.test(m.raw));
+    assert.equal(tips.length, 2 * GC.depthLevels(d.depth, d.depthOfCut).length);
+    const corner = { x: fx, y: Math.sqrt(R * R - fx * fx) };
+    for (const t of tips) assert.ok(Math.abs(Math.hypot(t.x - corner.x, Math.abs(t.y) - corner.y) - r) < 2e-3, `${direction} D notch misses its corner: ${t.line}`);
+    let floor = mv.filter((m) => Math.abs(m.z + d.depth) < 1e-6 && Math.abs(m.z0 + d.depth) < 1e-6);
+    for (let x = -R; x <= R; x += 0.25) for (let y = -R; y <= R; y += 0.25) {
+      if (!(x <= fx - 0.02 && Math.hypot(x, y) <= R - 0.02)) continue;
+      const near = Math.min(...floor.map((m) => G.distToSegment({ x, y }, { x: m.x0, y: m.y0 }, m)));
+      assert.ok(near <= r + 1e-6, `${direction} D: (${x}, ${y}) left uncut`);
+    }
+    // Keyed: 14 mm round, a 4 mm keyway 2 mm past the bore, up +Y.
+    const w = 4, k = 2, kd = { ...base, direction, gears: { A: { teeth: 36, bore: 14, boreShape: 'keyway', keyWidth: w, keyDepth: k, holes: 0 }, B: base.gears.B } };
+    res = GC.generate(kd);
+    assert.deepEqual(res.problems, []);
+    mv = depthMoves(res, /keyed bore/);
+    const inK = (q, grow) => Math.hypot(q.x, q.y) <= R - r + grow || (Math.abs(q.x) <= w / 2 - r + grow && q.y >= -grow && q.y <= R + k - r + grow);
+    for (const m of mv) if (!/Corner relief/.test(m.raw)) assert.ok(inK(m, 1e-3), `${direction} keyway: past the edge at ${m.line}`);
+    const kt = mv.filter((m) => /Corner relief/.test(m.raw));
+    assert.ok(kt.length >= 2);
+    for (const t of kt) assert.ok(Math.abs(Math.hypot(Math.abs(t.x) - w / 2, t.y - (R + k)) - r) < 2e-3, `${direction} keyway notch misses its corner: ${t.line}`);
+    floor = mv.filter((m) => Math.abs(m.z + kd.depth) < 1e-6 && Math.abs(m.z0 + kd.depth) < 1e-6);
+    // The arcs of the round part are G2/G3: check the keyway's own area here.
+    for (let x = -w / 2 + 0.02; x <= w / 2 - 0.02; x += 0.2) for (let y = R - 0.5; y <= R + k - 0.02; y += 0.2) {
+      const near = Math.min(...floor.map((m) => G.distToSegment({ x, y }, { x: m.x0, y: m.y0 }, m)));
+      assert.ok(near <= r + 1e-6, `${direction} keyway: (${x.toFixed(2)}, ${y.toFixed(2)}) left uncut`);
+    }
+  }
+  // Problems name the field.
+  const bad = (g) => GC.generate({ ...base, gears: { A: { teeth: 36, bore: 14, holes: 0, ...g }, B: base.gears.B } }).problems.join(' | ');
+  assert.match(bad({ boreShape: 'dflat', flat: 14 }), /Across the Flat must be less than the bore/);
+  assert.match(bad({ boreShape: 'dflat', flat: 3 }), /Across the Flat must be more than the bit/);
+  assert.match(bad({ boreShape: 'keyway', keyWidth: 2, keyDepth: 2 }), /Key Width must be at least the bit/);
+  assert.match(bad({ boreShape: 'keyway', keyWidth: 4, keyDepth: 0 }), /Key Depth must be more than 0/);
+});
+
+test('a typed center distance: frame holes at it, the range that works, refused outside it', () => {
+  const nat = G.pair(base, 36, 18).centerDistance;
+  const res = GC.generate({ ...base, job: 'frame', depth: 19, depthOfCut: 3, centerDistance: nat + 0.5 });
+  assert.deepEqual(res.problems, []);
+  assert.ok(res.holes.some((h) => Math.abs(h.x - (nat + 0.5)) < 1e-9));
+  const pr = G.pair({ ...base, centerDistance: nat + 0.5 }, 36, 18);
+  assert.ok(Math.abs(pr.backlash - (0.3 + 2 * 0.5 * Math.tan(20 * Math.PI / 180))) < 1e-9 && pr.contactRatio < G.pair(base, 36, 18).contactRatio);
+  assert.match(GC.generate({ ...base, centerDistance: nat - 1 }).problems.join(), /too close/);
+  assert.match(GC.generate({ ...base, centerDistance: nat + 10 }).problems.join(), /too far/);
 });

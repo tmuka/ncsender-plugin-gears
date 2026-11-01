@@ -38,19 +38,14 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
 - **Backlash** (default 0.3 mm on the pitch circle) and **Tip Clearance** (default 0.25 × module).
 - Undercut handled honestly: the true involute plus the trochoid the mating tooth sweeps, so small
   pinions mesh. Profile shift is a later option.
-- **Center Distance** shown. Changing it to a round number with **Fit to Distance** adjusts the profile
-  shift or backlash to suit.
-- **Test on the spoilboard (idea, 2026-11-01):** when Spoilboard Toolbox is installed, read its
-  settings (`/api/plugins/com.tmuka.spoilboard-toolbox/settings`: the threaded-insert grid's spacing,
-  any turn, and the bolt picked on Stock Holes) and offer pairs whose center distance is a spacing
-  the grid has (one hole apart, two, a diagonal), with bores that fit the user's usual workholding
-  bolts. Each gear then turns on a bolt in an insert, so a pair can be tried on the machine with no
-  frame. A **Fit to Grid** next to Fit to Distance: it picks the nearest grid distance and adjusts
-  the backlash, or the teeth, to suit. Say the bolt is an axle only for a test: a bolt's thread
-  wears a bore, so a sleeve, bushing or shoulder bolt is better for keeps.
+- **Center Distance** (done after 0.1.0): typed, the gears spread to it (backlash shown) or **Fit
+  Tooth Size** meshes them at exactly it. Profile shift to fit is still a later option.
+- **Test on the spoilboard (idea, 2026-11-01):** niche, so for now only mentioned in the Help and
+  README: Spoilboard Toolbox's center-to-center spacing of holes or threaded inserts is a distance to
+  fit to. A Fit to Grid that reads its settings is for later, if asked.
 
 **Each gear's body**
-- **Bore**: round or hex (done in 0.1: across the flats, dog-boned corners), with an optional **D-flat** or a **keyway** (for a shaft or a dowel with a flat).
+- **Bore**: round or hex (done in 0.1: across the flats, dog-boned corners); D and keyed (done after 0.1.0).
 - **Hub** circle left solid around the bore.
 - **Spokes / lightening holes**: 3 to 8, round or straight-sided windows, with a rim width. Cut as
   pockets or through-holes with Corner Radius at least the bit's.
