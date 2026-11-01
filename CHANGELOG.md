@@ -9,7 +9,8 @@
   rolls the pinion along it; the facts give the rack's travel a turn and where to mount it from the
   pinion's axle.
 - **The tool menu** (with a tool changer) has a filter on top and the tool in the spindle first, as
-  QuickCut's; picking a tool, or taking the loaded one, sets **Flutes** when its name or notes say.
+  QuickCut's; picking a tool, or taking the loaded one, sets **Flutes** from its name or notes, or to
+  2 when they don't say.
 - **Ring gears:** Gear B's menu can make it a **ring** with its teeth inside, Gear A its pinion turning
   inside it (at least 12 more teeth on the ring at 20°, 10 at 25°, 16 at 14.5°, so their tips clear).
   The ring's teeth are shaped as cut from inside with your bit, and kept clear of the pinion's root

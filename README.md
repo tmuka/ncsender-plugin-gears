@@ -64,8 +64,8 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   diameter. With a tool changer it's a menu of the tool table instead: pick the tool and the program
   starts with a tool change to it (M6); typing another diameter, or **No tool change**, leaves it out.
   The menu lists the tool in the spindle first, with a filter on top (T number, name, notes or
-  size). Picking a tool, or taking the loaded one, sets **Flutes** when its name or notes say
-  (O flute, single flute, 2 flute, 3FL...).
+  size). Picking a tool, or taking the loaded one, sets **Flutes** from its name or notes
+  (O flute, 0flute, single flute, 2 flute, 3FL...), or to 2 when they don't say.
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
   the machine's max feed and spindle range.

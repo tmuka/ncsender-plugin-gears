@@ -2505,25 +2505,25 @@ if (typeof module !== 'undefined' && module.exports) {
       note.textContent = /fetch|JSON/i.test(e.message) ? 'Couldn’t read the tool table from ncSender.' : e.message + '.';
     }
   }
-  // How many flutes a tool's name or notes say it has: "O flute" or
+  // How many flutes a tool's name or notes say it has: "O flute", "0flute" or
   // "single flute" 1, "2 flute", "two-flute", "3FL", "2F"... else null
   // (ncSender's tool table has no field for it). As QuickCut's.
   function flutesFromText(text) {
     var t = String(text || '').toLowerCase();
-    if (/\b(o|single|one)[\s-]*flutes?\b/.test(t)) return 1;
+    if (/\b(o|0|zero|single|one)[\s-]*flutes?\b/.test(t)) return 1;
     var m = /\b([1-4])[\s-]*(?:flutes?|fl)\b/.exec(t) || /\b([1-4])f\b/.exec(t);
     if (m) return +m[1];
     var w = /\b(two|double|three|four)[\s-]*flutes?\b/.exec(t);
     return w ? { two: 2, double: 2, three: 3, four: 4 }[w[1]] : null;
   }
-  // Flutes set from a tool, when its name says. Returns the count, or null.
+  // Flutes set from a tool: what its name says, else 2, the usual. Returns the count.
   function flutesFromTool(t) {
-    var n = flutesFromText((t.name || '') + ' ' + (t.notes || ''));
-    if (n) $('gr-flutes').value = String(n);
+    var n = flutesFromText((t.name || '') + ' ' + (t.notes || '')) || 2;
+    $('gr-flutes').value = String(n);
     return n;
   }
   var toolPop = { open: false, active: 0, items: [] };
-  function openToolPop(focusFilter) {
+  function openToolPop() {
     var btn = $('gr-bit-tool'), pop = $('gr-tool-pop');
     toolPop.open = true; toolPop.active = 0;
     $('gr-tool-filter').value = '';
@@ -2535,8 +2535,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var below = r.bottom - w.top + 4, room = w.height - below - 8;
     pop.style.top = (room >= Math.min(pop.offsetHeight, 240) ? below : Math.max(8, r.top - w.top - pop.offsetHeight - 4)) + 'px';
     renderToolList();
-    // Not on a touch: the on-screen keyboard shouldn't pop up unasked.
-    if (focusFilter) $('gr-tool-filter').focus();
+    $('gr-tool-filter').focus();
   }
   function closeToolPop() { toolPop.open = false; $('gr-tool-pop').hidden = true; $('gr-bit-tool').setAttribute('aria-expanded', 'false'); }
   function moveToolActive(step) {
@@ -2607,10 +2606,8 @@ if (typeof module !== 'undefined' && module.exports) {
     pop.innerHTML = '<input class="gr-input gr-tool-filter" id="gr-tool-filter" type="text" autocomplete="off" spellcheck="false" placeholder="Filter: T number, name or size" aria-label="Filter the tools">' +
       '<div class="gr-tool-list" id="gr-tool-list" role="listbox" aria-label="Tool table"></div>';
     ROOT.appendChild(pop);
-    var how = 'mouse';
-    btn.addEventListener('pointerdown', function (e) { how = e.pointerType || 'mouse'; });
-    btn.addEventListener('keydown', function (e) { how = 'keyboard'; if (e.key === 'ArrowDown') { e.preventDefault(); openToolPop(true); } });
-    btn.addEventListener('click', function () { if (toolPop.open) closeToolPop(); else openToolPop(how !== 'touch'); });
+    btn.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); openToolPop(); } });
+    btn.addEventListener('click', function () { if (toolPop.open) closeToolPop(); else openToolPop(); });
     var filter = $('gr-tool-filter');
     filter.addEventListener('input', function (e) { e.stopPropagation(); toolPop.active = 0; renderToolList(); });
     filter.addEventListener('keydown', function (e) {
