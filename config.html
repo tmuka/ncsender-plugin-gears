@@ -2381,7 +2381,8 @@ if (typeof module !== 'undefined' && module.exports) {
     state.tools = (tools || []).filter(function (t) { return t.type !== 'probe'; })
       .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '' }; })
       .filter(function (t) { return t.n > 0 && t.mm > 0; })
-      .sort(function (a, b) { return a.n - b.n; });
+      // The tool in the spindle first, then the rest by number.
+      .sort(function (a, b) { return (b.n === state.loadedTool) - (a.n === state.loadedTool) || a.n - b.n; });
   }
   // The tool the program changes to, or 0.
   function bitToolNumber() {
