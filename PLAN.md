@@ -1,4 +1,4 @@
-# Wood Gears for ncSender: plan
+# Wooden Gears for ncSender: plan
 
 An ncSender plugin that designs wooden gears and cuts them straight from the dialog: pick the teeth, see the
 pair mesh, press Generate. Inspired by Matthias Wandel (woodgears.ca), whose wooden gear machines and
@@ -91,7 +91,7 @@ Same pattern as QuickCut and Spoilboard Toolbox, so it's familiar and testable:
 
 ## Decisions (agreed 2026-10-31)
 
-1. **Name and ID**: "Wood Gears", `com.tmuka.wood-gears`, repo `tmuka/ncsender-plugin-wooden-gears`.
+1. **Name and ID**: "Wooden Gears", `com.tmuka.wooden-gears`, repo `tmuka/ncsender-plugin-wooden-gears`.
 2. **Units**: follow ncSender's units, with module in mm even in inch mode, and Diametral Pitch for
    inch users.
 3. **0.1 scope**: the pair + bores + spokes + frame holes first; pin/lantern gears in 0.3.
