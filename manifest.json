@@ -1,13 +1,13 @@
 {
   "id": "com.tmuka.gears",
   "name": "Gears",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "minAppVersion": "2.0.88",
   "configUi": "config.html",
   "icon": "icon.png",
   "author": "tmuka",
   "repository": "https://github.com/tmuka/ncsender-plugin-gears",
-  "description": "Design a pair of spur gears and cut them from ncSender: pick the teeth, watch them mesh, Generate. True involute teeth rounded at the root to fit your bit, backlash for wood and plastic, bores and lightening holes, holding tabs on tooth tips, and the frame's axle holes at the exact center distance. Inspired by Matthias Wandel's woodgears.ca.",
+  "description": "Design spur gears, a rack and pinion or a ring gear, and cut them from ncSender: start from the center distance and ratio, watch them mesh, Generate. True involute teeth rounded at the root to fit your bit, backlash for wood and plastic, bores and lightening holes, holding tabs on tooth tips, and the frame's axle holes at the exact center distance. Inspired by Matthias Wandel's woodgears.ca.",
   "category": "gcode-generator",
   "platforms": {
     "v2": "2.0.88",

@@ -1,26 +1,34 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
-- **Start from the Center Distance:** a card above Teeth; type the distance and the ratio (or Gear A's outside diameter), and
-  pick from the pairs that mesh there, coarse to fine, worked out for the bit.
-- **Both gears nested:** Gear B is turned to face Gear A's spaces and set as close as the bit allows, saving stock;
-  **Gap Between** is now extra space, 0 by default (a saved 6 mm, the old default, becomes 0).
+**Start from where the axles go, cut a rack or a ring gear, and use less stock.** A pair from this release
+has been cut in MDF and meshes.
 
 ### ✨ New
-- **Rack and pinion:** Gear B's menu can make it a **rack** of N teeth, with Gear A as its pinion: the
-  rack's straight teeth match the gears' (backlash shared, roots rounded to the bit), on a bar **Rack
-  Height** deep with screw holes along it, cut from outside with tabs on its bottom edge. The preview
-  rolls the pinion along it; the facts give the rack's travel a turn and where to mount it from the
-  pinion's axle.
-- **The tool menu** (with a tool changer) has a filter on top and the tool in the spindle first, as
-  QuickCut's; picking a tool, or taking the loaded one, sets **Flutes** from its name or notes, or to
-  2 when they don't say.
-- **Ring gears:** Gear B's menu can make it a **ring** with its teeth inside, Gear A its pinion turning
-  inside it (at least 12 more teeth on the ring at 20°, 10 at 25°, 16 at 14.5°, so their tips clear).
-  The ring's teeth are shaped as cut from inside with your bit, and kept clear of the pinion's root
-  rounding; a **Rim Width** with screw holes; cut with tabs on its tooth tips (so the middle stays put)
-  and round its outside.
+- **Start from the Center Distance:** a card above Teeth. Type where the axles go, then the **Ratio** (how it
+  should turn) or **Gear A's outside diameter**. It works out the teeth, tooth size and pressure angle that mesh
+  at exactly that distance with your bit, as three choices: **Coarse** (fewest, biggest teeth: strongest, easiest
+  to cut), **Balanced** and **Fine** (smoother). Typing picks one straight away; tap another to change it. Each
+  says the ratio it really makes, both outside diameters, the biggest bit that cuts it, and when a small gear's
+  teeth are undercut. Everything in the Teeth card can still be changed by hand.
+- **Both gears nested:** Gear B is turned so its teeth face Gear A's spaces and set as close as the bit allows
+  (one cut's width and 0.5 mm between them), about 14–18 mm less stock on the pairs tried. **Gap Between** is
+  now extra space, 0 by default, for a screw or clamp between the gears or sturdier tabs.
+- **Rack and pinion:** Gear B's menu can make it a **rack** of N teeth, with Gear A as its pinion: straight
+  teeth that match the gears', on a bar **Rack Height** deep with screw holes, cut with tabs on its bottom edge.
+  The preview rolls the pinion along it; the facts give the rack's travel a turn and where to mount it.
+- **Ring gears:** Gear B's menu can make it a **ring** with its teeth inside, Gear A its pinion turning inside
+  it, the ring's teeth shaped as cut from inside with your bit and kept clear of the pinion's roots; a **Rim
+  Width** with screw holes, cut with tabs on its tooth tips.
+- **The tool menu** (with a tool changer): a filter on top (T number, name, notes or size), the tool in the
+  spindle first. **Flutes** come from the tool table (the Fusion 360 importer can fill them), else the tool's
+  name ("O flute", "2 flute"...), else 2.
+
+### 🐛 Fixes
+- Long tool names in the tool menu wrap instead of running over the next one.
+- The tool menu's filter no longer shows at the dialog's top left when the menu is closed.
+- A saved Gap Between of 6 mm (the old default) becomes 0, as the gears are now nested; a gap you chose stays.
 
 ## 0.2.0
 
