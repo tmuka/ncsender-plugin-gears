@@ -75,7 +75,7 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
 - Profile shift for small pinions; helical gears are out of scope for a 3-axis router.
 - Optional printable template (SVG) for anyone cutting on a bandsaw.
 
-## Next: start from the center distance (idea, 2026-11-01)
+## Start from the center distance (2026-11-01: the card and solver are built; the preview handles are next)
 
 The user found picking the tooth size (module, circular pitch), pressure angle and backlash first unfriendly.
 Keep them all, but lead with what a builder knows:

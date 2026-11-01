@@ -161,3 +161,50 @@ test('a ring gear meshes with its pinion, at the fewest teeth more it allows', (
   }
   assert.match(G.ringPair({ module: 3, pressureDeg: 20 }, 20, 30).problem, /at least 12 more teeth/);
 });
+
+test('solvePairs: from a center distance and a ratio, pairs that mesh there, coarse to fine, all cuttable', () => {
+  const t = { centerDistance: 60, ratio: 3, bitRadius: 3.175 / 2, backlash: 0.3 };
+  const r = G.solvePairs(t);
+  assert.ok(r.options && r.options.length === 3, JSON.stringify(r));
+  assert.deepStrictEqual(r.options.map((o) => o.kind), ['coarse', 'balanced', 'fine']);
+  let prev = 0;
+  for (const o of r.options) {
+    assert.ok(Math.abs(o.module * (o.teethA + o.teethB) / 2 - 60) < 1e-9, 'meshes at the distance');
+    assert.strictEqual(o.teethA, 3 * o.teethB, 'exact ratio');
+    const p = { pressureDeg: o.pressureDeg, backlash: 0.3, bitRadius: 3.175 / 2 };
+    assert.ok(o.module >= G.minModule(p) - 1e-9, 'the bit can cut it');
+    // The largest bit: just fits.
+    assert.ok(Math.abs(G.minModule({ ...p, bitRadius: o.maxBit / 2 }) - o.module) < 1e-3, 'largest bit');
+    assert.ok(o.teethA + o.teethB > prev, 'coarse to fine'); prev = o.teethA + o.teethB;
+    assert.strictEqual(o.undercut, Math.min(o.teethA, o.teethB) < (o.pressureDeg === 25 ? 12 : 17));
+  }
+});
+
+test('solvePairs: 25 degrees only for a small gear the bit can still cut at 25; else 20', () => {
+  for (const o of G.solvePairs({ centerDistance: 100, ratio: 2.7, bitRadius: 3.175 / 2, backlash: 0.3 }).options) {
+    if (o.pressureDeg === 25) {
+      assert.ok(Math.min(o.teethA, o.teethB) < 17);
+      assert.ok(o.module >= G.minModule({ pressureDeg: 25, backlash: 0.3, bitRadius: 3.175 / 2 }) - 1e-9);
+    }
+  }
+  // A ratio no whole teeth make exactly: as near as any option gets (within 0.5%).
+  for (const o of G.solvePairs({ centerDistance: 100, ratio: 2.7, bitRadius: 3.175 / 2, backlash: 0.3 }).options) {
+    assert.ok(Math.abs(o.ratio - 2.7) / 2.7 <= 0.005 + 1e-12, String(o.ratio));
+  }
+});
+
+test('solvePairs: from Gear A\'s outside diameter, as near as whole teeth allow, meshing at the distance', () => {
+  const r = G.solvePairs({ centerDistance: 100, outsideA: 70, bitRadius: 3.175 / 2, backlash: 0.3 });
+  assert.ok(r.options.length >= 1);
+  for (const o of r.options) {
+    assert.ok(Math.abs(o.module * (o.teethA + o.teethB) / 2 - 100) < 1e-9);
+    assert.ok(Math.abs(o.outsideA - 70) / 70 <= 0.005 + 1e-12, String(o.outsideA));
+  }
+  assert.ok(r.options.some((o) => Math.abs(o.outsideA - 70) < 1e-9), 'an exact one when there is one');
+});
+
+test('solvePairs: says what is missing, or that nothing fits', () => {
+  assert.match(G.solvePairs({ ratio: 2, bitRadius: 1 }).problem, /Center Distance/);
+  assert.match(G.solvePairs({ centerDistance: 50, bitRadius: 1 }).problem, /ratio/);
+  assert.match(G.solvePairs({ centerDistance: 12, ratio: 4, bitRadius: 3.175, backlash: 0.3 }).problem, /none fits/);
+});
