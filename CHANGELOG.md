@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0
 
 **First version: a meshing gear pair from a dialog.**
 
@@ -13,3 +13,7 @@
   holes, cleared out; holding tabs on tooth tips; ramped entries.
 - Both gears in one program, or either; Frame Holes at the center distance.
 - Starting feeds by material; mm and inch.
+
+### ⚠️ First version
+- Checked in simulation and tests (tooth shape, meshing, the bit's path, Z speeds, tabs), but not yet
+  cut on a machine: run it in the air first, then a pair in scrap MDF, and please share how they mesh.
