@@ -1,15 +1,15 @@
-# Wooden Gears for ncSender: plan
+# Gears for ncSender: plan
 
-An ncSender plugin that designs wooden gears and cuts them straight from the dialog: pick the teeth, see the
-pair mesh, press Generate. Inspired by Matthias Wandel (woodgears.ca), whose wooden gear machines and
+An ncSender plugin that designs gears and cuts them straight from the dialog: pick the teeth, see the
+pair mesh, press Generate. Inspired by Matthias Wandel (woodgears.ca), whose gear machines and
 [gear template generator](https://woodgears.ca/gear/) showed a generation of woodworkers that plywood
 gears work. This plugin is not affiliated with him. Its math is the standard involute geometry, written fresh,
 and the README will credit him and link to his generator for anyone printing paper templates.
 
 ## Who it's for
 
-Someone with a CNC router and a sheet of plywood who wants gears for a toy, a clock, a winch, a marble
-machine or a gear ratio demonstration. They think in teeth and ratios, not in modules and addendum
+Someone with a CNC router and a sheet of plywood, MDF, hardwood, HDPE, acrylic or aluminum who wants
+gears for a toy, a clock, a winch, a marble machine or a gear ratio demonstration. They think in teeth and ratios, not in modules and addendum
 coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
 
 ## What makes it different from a gear generator plus CAM
@@ -19,8 +19,8 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
    "With a 1/4" bit, teeth must be at least module N (worked out from the gap at the root); or use a 1/8"
    bit." The root gap is much narrower than the gap at the pitch circle, so this decides the smallest
    tooth a given bit can make, and it's the first number the plugin should work out.
-2. **Wood clearances built in.** Backlash and tip clearance default to values that let plywood gears run
-   when the humidity changes, and the preview shows the gap.
+2. **Clearances built in.** Backlash and tip clearance default to values that let wood and plastic gears
+   run when the humidity or temperature changes, and the preview shows the gap.
 3. **The pair, not one gear.** Two gears are designed together: ratio, center distance, and the holes
    for their axles in a frame board, drilled at exactly that distance.
 4. **Straight to G-code**, in QuickCut's style: bore first, then lightening holes, then the teeth, with
@@ -91,11 +91,12 @@ Same pattern as QuickCut and Spoilboard Toolbox, so it's familiar and testable:
 
 ## Decisions (agreed 2026-10-31)
 
-1. **Name and ID**: "Wooden Gears", `com.tmuka.wooden-gears`, repo `tmuka/ncsender-plugin-wooden-gears`.
+1. **Name and ID**: "Gears", `com.tmuka.gears`, repo `tmuka/ncsender-plugin-gears` (renamed from Wooden
+   Gears on 2026-10-31: it cuts many materials). GPL-3.0, since it reuses QuickCut's code.
 2. **Units**: follow ncSender's units, with module in mm even in inch mode, and Diametral Pitch for
    inch users.
 3. **0.1 scope**: the pair + bores + spokes + frame holes first; pin/lantern gears in 0.3.
-4. **Credit wording** in the README: "Inspired by Matthias Wandel's wooden gear work at woodgears.ca",
+4. **Credit wording** in the README: "Inspired by Matthias Wandel's gear work at woodgears.ca",
    with a link to his (more complete) gear generator.
 
 ## First steps
