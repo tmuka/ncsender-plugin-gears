@@ -89,7 +89,12 @@
     border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; color: #ff8f8f; display: flex; flex-direction: column; gap: 4px; }
   .gr-problems[hidden] { display: none; }
   .gr-switch { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--color-text-secondary); cursor: pointer; }
-  .gr-switch input { width: 34px; height: 18px; margin: 0; }
+  /* Switches, as QuickCut's. */
+  .gr-switch input { -webkit-appearance: none; appearance: none; position: relative; width: 36px; height: 20px; margin: 0; flex: none; cursor: pointer;
+    border-radius: 999px; background: color-mix(in srgb, var(--color-text-secondary) 35%, transparent); transition: background 0.15s ease; }
+  .gr-switch input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.15s ease; }
+  .gr-switch input:checked { background: var(--color-accent); }
+  .gr-switch input:checked::after { transform: translateX(16px); }
   .gr-footer { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--color-border); }
   .gr-note { margin-right: auto; font-size: 0.82rem; color: var(--color-text-secondary); }
   .gr-note.gr-bad-note { color: #ff6b6b; font-weight: 600; }
@@ -1066,7 +1071,10 @@ if (typeof module !== 'undefined' && module.exports) {
     if (v == null || !isFinite(v)) return NaN;
     return f[0] === 'length' || f[0] === 'feed' ? v * K() : v;
   }
-  function write(id, v) { var f = FIELDS[id]; $(id).value = v == null ? '' : (f[0] === 'length' || f[0] === 'feed' ? show(v) : v); }
+  function write(id, v) {
+    var f = FIELDS[id];
+    $(id).value = v == null ? '' : f[0] === 'feed' ? parseFloat((v / K()).toFixed(state.imperial ? 1 : 0)) : f[0] === 'length' ? show(v) : v;
+  }
 
   // Tooth size: Module (mm), Diametral Pitch (teeth per inch of pitch
   // diameter) or Circular Pitch (in the machine's units).
@@ -1207,7 +1215,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var raA = A.basics.ra, raB = B.basics.ra, pad = o.bitDiameter * 2 + 4;
     var x0 = -raA - pad, x1 = cd + raB + pad, h = 2 * Math.max(raA, raB) + 2 * pad;
     svg.setAttribute('viewBox', x0 + ' ' + (-h / 2) + ' ' + (x1 - x0) + ' ' + h);
-    var job = $('gr-job').value, showPath = $('gr-show-path').checked, fs = (x1 - x0) / 70;
+    var job = $('gr-job').value, showPath = $('gr-show-path').checked, fs = (x1 - x0) / 45;
     var out = [];
     var body = function (g, key, cx, cut) {
       if (g.problem) {
