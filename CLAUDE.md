@@ -41,4 +41,4 @@ UI: the test kit at `~/Documents/projects/ncsender-plugin-testkit` (its README i
 1920 × 1174; `audit(page, '.gr-content.active', '.gr-field')`; on the Pi with the user's OK
 (`pi.sh debug`, `pi.sh tunnel`, `connectPi`, `openPlugin(page, 'com.tmuka.gears', 'Gears', '.gr-nav')`);
 speed with `frozen` / `profile`. On the Pi (0.1.0): opening ~80 ms; a new tooth count ~120 ms; Animate ~34 fps. Gears and their bit paths are kept for reuse (`gear`, `toolPath`), since the preview, the run note and Generate ask for the same ones; the run note's `programMinutes` scans the program by hand (a pair is ~40,000 lines). Install
-a test build on the Pi: `curl -F plugin=@dist/<zip> http://192.168.1.65:8090/api/plugins/install`.
+a test build on the Pi: `curl -F plugin=@dist/<zip> http://<pi>:8090/api/plugins/install`.
