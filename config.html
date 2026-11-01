@@ -225,12 +225,22 @@
         <div class="gr-card">
           <div class="gr-card-head"><h4 class="gr-card-title">Gear Bodies</h4></div>
           <div class="gr-row gr-row-4">
-            <div class="gr-field"><label for="gr-bore-a">Gear A Bore</label><input class="gr-input" id="gr-bore-a" data-unit="length" title="The hole for the axle. 0: none."></div>
+            <div class="gr-field">
+              <select class="gr-label-select" id="gr-bore-shape-a" aria-label="Gear A bore shape" title="Round: a hole for a round axle, sized by its diameter. Hex: a hole for a hex shaft, sized across the flats (12.7 mm for a 1/2&quot; hex), with a notch in each corner so a sharp-cornered shaft fits.">
+                <option value="round">Gear A Bore</option><option value="hex">Gear A Hex Bore</option>
+              </select>
+              <input class="gr-input" id="gr-bore-a" data-unit="length" aria-labelledby="gr-bore-shape-a" title="Round: the hole's diameter. Hex: across the flats, a little over the shaft's for a slip fit. 0: none.">
+            </div>
             <div class="gr-field"><label for="gr-holes-a">Gear A Lightening Holes</label><input class="gr-input" id="gr-holes-a" title="Round holes in a ring between the hub and the teeth, to lighten a big gear. 0: none."></div>
-            <div class="gr-field"><label for="gr-bore-b">Gear B Bore</label><input class="gr-input" id="gr-bore-b" data-unit="length" title="The hole for the axle. 0: none."></div>
+            <div class="gr-field">
+              <select class="gr-label-select" id="gr-bore-shape-b" aria-label="Gear B bore shape" title="Round: a hole for a round axle, sized by its diameter. Hex: a hole for a hex shaft, sized across the flats (12.7 mm for a 1/2&quot; hex), with a notch in each corner so a sharp-cornered shaft fits.">
+                <option value="round">Gear B Bore</option><option value="hex">Gear B Hex Bore</option>
+              </select>
+              <input class="gr-input" id="gr-bore-b" data-unit="length" aria-labelledby="gr-bore-shape-b" title="Round: the hole's diameter. Hex: across the flats, a little over the shaft's for a slip fit. 0: none.">
+            </div>
             <div class="gr-field"><label for="gr-holes-b">Gear B Lightening Holes</label><input class="gr-input" id="gr-holes-b" title="Round holes in a ring between the hub and the teeth. 0: none."></div>
           </div>
-          <div class="gr-hint">Holes are cleared out from the middle, so nothing comes loose.</div>
+          <div class="gr-hint">Holes are cleared out from the middle, so nothing comes loose. A hex bore gets a small notch in each corner, where a round bit can’t reach.</div>
         </div>
 
         <div class="gr-card">
@@ -277,8 +287,8 @@
         <div class="gr-card">
           <div class="gr-card-head"><h4 class="gr-card-title">Holes</h4></div>
           <div class="gr-row gr-row-4">
-            <div class="gr-field"><label for="gr-frame-a">Axle Hole A</label><input class="gr-input" id="gr-frame-a" data-unit="length" placeholder="= bore" title="Blank: Gear A's Bore."></div>
-            <div class="gr-field"><label for="gr-frame-b">Axle Hole B</label><input class="gr-input" id="gr-frame-b" data-unit="length" placeholder="= bore" title="Blank: Gear B's Bore."></div>
+            <div class="gr-field"><label for="gr-frame-a">Axle Hole A</label><input class="gr-input" id="gr-frame-a" data-unit="length" placeholder="= bore" title="Blank: Gear A's Bore (for a hex bore, across its corners, so the shaft turns in it)."></div>
+            <div class="gr-field"><label for="gr-frame-b">Axle Hole B</label><input class="gr-input" id="gr-frame-b" data-unit="length" placeholder="= bore" title="Blank: Gear B's Bore (for a hex bore, across its corners, so the shaft turns in it)."></div>
             <div class="gr-field"><label for="gr-frame-depth">Total Depth</label><input class="gr-input" id="gr-frame-depth" data-unit="length" title="Through the frame: a little more than it is thick."></div>
             <div class="gr-field"><label for="gr-frame-step">Depth of Cut</label><input class="gr-input" id="gr-frame-step" data-unit="length"></div>
           </div>
@@ -301,8 +311,9 @@
         <div class="gr-card"><h3>Cutting</h3><ul>
           <li>Zero Z on the top of the stock; <b>Total Depth</b> goes a little past its thickness to cut through. Each gear's holes are cut first (cleared from the middle, so nothing comes loose), then its teeth from the outside.</li>
           <li>Each pass ramps down along the path instead of plunging; Z never comes down faster than the <b>Plunge Rate</b>.</li>
+          <li>A bore is <b>Round</b> or <b>Hex</b> (pick with the menu on its label). A hex bore is sized across the flats, 12.7 mm for a 1/2" hex shaft; type a little over the shaft's size for a slip fit. A round bit can't cut a sharp corner, so each corner gets a small notch for the shaft's corner to sit in.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
-          <li><b>Both Gears</b> puts Gear B beside Gear A with the <b>Gap Between</b> them. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart.</li>
+          <li><b>Both Gears</b> puts Gear B beside Gear A with the <b>Gap Between</b> them. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
         </ul></div>
       </div>
@@ -848,13 +859,26 @@ if (typeof module !== 'undefined' && module.exports) {
     walk(sg, s, s0 + sg.total).slice(1).forEach(function (q) { L.push('G1 X' + f4(q.x) + ' Y' + f4(q.y)); });
   }
 
-  // A round hole, cleared out from the middle: at each pass a helix down
-  // (or a plunge when there's no room), then rings out to the edge. When
-  // the hole is the bit's size, pecks at the plunge rate.
+  // A hex hole's corners for the bit's center at apothem a: on ±X, CCW.
+  function hexCorners(cx, cy, a) {
+    var out = [], R = a / Math.cos(Math.PI / 6);
+    for (var k = 0; k < 6; k++) out.push({ x: cx + R * Math.cos(k * Math.PI / 3), y: cy + R * Math.sin(k * Math.PI / 3) });
+    return out;
+  }
+  // How far past a hex lap's corner the bit runs (a dog-bone, out from the
+  // middle) so its edge reaches the sharp corner of the hole.
+  var hexBone = function (r) { return r * (1 / Math.sin(Math.PI / 3) - 1); };
+
+  // A hole, cleared out from the middle: at each pass a helix down (or a
+  // plunge when there's no room), then rings out to the edge. When the hole
+  // is the bit's size, pecks at the plunge rate. A hex hole (h.shape 'hex',
+  // h.diameter across the flats) is cleared in hex rings, the last with a
+  // dog-bone into each corner so a sharp-cornered shaft fits.
   function hole(L, h, o) {
+    var hex = h.shape === 'hex';
     var r = o.bitDiameter / 2, R = h.diameter / 2 - r, step = Math.max(0.05, o.bitDiameter * (o.stepoverPct || 40) / 100);
     var levels = depthLevels(h.depth, o.depthOfCut, null);
-    L.push(comment(h.label + ': ' + h.diameter.toFixed(2) + ' mm, ' + h.depth.toFixed(2) + ' mm deep'));
+    L.push(comment(h.label + ': ' + h.diameter.toFixed(2) + ' mm' + (hex ? ' across the flats' : '') + ', ' + h.depth.toFixed(2) + ' mm deep'));
     L.push('G0 X' + f4(h.x) + ' Y' + f4(h.y));
     L.push('G0 Z' + f3(o.hop));
     if (R < 0.01) {
@@ -889,6 +913,22 @@ if (typeof module !== 'undefined' && module.exports) {
       var rings = [];
       for (var rr = rh; rr < R - 1e-6; rr += step) rings.push(rr);
       rings.push(R);
+      if (hex) {
+        rings.forEach(function (rr, i) {
+          var c = hexCorners(h.x, h.y, rr), last = i === rings.length - 1, out = 1 + hexBone(r) / (c[0].x - h.x);
+          L.push('G1 X' + f4(c[0].x) + ' Y' + f4(c[0].y) + ' F' + o.feedRate);
+          for (var k = 1; k <= 6; k++) {
+            var q = c[k % 6];
+            L.push('G1 X' + f4(q.x) + ' Y' + f4(q.y));
+            if (last) {
+              L.push('G1 X' + f4(h.x + (q.x - h.x) * out) + ' Y' + f4(h.y + (q.y - h.y) * out) + ' ; Corner relief');
+              L.push('G1 X' + f4(q.x) + ' Y' + f4(q.y));
+            }
+          }
+        });
+        prev = target;
+        return;
+      }
       rings.forEach(function (rr, i) {
         if (i > 0 || Math.abs(rr - rh) > 1e-6) L.push('G1 X' + f4(h.x + rr) + ' Y' + f4(h.y) + ' F' + o.feedRate);
         L.push('G3 X' + f4(h.x - rr) + ' Y' + f4(h.y) + ' I' + f4(-rr) + ' J0 F' + o.feedRate);
@@ -903,13 +943,17 @@ if (typeof module !== 'undefined' && module.exports) {
   // between the hub and the rim. Their problems name the field to change.
   function gearHoles(g, info, o, label) {
     var out = [], probs = [], r = o.bitDiameter / 2;
+    var hex = g.boreShape === 'hex';
     if (g.bore > 0) {
-      if (g.bore < o.bitDiameter - 1e-6) probs.push(label + '’s Bore is smaller than the bit');
-      out.push({ label: label + ' bore', diameter: g.bore, dx: 0, dy: 0 });
+      if (hex && g.bore < o.bitDiameter + 0.1) probs.push(label + '’s Hex Bore must be wider across the flats than the bit');
+      else if (g.bore < o.bitDiameter - 1e-6) probs.push(label + '’s Bore is smaller than the bit');
+      out.push({ label: label + (hex ? ' hex bore' : ' bore'), diameter: g.bore, shape: hex ? 'hex' : 'round', dx: 0, dy: 0 });
     }
     var n = Math.round(g.holes || 0);
     if (n > 0) {
-      var hub = g.bore / 2 + Math.max(g.hub || 0, 0.15 * info.basics.rf, o.bitDiameter), rim = info.basics.rf - Math.max(g.rim || 0, 1.5 * info.basics.m);
+      // A hex bore reaches out to its dog-bones.
+      var boreR = !(g.bore > 0) ? 0 : hex ? (g.bore / 2 - r) / Math.cos(Math.PI / 6) + hexBone(r) + r : g.bore / 2;
+      var hub = boreR + Math.max(g.hub || 0, 0.15 * info.basics.rf, o.bitDiameter), rim = info.basics.rf - Math.max(g.rim || 0, 1.5 * info.basics.m);
       var ring = (hub + rim) / 2, room = rim - hub;
       var dia = g.holeDiameter > 0 ? g.holeDiameter : Math.min(room, 2 * ring * Math.sin(Math.PI / n) - Math.max(4, 0.35 * room));
       if (!(room > 0) || !(dia >= o.bitDiameter) || dia > room + 1e-6 || dia > 2 * ring * Math.sin(Math.PI / n) - 1) {
@@ -940,6 +984,10 @@ if (typeof module !== 'undefined' && module.exports) {
       return bs;
     }).map(function (s) { return [s - half, s + half]; });
   }
+
+  // A frame's axle hole when none is typed: the gear's bore, or for a hex
+  // bore the hex's corners, so the shaft turns in it.
+  function frameHole(g) { return g.boreShape === 'hex' ? g.bore / Math.cos(Math.PI / 6) : g.bore; }
 
   function plan(o) {
     var problems = [], notes = [], r = o.bitDiameter / 2;
@@ -975,7 +1023,7 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     if (o.job === 'frame') {
       ['A', 'B'].forEach(function (k, i) {
-        var d = o.frame && o.frame[k] > 0 ? o.frame[k] : o.gears[k].bore;
+        var d = o.frame && o.frame[k] > 0 ? o.frame[k] : frameHole(o.gears[k]);
         if (!(d >= o.bitDiameter - 1e-6)) p.problems.push('Frame hole ' + k + ' must be at least the bit’s diameter');
         holes.push({ label: 'Axle hole ' + k, diameter: d, x: i ? p.pair.centerDistance : 0, y: 0, depth: o.depth });
       });
@@ -1047,7 +1095,7 @@ if (typeof module !== 'undefined' && module.exports) {
              extent: { x0: ext.x0 + sx, y0: ext.y0 + sy, x1: ext.x1 + sx, y1: ext.y1 + sy } };
   }
 
-  return { generate: generate, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, RAMP_SLOPE: RAMP_SLOPE };
+  return { generate: generate, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners, RAMP_SLOPE: RAMP_SLOPE };
 });
 /* END lib/gear-gcode.cjs */</script>
 
@@ -1139,7 +1187,8 @@ if (typeof module !== 'undefined' && module.exports) {
       spindleRpm: Math.round(s['gr-rpm']), spindleDelay: s['gr-delay'], mist: $('gr-mist').checked, flood: $('gr-flood').checked,
       depth: job === 'frame' ? s['gr-frame-depth'] : s['gr-depth'], depthOfCut: job === 'frame' ? s['gr-frame-step'] : s['gr-step'],
       tabs: $('gr-tabs-on').checked ? { count: s['gr-tabs'], width: s['gr-tab-w'], height: s['gr-tab-h'] } : null,
-      gears: { A: { teeth: s['gr-teeth-a'], bore: s['gr-bore-a'], holes: s['gr-holes-a'] }, B: { teeth: s['gr-teeth-b'], bore: s['gr-bore-b'], holes: s['gr-holes-b'] } },
+      gears: { A: { teeth: s['gr-teeth-a'], bore: s['gr-bore-a'], boreShape: $('gr-bore-shape-a').value, holes: s['gr-holes-a'] },
+               B: { teeth: s['gr-teeth-b'], bore: s['gr-bore-b'], boreShape: $('gr-bore-shape-b').value, holes: s['gr-holes-b'] } },
       frame: { A: s['gr-frame-a'], B: s['gr-frame-b'] },
       origin: job === 'frame' ? 'center' : $('gr-origin').value, direction: $('gr-direction').value, gap: s['gr-gap'],
       imperial: state.imperial, safeZHeightMm: state.safeZHeightMm, stepoverPct: 40
@@ -1245,7 +1294,9 @@ if (typeof module !== 'undefined' && module.exports) {
       var gh = GC.gearHoles(o.gears[key], g, o, 'Gear ' + key).holes;
       out.push('<g class="gr-gear" data-gear="' + key + '" transform="translate(' + cx + ' 0)"><g class="gr-spin">');
       out.push('<path class="gr-body' + (key === 'B' ? ' gr-b' : '') + (cut ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(g.draw) +
-        gh.map(function (q) { var r = q.diameter / 2; return ' M' + (q.dx + r).toFixed(3) + ' ' + (-q.dy).toFixed(3) + ' a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0'; }).join('') + '"/>');
+        gh.map(function (q) {
+          if (q.shape === 'hex') return ' M' + GC.hexCorners(q.dx, -q.dy, q.diameter / 2).map(function (c) { return c.x.toFixed(3) + ' ' + c.y.toFixed(3); }).join(' L') + ' Z';
+          var r = q.diameter / 2; return ' M' + (q.dx + r).toFixed(3) + ' ' + (-q.dy).toFixed(3) + ' a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0'; }).join('') + '"/>');
       if (showPath && cut) out.push('<path class="gr-path" d="' + d(g.path) + '"/>');
       // A mark on tooth 0, to follow it round.
       out.push('<circle class="gr-mark" cx="' + (g.basics.rp).toFixed(3) + '" cy="0" r="' + (g.basics.m * 0.35).toFixed(3) + '"/>');
@@ -1285,7 +1336,8 @@ if (typeof module !== 'undefined' && module.exports) {
     showErrors(r.errs, false);
     if (!(s.module > 0) || !(s['gr-teeth-a'] > 0) || !(s['gr-teeth-b'] > 0)) { svg.innerHTML = ''; $('gr-frame-facts').innerHTML = ''; return; }
     var cd = G.pair({ module: s.module, pressureDeg: Number($('gr-pa').value) }, s['gr-teeth-a'], s['gr-teeth-b']).centerDistance;
-    var a = (s['gr-frame-a'] != null ? s['gr-frame-a'] : s['gr-bore-a']) || 0, b = (s['gr-frame-b'] != null ? s['gr-frame-b'] : s['gr-bore-b']) || 0;
+    var axle = function (k) { return (s['gr-frame-' + k] != null ? s['gr-frame-' + k] : GC.frameHole({ bore: s['gr-bore-' + k], boreShape: $('gr-bore-shape-' + k).value })) || 0; };
+    var a = axle('a'), b = axle('b');
     var pad = Math.max(a, b) + 10, w = cd + 2 * pad, h = Math.max(30, 2 * pad), fs = w / 60;
     svg.setAttribute('viewBox', (-pad) + ' ' + (-h / 2) + ' ' + w + ' ' + h);
     svg.innerHTML = '<rect class="gr-body gr-off" x="' + (-pad + 2) + '" y="' + (-h / 2 + 2) + '" width="' + (w - 4) + '" height="' + (h - 4) + '" rx="2"/>' +
@@ -1405,7 +1457,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var go = function () {
       var v = {};
       Object.keys(FIELDS).forEach(function (id) { var x = read(id); if (x != null && !isNaN(x)) v[id] = x; });
-      ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction'].forEach(function (id) { v[id] = $(id).value; });
+      ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b'].forEach(function (id) { v[id] = $(id).value; });
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
       v.module = moduleFromSize(); v.feedsAuto = state.feedsAuto; v.view = state.view === 'help' ? 'pair' : state.view;
       fetch(BASE_URL + '/api/plugins/' + PLUGIN + '/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: v }) }).catch(function () {});
@@ -1419,7 +1471,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var f = FIELDS[id], x = v && v[id] != null ? v[id] : (state.imperial && imperialDefaults[id] != null ? imperialDefaults[id] : f[4]);
       write(id, x);
     });
-    ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
+    ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
     ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { if (v && v[id] != null) $(id).checked = !!v[id]; });
     if (!v) {
       // First open: MDF feeds for the bit, and the smallest friendly teeth it can cut.
@@ -1433,6 +1485,19 @@ if (typeof module !== 'undefined' && module.exports) {
       state.feedsAuto = !!v.feedsAuto;
     }
     if (v && v.view && v.view !== 'help') showView(v.view);
+  }
+
+  // A label menu as wide as the option it shows, so its arrow sits by the text.
+  var labelMeasure = document.createElement('canvas').getContext('2d');
+  function fitLabelSelects() {
+    ROOT.querySelectorAll('.gr-label-select').forEach(function (sel) {
+      var opt = sel.options[sel.selectedIndex];
+      if (!opt) return;
+      var cs = getComputedStyle(sel);
+      labelMeasure.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+      var w = labelMeasure.measureText(opt.text).width + (parseFloat(cs.letterSpacing) || 0) * opt.text.length;
+      sel.style.width = Math.ceil(w + 16) + 'px';
+    });
   }
 
   // ---------- Wiring ----------
@@ -1467,6 +1532,7 @@ if (typeof module !== 'undefined' && module.exports) {
         if (f[0] === 'length' || f[0] === 'feed') { var v = read(id); if (v != null && !isNaN(v)) write(id, v); }
       }
       if (id === 'gr-size-mode') { var m = state.lastModule; if (m > 0) writeSize(m); }
+      if (e.target.classList.contains('gr-label-select')) fitLabelSelects();
       if (id === 'gr-material' || id === 'gr-flutes') fillFeeds(false);
       if (id === 'gr-bit' && state.feedsAuto) fillFeeds(true);
       if (id === 'gr-tabs-on') ROOT.querySelectorAll('.gr-tab-field').forEach(function (f) { f.style.visibility = $('gr-tabs-on').checked ? '' : 'hidden'; });
@@ -1500,6 +1566,8 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     restore();
     wire();
+    fitLabelSelects();
+    if (document.fonts) document.fonts.ready.then(fitLabelSelects);
     ROOT.querySelectorAll('.gr-tab-field').forEach(function (f) { f.style.visibility = $('gr-tabs-on').checked ? '' : 'hidden'; });
     showView(state.view);
   }

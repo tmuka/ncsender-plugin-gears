@@ -23,14 +23,17 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   twice that). Teeth too small for the bit are refused with what to change.
 - **Clearances for real materials.** **Backlash** (play between the teeth, 0.3 mm by default) and
   **Tip Clearance** (room at the root, a quarter module by default).
-- **Gear bodies:** a **Bore** for the axle and **Lightening Holes** in a ring between the hub and the
-  teeth. Holes are cleared out from the middle, so nothing comes loose.
+- **Gear bodies:** a **Bore** for the axle, round or **Hex** (sized across the flats, such as 12.7 mm
+  for a 1/2" hex shaft, with a small notch in each corner so a sharp-cornered shaft fits), and
+  **Lightening Holes** in a ring between the hub and the teeth. Holes are cleared out from the
+  middle, so nothing comes loose.
 - **Cutting:** each gear's holes, then its teeth from outside a bit radius out; depth passes, each
   ramped down along the path at 5° or less (Z never faster than the Plunge Rate), and **Holding Tabs**
   on tooth tips, where they're easy to sand off. Conventional or Climb.
 - **Both gears in one program**, side by side with a **Gap Between**, or either one; X0 Y0 at the
   gear's center or the front-left corner of the cuts.
-- **Frame Holes:** the two axle holes in a frame board, exactly the center distance apart.
+- **Frame Holes:** the two axle holes in a frame board, exactly the center distance apart (round;
+  for a hex bore, blank means across its corners so the shaft turns).
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
   the machine's max feed and spindle range.

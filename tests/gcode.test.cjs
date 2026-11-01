@@ -28,14 +28,14 @@ function run(gcode) {
       while (sw <= 1e-9) sw += 2 * Math.PI;
       len = Math.hypot(v('I'), v('J')) * sw;
     }
-    moves.push({ g: +g[1], x0: x, y0: y, z0: z, x: nx, y: ny, z: nz, f, len, section, line: l });
+    moves.push({ g: +g[1], x0: x, y0: y, z0: z, x: nx, y: ny, z: nz, f, len, section, line: l, raw });
     x = nx; y = ny; z = nz;
   }
   return moves;
 }
 
 test('nothing below Total Depth, no rapids at depth, Z never faster than the Plunge Rate', () => {
-  for (const o of [base, { ...base, job: 'both' }, { ...base, job: 'frame' }, { ...base, gears: { A: { teeth: 12, bore: 3.175, holes: 0 }, B: base.gears.B }, module: 4 }]) {
+  for (const o of [base, { ...base, job: 'both' }, { ...base, job: 'frame' }, { ...base, gears: { A: { teeth: 12, bore: 3.175, holes: 0 }, B: base.gears.B }, module: 4 }, { ...base, gears: { A: { teeth: 36, bore: 12.7, boreShape: 'hex', holes: 5 }, B: base.gears.B } }]) {
     const r = GC.generate(o);
     assert.deepEqual(r.problems, []);
     for (const m of run(r.gcode)) {
@@ -101,4 +101,30 @@ test('bad settings are refused with what to change', () => {
   assert.match(GC.generate({ ...base, module: 2 }).problems.join(), /bit is too big/);
   assert.match(GC.generate({ ...base, tabs: { count: 3, width: 4, height: 20 } }).problems.join(), /Tab Height/);
   assert.match(GC.generate({ ...base, gears: { ...base.gears, A: { teeth: 3.5, bore: 8 } } }).problems.join(), /whole number/);
+});
+
+test('a hex bore: cleared to the flats, a dog-bone reaching each corner, the frame hole across the corners', () => {
+  const F = 12.7, r = base.bitDiameter / 2, o = { ...base, gears: { A: { teeth: 36, bore: F, boreShape: 'hex', holes: 5 }, B: base.gears.B } };
+  const res = GC.generate(o);
+  assert.deepEqual(res.problems, []);
+  const moves = run(res.gcode).filter((m) => /hex bore/.test(m.section) && m.g === 1 && m.z < 0);
+  const normals = [0, 1, 2, 3, 4, 5].map((k) => [Math.cos((k + 0.5) * Math.PI / 3), Math.sin((k + 0.5) * Math.PI / 3)]);
+  const reach = (p) => Math.max(...normals.map((n) => p.x * n[0] + p.y * n[1]));
+  const tips = moves.filter((m) => /Corner relief/.test(m.raw));
+  assert.equal(tips.length, 6 * GC.depthLevels(o.depth, o.depthOfCut).length);
+  for (const t of tips) assert.ok(Math.abs(Math.hypot(t.x, t.y) - (F / 2 / Math.cos(Math.PI / 6) - r)) < 1e-3, 'corner relief misses the corner: ' + t.line);
+  for (const m of moves) if (!/Corner relief/.test(m.raw)) assert.ok(reach(m) <= F / 2 - r + 1e-3, 'past a flat: ' + m.line);
+  // Every point of the hex is within the bit's radius of a cut at full depth.
+  const floor = moves.filter((m) => Math.abs(m.z + o.depth) < 1e-6 && Math.abs(m.z0 + o.depth) < 1e-6);
+  for (let x = -F; x <= F; x += 0.25) for (let y = -F; y <= F; y += 0.25) {
+    if (reach({ x, y }) > F / 2 - 0.01) continue;
+    const d = Math.min(...floor.map((m) => G.distToSegment({ x, y }, { x: m.x0, y: m.y0 }, m)));
+    assert.ok(d <= r + 1e-6, `(${x}, ${y}) left uncut`);
+  }
+  // The lightening holes clear the hex's corners.
+  const lh = GC.gearHoles(o.gears.A, G.gear({ ...o, teeth: 36, bitRadius: r }), o, 'Gear A').holes.filter((h) => /lightening/.test(h.label));
+  for (const h of lh) assert.ok(Math.hypot(h.dx, h.dy) - h.diameter / 2 > F / 2 / Math.cos(Math.PI / 6) + r);
+  const frame = GC.generate({ ...o, job: 'frame', depth: 19, depthOfCut: 3 });
+  assert.match(frame.gcode, /Axle hole A: 14\.66 mm/);
+  assert.deepEqual(GC.generate({ ...o, gears: { A: { teeth: 36, bore: 3.2, boreShape: 'hex', holes: 0 }, B: base.gears.B } }).problems, ['Gear A’s Hex Bore must be wider across the flats than the bit']);
 });

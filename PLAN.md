@@ -42,7 +42,7 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
   shift or backlash to suit.
 
 **Each gear's body**
-- **Bore**: round, with an optional **D-flat** or a **keyway** (for a shaft or a dowel with a flat).
+- **Bore**: round or hex (done in 0.1: across the flats, dog-boned corners), with an optional **D-flat** or a **keyway** (for a shaft or a dowel with a flat).
 - **Hub** circle left solid around the bore.
 - **Spokes / lightening holes**: 3 to 8, round or straight-sided windows, with a rim width. Cut as
   pockets or through-holes with Corner Radius at least the bit's.
