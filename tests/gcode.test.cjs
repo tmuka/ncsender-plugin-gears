@@ -233,3 +233,30 @@ test('a typed center distance: frame holes at it, the range that works, refused 
   assert.match(GC.generate({ ...base, centerDistance: nat - 1 }).problems.join(), /too close/);
   assert.match(GC.generate({ ...base, centerDistance: nat + 10 }).problems.join(), /too far/);
 });
+
+test('spoke windows: cleared to their rounded edges, the spokes and hub left whole', () => {
+  const r = base.bitDiameter / 2;
+  for (const direction of ['conventional', 'climb']) for (const n of [3, 5]) {
+    const o = { ...base, direction, gears: { A: { teeth: 36, bore: 8, holes: n, holeStyle: 'spokes' }, B: base.gears.B } };
+    const res = GC.generate(o);
+    assert.deepEqual(res.problems, []);
+    const hs = GC.gearHoles(o.gears.A, G.gear({ ...o, teeth: 36, bitRadius: r }), o, 'Gear A').holes.filter((h) => h.shape === 'window');
+    assert.equal(hs.length, n);
+    const win = hs[0], outline = GC.windowLap(win.win, 0), oc = outline.concat([outline[0]]);
+    const inside = (q) => { let c = false; for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) { const a = outline[i], b = outline[j]; if ((a.y > q.y) !== (b.y > q.y) && q.x < (b.x - a.x) * (q.y - a.y) / (b.y - a.y) + a.x) c = !c; } return c; };
+    const edge = (q) => Math.min(...oc.slice(1).map((b, i) => G.distToSegment(q, oc[i], b)));
+    const mv = run(res.gcode).filter((m) => /window 1:/.test(m.section) && m.g >= 1 && m.z < 0);
+    // Never past the edge: every bit center inside the window, a bit radius or more from its edge.
+    for (const m of mv) assert.ok(inside(m) && edge(m) >= r - 2e-3, `${direction} ${n}: past the window's edge at ${m.line} (${edge(m).toFixed(3)})`);
+    // Cleared: every point of the window within a bit radius of a cut at full depth.
+    const floor = mv.filter((m) => m.g === 1 && Math.abs(m.z + o.depth) < 1e-6 && Math.abs(m.z0 + o.depth) < 1e-6);
+    const xs = outline.map((q) => q.x), ys = outline.map((q) => q.y);
+    for (let x = Math.min(...xs); x <= Math.max(...xs); x += 0.5) for (let y = Math.min(...ys); y <= Math.max(...ys); y += 0.5) {
+      const q = { x, y };
+      if (!inside(q) || edge(q) < 0.02) continue;
+      const near = Math.min(...floor.map((m) => G.distToSegment(q, { x: m.x0, y: m.y0 }, m)));
+      assert.ok(near <= r + 1e-6, `${direction} ${n}: (${x.toFixed(2)}, ${y.toFixed(2)}) left uncut`);
+    }
+  }
+  assert.match(GC.generate({ ...base, gears: { A: { teeth: 36, bore: 8, holes: 12, holeStyle: 'spokes', spokeWidth: 26 }, B: base.gears.B } }).problems.join(), /spoke windows are too narrow/);
+});

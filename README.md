@@ -28,8 +28,10 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   for a 1/2" hex shaft); **D** (round with one flat, for a D shaft such as a motor's, sized by
   **Across the Flat**); or **Keyed** (round with a keyway, **Key Width** at least the bit's and
   **Key Depth** past the bore). Each sharp corner gets a small notch so a sharp-cornered shaft or key
-  fits. And **Lightening Holes** in a ring between the hub and the teeth. Holes are cleared out
-  from the middle, so nothing comes loose.
+  fits. And **Lightening Holes** in a ring between the hub and the teeth, or **Spokes**: straight
+  spokes from the hub to the rim (**Spoke Width**, blank for automatic) with windows between them,
+  their corners rounded past the bit. Holes and windows are cleared out from the middle, so nothing
+  comes loose.
 - **Cutting:** each gear's holes, then its teeth from outside a bit radius out; depth passes, each
   ramped down along the path at 5° or less (Z never faster than the Plunge Rate), and **Holding Tabs**
   on tooth tips, where they're easy to sand off. Conventional or Climb.
@@ -45,8 +47,9 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   spoilboard (for a test: a bolt's thread wears a bore).
 - **Frame Holes:** the two axle holes in a frame board, exactly the center distance apart (round;
   for a hex bore, blank means across its corners so the shaft turns).
-- **Tool change:** click **Bit Diameter** to take the loaded tool's diameter from ncSender's tool
-  table; the program then starts with a tool change to it (M6).
+- **The tool table**, as in QuickCut: click the **Bit Diameter** label for the loaded tool's
+  diameter. With a tool changer it's a menu of the tool table instead: pick the tool and the program
+  starts with a tool change to it (M6); typing another diameter, or **No tool change**, leaves it out.
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
   the machine's max feed and spindle range.

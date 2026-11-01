@@ -15,6 +15,21 @@
   .gr-wrapper input[type="checkbox"] { accent-color: var(--color-accent); }
   .gr-wrapper p { margin: 0 !important; line-height: 1.45; }
   .gr-container { display: flex; flex: 1; min-height: 0; }
+  .gr-wrapper [hidden] { display: none !important; }
+  /* ncCAM's and Spoilboard Toolbox's size: almost full screen, 24 px clear
+     all round, in landscape and portrait. */
+  .plugin-dialog-container:has(.gr-wrapper) { max-height: none !important; max-width: none !important; }
+  .gr-wrapper { width: calc(100vw - 48px) !important; max-width: none !important; height: calc(100vh - 48px) !important; max-height: none !important; }
+  /* Wide (a landscape 1080p screen): the preview stays in the left column
+     while the cards scroll in the right; narrower (portrait), one column. */
+  /* One column on a tall screen (portrait): a taller preview. */
+  @media (max-width: 1399px) and (min-height: 1300px) { .gr-preview#gr-preview { height: clamp(330px, 30vh, 640px); } }
+  @media (min-width: 1400px) {
+    .gr-panel.gr-two { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; align-content: start; }
+    .gr-two > .gr-view-card { grid-column: 1; grid-row: 1 / span 12; position: sticky; top: 0; }
+    .gr-two > :not(.gr-view-card) { grid-column: 2; }
+    .gr-two .gr-preview { height: max(330px, calc(100vh - 380px)); }
+  }
 
   /* Sidebar */
   .gr-sidebar {
@@ -166,8 +181,8 @@
         <h2>Gear Pair</h2>
         <div class="gr-sub">Two spur gears that mesh: pick the teeth, see them turn, and cut one, the other or both.</div>
       </div>
-      <div class="gr-panel">
-        <div class="gr-card">
+      <div class="gr-panel gr-two">
+        <div class="gr-card gr-view-card">
           <svg class="gr-preview" id="gr-preview" viewBox="-100 -60 200 120" preserveAspectRatio="xMidYMid meet"></svg>
           <div class="gr-preview-bar">
             <span class="gr-hint">Turn</span>
@@ -182,7 +197,7 @@
         <div class="gr-card">
           <div class="gr-card-head"><h4 class="gr-card-title">Tool</h4></div>
           <div class="gr-row gr-row-5">
-            <div class="gr-field"><label for="gr-bit" id="gr-bit-label" class="gr-label-link" tabindex="0" role="button" title="Click to use the loaded tool's diameter from ncSender's tool table: the program then starts with a tool change (M6) to it.">Bit Diameter</label><input class="gr-input" id="gr-bit" data-unit="length" title="The end mill's diameter. The tooth spaces are rounded at the bottom to fit it, so it sets the smallest teeth you can cut."></div>
+            <div class="gr-field"><label for="gr-bit" id="gr-bit-label" class="gr-label-link" tabindex="0" role="button" title="Click to use the loaded tool's diameter from ncSender's tool table.">Bit Diameter</label><input class="gr-input" id="gr-bit" data-unit="length" title="The end mill's diameter. The tooth spaces are rounded at the bottom to fit it, so it sets the smallest teeth you can cut."></div>
             <div class="gr-field"><label for="gr-feed">Feed Rate</label><input class="gr-input" id="gr-feed" data-unit="feed" title="For moves in X and Y."></div>
             <div class="gr-field"><label for="gr-plunge">Plunge Rate</label><input class="gr-input" id="gr-plunge" data-unit="feed" title="For moves down in Z. Ramps and helixes slow down so Z never comes down faster than this."></div>
             <div class="gr-field"><label for="gr-rpm">Spindle RPM</label><input class="gr-input" id="gr-rpm" title="0: the program doesn't start the spindle."></div>
@@ -243,14 +258,24 @@
               </select>
               <input class="gr-input" id="gr-bore-a" data-unit="length" aria-labelledby="gr-bore-shape-a" title="Round, D and Keyed: the hole's diameter. Hex: across the flats. A little over the shaft's for a slip fit. 0: none.">
             </div>
-            <div class="gr-field"><label for="gr-holes-a">Gear A Lightening Holes</label><input class="gr-input" id="gr-holes-a" title="Round holes in a ring between the hub and the teeth, to lighten a big gear. 0: none."></div>
+            <div class="gr-field">
+              <select class="gr-label-select" id="gr-holes-style-a" aria-label="Gear A lightening by" title="Lightening Holes: round holes in a ring between the hub and the teeth. Spokes: that many straight spokes from the hub to the rim, with windows between them, their corners rounded.">
+                <option value="round">Gear A Lightening Holes</option><option value="spokes">Gear A Spokes</option>
+              </select>
+              <input class="gr-input" id="gr-holes-a" aria-labelledby="gr-holes-style-a" title="How many holes, or spokes. 0: none.">
+            </div>
             <div class="gr-field">
               <select class="gr-label-select" id="gr-bore-shape-b" aria-label="Gear B bore shape" title="Round: a hole for a round axle, sized by its diameter. Hex: a hole for a hex shaft, sized across the flats (12.7 mm for a 1/2&quot; hex), with a notch in each corner so a sharp-cornered shaft fits. D: a round hole with one flat, for a D shaft (a motor's, say). Keyed: a round hole with a keyway slot.">
                 <option value="round">Gear B Bore</option><option value="hex">Gear B Hex Bore</option><option value="dflat">Gear B D Bore</option><option value="keyway">Gear B Keyed</option>
               </select>
               <input class="gr-input" id="gr-bore-b" data-unit="length" aria-labelledby="gr-bore-shape-b" title="Round, D and Keyed: the hole's diameter. Hex: across the flats. A little over the shaft's for a slip fit. 0: none.">
             </div>
-            <div class="gr-field"><label for="gr-holes-b">Gear B Lightening Holes</label><input class="gr-input" id="gr-holes-b" title="Round holes in a ring between the hub and the teeth. 0: none."></div>
+            <div class="gr-field">
+              <select class="gr-label-select" id="gr-holes-style-b" aria-label="Gear B lightening by" title="Lightening Holes: round holes in a ring between the hub and the teeth. Spokes: that many straight spokes from the hub to the rim, with windows between them, their corners rounded.">
+                <option value="round">Gear B Lightening Holes</option><option value="spokes">Gear B Spokes</option>
+              </select>
+              <input class="gr-input" id="gr-holes-b" aria-labelledby="gr-holes-style-b" title="How many holes, or spokes. 0: none.">
+            </div>
           </div>
           <div class="gr-row gr-row-4 gr-bore-extra" id="gr-bore-extra">
             <div class="gr-field" data-bore="a dflat"><label for="gr-flat-a">Gear A Across the Flat</label><input class="gr-input" id="gr-flat-a" data-unit="length" title="From the flat to the far side of the bore, a little over the shaft's (4.5 mm on a 5 mm D shaft, say)."></div>
@@ -258,9 +283,10 @@
             <div class="gr-field" data-bore="a keyway"><label for="gr-keyd-a">Gear A Key Depth</label><input class="gr-input" id="gr-keyd-a" data-unit="length" title="How far the keyway goes past the bore's edge."></div>
             <div class="gr-field" data-bore="b dflat"><label for="gr-flat-b">Gear B Across the Flat</label><input class="gr-input" id="gr-flat-b" data-unit="length" title="From the flat to the far side of the bore, a little over the shaft's (4.5 mm on a 5 mm D shaft, say)."></div>
             <div class="gr-field" data-bore="b keyway"><label for="gr-keyw-b">Gear B Key Width</label><input class="gr-input" id="gr-keyw-b" data-unit="length" title="The keyway's width: the key's, a little over. At least the bit's diameter."></div>
+            <div class="gr-field" data-bore="spokes"><label for="gr-spoke-w">Spoke Width</label><input class="gr-input" id="gr-spoke-w" data-unit="length" placeholder="auto" title="How wide each spoke is. Blank: about an eighth of the rim's radius, and at least 1.5 bits."></div>
             <div class="gr-field" data-bore="b keyway"><label for="gr-keyd-b">Gear B Key Depth</label><input class="gr-input" id="gr-keyd-b" data-unit="length" title="How far the keyway goes past the bore's edge."></div>
           </div>
-          <div class="gr-hint">Holes are cleared out from the middle, so nothing comes loose. Hex, D and keyed bores get a small notch in each sharp corner, where a round bit can’t reach.</div>
+          <div class="gr-hint">Holes and spoke windows are cleared out from the middle, so nothing comes loose. Hex, D and keyed bores get a small notch in each sharp corner, where a round bit can’t reach; spoke windows get rounded corners instead.</div>
         </div>
 
         <div class="gr-card">
@@ -299,8 +325,8 @@
         <h2>Frame Holes</h2>
         <div class="gr-sub">The two axle holes in a frame board, exactly the center distance apart, so the gears mesh the first time.</div>
       </div>
-      <div class="gr-panel">
-        <div class="gr-card">
+      <div class="gr-panel gr-two">
+        <div class="gr-card gr-view-card">
           <svg class="gr-preview" id="gr-frame-preview" viewBox="-100 -40 200 80" style="height: 220px"></svg>
           <div class="gr-facts" id="gr-frame-facts"></div>
         </div>
@@ -332,9 +358,10 @@
           <li>Zero Z on the top of the stock; <b>Total Depth</b> goes a little past its thickness to cut through. Each gear's holes are cut first (cleared from the middle, so nothing comes loose), then its teeth from the outside.</li>
           <li>Each pass ramps down along the path instead of plunging; Z never comes down faster than the <b>Plunge Rate</b>.</li>
           <li>A bore is <b>Round</b>, <b>Hex</b> (sized across the flats: 12.7 mm for a 1/2" hex shaft), <b>D</b> (round with one flat, for a D shaft such as a motor's: <b>Across the Flat</b> is from the flat to the far side) or <b>Keyed</b> (a keyway <b>Key Width</b> wide, at least the bit's, <b>Key Depth</b> past the bore). Pick with the menu on its label; type a little over the shaft's size for a slip fit. A round bit can't cut a sharp corner, so each sharp corner gets a small notch for the shaft's or key's corner to sit in.</li>
+          <li><b>Lightening Holes</b> or <b>Spokes</b> (the menu on the label): round holes in a ring, or that many straight spokes from the hub to the rim with windows between them, their corners rounded a little past the bit. <b>Spoke Width</b> blank picks about an eighth of the rim's radius.</li>
           <li>Gear B's label menu takes the <b>Ratio A:B</b> instead of its teeth (3 for 3:1): Gear B's teeth are worked out to the nearest whole tooth, with the real ratio shown.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
-          <li>Click <b>Bit Diameter</b> to take the loaded tool's diameter from ncSender's tool table; the program then starts with a tool change to it (M6).</li>
+          <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
           <li><b>Both Gears</b> puts Gear B beside Gear A with the <b>Gap Between</b> them. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
@@ -942,6 +969,7 @@ if (typeof module !== 'undefined' && module.exports) {
   function boreOutline(h, step) {
     var R = h.diameter / 2, pts = [], n, i, a;
     step = step || Math.PI / 90;
+    if (h.shape === 'window') return windowLap(h.win, 0) || [];
     if (h.shape === 'hex') return hexCorners(0, 0, R);
     if (h.shape === 'dflat') {
       var f = h.flat - R, ph = Math.acos(Math.max(-1, Math.min(1, f / R)));
@@ -962,8 +990,84 @@ if (typeof module !== 'undefined' && module.exports) {
     for (i = 0; i < n; i++) { a = TAU * i / n; pts.push({ x: R * Math.cos(a), y: R * Math.sin(a) }); }
     return pts;
   }
+  // ---------- Spoke windows ----------
+  // A window between two of N straight spokes (w wide, on the gear's
+  // center), from the hub (Ri) out to the rim (Ro), its corners rounded
+  // rc, centered on angle `angle`. Shapes about the gear's center.
+  var turnPts = function (pts, a) { var c = Math.cos(a), s = Math.sin(a); return pts.map(function (q) { return { x: q.x * c - q.y * s, y: q.x * s + q.y * c }; }); };
+  // The window shrunk by e, corners sharp, counter-clockwise; null when
+  // nothing's left. Its sides are where the spokes' edges, moved e in, cut
+  // the arcs; when they meet before the hub, a point.
+  function windowSharp(win, e) {
+    var half = Math.PI / win.N, sn = Math.sin(half), c = win.w / 2 + e, ro = win.Ro - e, ri = win.Ri + e, tip = c / sn;
+    if (!(ro > tip + 1e-6) || !(ro > ri + 1e-6)) return null;
+    var side = function (rho, sign) { return sign * (half - Math.asin(c / rho)); };
+    var pts = [], step = Math.PI / 90, a0 = side(ro, -1), a1 = side(ro, 1), n = Math.max(2, Math.ceil((a1 - a0) / step)), i;
+    for (i = 0; i <= n; i++) { var a = a0 + (a1 - a0) * i / n; pts.push({ x: ro * Math.cos(a), y: ro * Math.sin(a) }); }
+    if (ri > tip + 1e-6) {
+      var b1 = side(ri, 1), b0 = side(ri, -1), m = Math.max(2, Math.ceil((b1 - b0) / step));
+      for (i = 0; i <= m; i++) { var b = b1 - (b1 - b0) * i / m; pts.push({ x: ri * Math.cos(b), y: ri * Math.sin(b) }); }
+    } else pts.push({ x: tip, y: 0 });
+    return turnPts(pts, win.angle);
+  }
+  // The bit's center lap d in from the window's edge (d = 0: the window
+  // itself): the sharp shape d + f in, grown f back out, so its corners
+  // keep the window's rounding (rc - d, none once d passes it).
+  function windowLap(win, d) {
+    var f = Math.max(0, win.rc - d), sharp = windowSharp(win, d + f);
+    if (!sharp) return null;
+    return f > 1e-9 ? G.offsetOutward(sharp, f, Math.PI / 36) : sharp;
+  }
+  // Where the window is widest inside: on its middle line, the radius
+  // farthest from the hub, the rim and both spokes. T: that distance.
+  function windowMiddle(win) {
+    var sn = Math.sin(Math.PI / win.N), best = { T: -Infinity, rho: (win.Ri + win.Ro) / 2 };
+    for (var i = 0; i <= 400; i++) {
+      var rho = win.Ri + (win.Ro - win.Ri) * i / 400, T = Math.min(rho - win.Ri, win.Ro - rho, rho * sn - win.w / 2);
+      if (T > best.T) best = { T: T, rho: rho };
+    }
+    return best;
+  }
+  // A window, cleared out from its middle: a helix down there, then laps
+  // of the bit's center out to the edge.
+  function windowHole(L, h, o, levels) {
+    var r = o.bitDiameter / 2, win = h.win, mid = windowMiddle(win), step = Math.max(0.05, o.bitDiameter * (o.stepoverPct || 40) / 100);
+    var rh = Math.max(0, Math.min(r * 0.6, mid.T - r)), G2 = o.direction === 'climb' ? 'G3' : 'G2', lapLen = TAU * rh, prev = 0;
+    var c = turnPts([{ x: mid.rho, y: 0 }], win.angle)[0], cx = h.x + c.x, cy = h.y + c.y;
+    var ds = [];
+    for (var d = Math.max(r, mid.T - rh); d > r + 1e-6; d -= step) ds.push(d);
+    ds.push(r);
+    var laps = ds.map(function (d) { return windowLap(win, d); }).filter(Boolean);
+    L.push('G0 X' + f4(cx + rh) + ' Y' + f4(cy));
+    L.push('G0 Z' + f3(o.hop));
+    L.push('G1 Z0.000 F' + o.plungeFeedRate);
+    levels.forEach(function (dd) {
+      var target = -dd;
+      L.push('G1 X' + f4(cx + rh) + ' Y' + f4(cy) + ' F' + o.feedRate);
+      if (lapLen < MIN_RAMP) L.push('G1 Z' + f3(target) + ' F' + o.plungeFeedRate);
+      else {
+        var turns = Math.min(64, Math.max(1, Math.ceil((prev - target) / (lapLen * RAMP_SLOPE) - 1e-9)));
+        var hf = ' F' + slopeFeed((prev - target) / turns / lapLen, o.feedRate, o.plungeFeedRate);
+        for (var q = 1; q <= turns; q++) {
+          var mz = prev + (target - prev) * (q - 0.5) / turns, ez = prev + (target - prev) * q / turns;
+          L.push(G2 + ' X' + f4(cx - rh) + ' Y' + f4(cy) + ' I' + f4(-rh) + ' J0 Z' + f3(mz) + hf);
+          L.push(G2 + ' X' + f4(cx + rh) + ' Y' + f4(cy) + ' I' + f4(rh) + ' J0 Z' + f3(q === turns ? target : ez) + hf);
+        }
+      }
+      // Each lap from its point nearest the middle, so the step out is short.
+      laps.forEach(function (pts) {
+        var k = 0, best = Infinity;
+        pts.forEach(function (q, i) { var dist = Math.hypot(q.x - c.x, q.y - c.y); if (dist < best) { best = dist; k = i; } });
+        lap2(L, h, pts.slice(k).concat(pts.slice(0, k)), null, o, r, true);
+      });
+      prev = target;
+    });
+    L.push('G0 Z' + f3(o.hop));
+  }
+
   // How far a hole reaches from its center (the bit's dog-bones included).
   function boreReach(h, r) {
+    if (h.shape === 'window') return h.win.Ro;
     if (h.shape === 'hex') return (h.diameter / 2 - r) / Math.cos(Math.PI / 6) + hexBone(r) + r;
     if (h.shape === 'keyway') return Math.max(h.diameter / 2, Math.hypot(h.keyWidth / 2, h.diameter / 2 + h.keyDepth));
     return h.diameter / 2;
@@ -979,9 +1083,10 @@ if (typeof module !== 'undefined' && module.exports) {
     var hex = h.shape === 'hex', G = o.direction === 'climb' ? 'G3' : 'G2', ccw = o.direction === 'climb';
     var r = o.bitDiameter / 2, R = h.diameter / 2 - r, step = Math.max(0.05, o.bitDiameter * (o.stepoverPct || 40) / 100);
     var levels = depthLevels(h.depth, o.depthOfCut, null);
-    L.push(comment(h.label + ': ' + h.diameter.toFixed(2) + ' mm' + (hex ? ' across the flats' : h.shape === 'dflat' ? ', ' + h.flat.toFixed(2) + ' mm across the flat' :
+    L.push(comment(h.label + ': ' + (h.shape === 'window' ? 'between spokes ' + h.win.w.toFixed(2) + ' mm wide, from ' + h.win.Ri.toFixed(2) + ' to ' + h.win.Ro.toFixed(2) + ' mm out' : h.diameter.toFixed(2) + ' mm') + (hex ? ' across the flats' : h.shape === 'dflat' ? ', ' + h.flat.toFixed(2) + ' mm across the flat' :
       h.shape === 'keyway' ? ', keyway ' + h.keyWidth.toFixed(2) + ' mm wide, ' + h.keyDepth.toFixed(2) + ' mm deep' : '') + ', ' + h.depth.toFixed(2) + ' mm deep'));
     if (h.shape === 'dflat') { dHole(L, h, o, levels); return; }
+    if (h.shape === 'window') { windowHole(L, h, o, levels); return; }
     L.push('G0 X' + f4(h.x) + ' Y' + f4(h.y));
     L.push('G0 Z' + f3(o.hop));
     if (R < 0.01) {
@@ -1163,6 +1268,20 @@ if (typeof module !== 'undefined' && module.exports) {
     var ring = Math.max(1.5 * info.basics.m, o.bitDiameter);
     if (bore && boreR > info.basics.rf - ring) probs.push(label + '’s ' + name + ' is too big for the gear: it must leave at least ' + ring.toFixed(1) + ' mm under the teeth (it reaches ' + boreR.toFixed(1) + ' mm from the center; ' + (info.basics.rf - ring).toFixed(1) + ' at most)');
     var n = Math.round(g.holes || 0);
+    if (n > 0 && g.holeStyle === 'spokes') {
+      var hubS = boreR + Math.max(g.hub || 0, 0.15 * info.basics.rf, o.bitDiameter), rimS = info.basics.rf - Math.max(g.rim || 0, 1.5 * info.basics.m);
+      var w = g.spokeWidth > 0 ? g.spokeWidth : Math.max(1.5 * o.bitDiameter, 0.12 * rimS);
+      var win = { N: n, Ri: hubS, Ro: rimS, w: w, rc: 0, angle: 0 }, mid = windowMiddle(win);
+      if (n < 2) probs.push(label + '’s Spokes must be 2 or more');
+      else if (!(rimS > hubS) || !(mid.T >= r + 0.1)) probs.push(label + '’s spoke windows are too narrow for the bit: fewer or thinner spokes, or a bigger gear');
+      else {
+        // Corners rounded a little past the bit, more in a big window.
+        win.rc = Math.min(0.9 * mid.T, Math.max(1.25 * r, 0.12 * (rimS - hubS)));
+        for (var j = 0; j < n; j++) out.push({ label: label + ' window ' + (j + 1), shape: 'window', diameter: 0, dx: 0, dy: 0, reach: rimS,
+          win: Object.assign({}, win, { angle: (j + 0.5) * TAU / n }) });
+      }
+      n = 0;
+    }
     if (n > 0) {
       var hub = boreR + Math.max(g.hub || 0, 0.15 * info.basics.rf, o.bitDiameter), rim = info.basics.rf - Math.max(g.rim || 0, 1.5 * info.basics.m);
       var mid = (hub + rim) / 2, room = rim - hub;
@@ -1329,7 +1448,7 @@ if (typeof module !== 'undefined' && module.exports) {
   }
 
   return { generate: generate, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners,
-           boreOutline: boreOutline, boreReach: boreReach, bone: bone, RAMP_SLOPE: RAMP_SLOPE };
+           boreOutline: boreOutline, boreReach: boreReach, bone: bone, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE };
 });
 /* END lib/gear-gcode.cjs */</script>
 
@@ -1357,7 +1476,7 @@ if (typeof module !== 'undefined' && module.exports) {
     'gr-flat-a': ['length', 0, 500, 'Gear A Across the Flat', null], 'gr-flat-b': ['length', 0, 500, 'Gear B Across the Flat', null],
     'gr-keyw-a': ['length', 0, 500, 'Gear A Key Width', null], 'gr-keyw-b': ['length', 0, 500, 'Gear B Key Width', null],
     'gr-keyd-a': ['length', 0, 500, 'Gear A Key Depth', null], 'gr-keyd-b': ['length', 0, 500, 'Gear B Key Depth', null],
-    'gr-cd': ['length', 0, 5000, 'Center Distance', null], 'gr-ratio': ['count', 0.01, 100, 'Ratio', 2],
+    'gr-cd': ['length', 0, 5000, 'Center Distance', null], 'gr-spoke-w': ['length', 0, 500, 'Spoke Width', null], 'gr-ratio': ['count', 0.01, 100, 'Ratio', 2],
     'gr-holes-a': ['whole', 0, 24, 'Gear A Lightening Holes', 5], 'gr-holes-b': ['whole', 0, 24, 'Gear B Lightening Holes', 0],
     'gr-depth': ['length', 0.05, 200, 'Total Depth', 12.5], 'gr-step': ['length', 0.05, 50, 'Depth of Cut', null],
     'gr-tabs': ['whole', 1, 12, 'Tabs', 3], 'gr-tab-w': ['length', 0.5, 50, 'Tab Width', 4], 'gr-tab-h': ['length', 0.1, 50, 'Tab Height', 1.5],
@@ -1418,7 +1537,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Object.keys(FIELDS).forEach(function (id) {
       var f = FIELDS[id], v = read(id);
       s[id] = v;
-      var optional = /^gr-(clearance|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd)$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
+      var optional = /^gr-(clearance|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w)$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
       if (v === null) { if (!optional) errs[id] = f[3] + ' is needed'; return; }
       if (isNaN(v)) { errs[id] = f[3] + ' must be a number'; return; }
@@ -1445,7 +1564,8 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   function gearOpts(s, k) {
     return { teeth: s['gr-teeth-' + k], bore: s['gr-bore-' + k], boreShape: $('gr-bore-shape-' + k).value, holes: s['gr-holes-' + k],
-             flat: s['gr-flat-' + k], keyWidth: s['gr-keyw-' + k], keyDepth: s['gr-keyd-' + k] };
+             flat: s['gr-flat-' + k], keyWidth: s['gr-keyw-' + k], keyDepth: s['gr-keyd-' + k],
+             holeStyle: $('gr-holes-style-' + k).value, spokeWidth: s['gr-spoke-w'] };
   }
   function opts(s, job) {
     return {
@@ -1456,7 +1576,7 @@ if (typeof module !== 'undefined' && module.exports) {
       depth: job === 'frame' ? s['gr-frame-depth'] : s['gr-depth'], depthOfCut: job === 'frame' ? s['gr-frame-step'] : s['gr-step'],
       tabs: $('gr-tabs-on').checked ? { count: s['gr-tabs'], width: s['gr-tab-w'], height: s['gr-tab-h'] } : null,
       gears: { A: gearOpts(s, 'a'), B: gearOpts(s, 'b') }, centerDistance: s['gr-cd'] > 0 ? s['gr-cd'] : null,
-      toolNumber: state.cutTool && Math.abs(state.cutTool.mm - s['gr-bit']) < 0.002 ? state.cutTool.n : 0,
+      toolNumber: bitToolNumber(),
       frame: { A: s['gr-frame-a'], B: s['gr-frame-b'] },
       origin: job === 'frame' ? 'center' : $('gr-origin').value, direction: $('gr-direction').value, gap: s['gr-gap'],
       imperial: state.imperial, safeZHeightMm: state.safeZHeightMm, stepoverPct: 40
@@ -1719,7 +1839,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if ((m = /^Gear ([AB])’s Key Width/.exec(t))) return 'gr-keyw-' + m[1].toLowerCase();
     if ((m = /^Gear ([AB])’s Key Depth/.exec(t))) return 'gr-keyd-' + m[1].toLowerCase();
     if (/Center Distance/.test(t)) return 'gr-cd';
-    if ((m = /^Gear ([AB])’s lightening holes/.exec(t))) return 'gr-holes-' + m[1].toLowerCase();
+    if ((m = /^Gear ([AB])’s (lightening holes|spoke windows|Spokes)/.exec(t))) return 'gr-holes-' + m[1].toLowerCase();
     if ((m = /^Gear ([AB])’s tabs/.exec(t))) return 'gr-tab-w';
     if ((m = /^Axle Hole ([AB])/.exec(t))) return 'gr-frame-' + m[1].toLowerCase();
     if (/Tip Clearance must/.test(t)) return 'gr-clearance';
@@ -1768,7 +1888,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // ---------- Generate ----------
   async function generate(view) {
-    if (!(await toolStillMatches())) return;
+    await refreshTools();
     ROOT.querySelectorAll('.gr-content.active input.gr-input').forEach(function (el) { el.dataset.touched = '1'; });
     var p = programFor(view);
     showErrors(p.errs, true);
@@ -1817,7 +1937,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var v = {};
       // A field as written keeps the exact value it was written from.
       Object.keys(FIELDS).forEach(function (id) { var w = state.written[id], x = w && w.text === $(id).value ? w.v : read(id); if (x != null && !isNaN(x)) v[id] = x; });
-      ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode'].forEach(function (id) { v[id] = $(id).value; });
+      ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b'].forEach(function (id) { v[id] = $(id).value; });
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
       v.module = moduleFromSize(); v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
       fetch(BASE_URL + '/api/plugins/' + PLUGIN + '/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: v }) }).catch(function () {});
@@ -1831,7 +1951,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var f = FIELDS[id], x = v && v[id] != null ? v[id] : (state.imperial && imperialDefaults[id] != null ? imperialDefaults[id] : f[4]);
       write(id, x);
     });
-    ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
+    ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
     ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { if (v && v[id] != null) $(id).checked = !!v[id]; });
     if (!v) {
       // First open: MDF feeds for the bit, and the smallest friendly teeth it can cut.
@@ -1851,64 +1971,119 @@ if (typeof module !== 'undefined' && module.exports) {
   // Across the Flat for a D bore, Key Width and Depth for a keyed one;
   // filled with usual sizes the first time a shape is picked.
   function boreExtras(fill) {
-    var any = false;
+    var any = false, spokes = false;
     ['a', 'b'].forEach(function (k) {
       var shape = $('gr-bore-shape-' + k).value, bore = read('gr-bore-' + k);
       ROOT.querySelectorAll('[data-bore^="' + k + ' "]').forEach(function (f) { var on = f.dataset.bore === k + ' ' + shape; f.hidden = !on; any = any || on; });
+      if ($('gr-holes-style-' + k).value === 'spokes') spokes = true;
       if (!fill || !(bore > 0)) return;
       if (shape === 'dflat' && read('gr-flat-' + k) == null) write('gr-flat-' + k, 0.9 * bore);
       if (shape === 'keyway' && read('gr-keyw-' + k) == null) write('gr-keyw-' + k, Math.max(read('gr-bit') || 0, 0.25 * bore));
       if (shape === 'keyway' && read('gr-keyd-' + k) == null) write('gr-keyd-' + k, 0.125 * bore);
     });
-    $('gr-bore-extra').hidden = !any;
+    ROOT.querySelector('[data-bore="spokes"]').hidden = !spokes;
+    $('gr-bore-extra').hidden = !any && !spokes;
   }
 
-  // ---------- The loaded tool (M6) ----------
-  // Bit Diameter's label takes the loaded tool's diameter from ncSender's
-  // tool table; the program then starts with M6 to it. Checked again on
-  // Generate, in case the table changed.
-  async function toolEntry(n) {
+  // ---------- The tool table (as QuickCut) ----------
+  // Without a tool changer, clicking Bit Diameter's label fills in the
+  // loaded tool's diameter from ncSender's tool table. With one, the label
+  // is a menu of the tool table: picking a tool sets the diameter and the
+  // program starts with M6 T<n> (a slot or a Tool ID, by Settings > Tool
+  // Changer > Tool Numbering, as /api/tools/active lists them). Typing
+  // another diameter, or No tool change, drops it. The tool picked counts
+  // only while the table still has it at that diameter.
+  async function readTools() {
     var byId = state.ncSettings && state.ncSettings.tool && state.ncSettings.tool.numbering === 'toolId';
     var tools = await (await fetch(BASE_URL + '/api/tools/active')).json();
-    return (tools || []).filter(function (t) { return (byId ? t.toolId : t.toolNumber) === n; })[0];
+    var ms = ((await (await fetch(BASE_URL + '/api/server-state')).json()) || {}).machineState || {};
+    state.loadedTool = Number(ms.tool) > 0 ? Number(ms.tool) : 0;
+    state.tools = (tools || []).filter(function (t) { return t.type !== 'probe'; })
+      .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '' }; })
+      .filter(function (t) { return t.n > 0 && t.mm > 0; })
+      .sort(function (a, b) { return a.n - b.n; });
+  }
+  // The tool the program changes to, or 0.
+  function bitToolNumber() {
+    var t = state.cutTool, near = function (mm) { return t && Math.abs(mm - t.mm) < 0.002; };
+    if (!state.atc || !t || !near(read('gr-bit'))) return 0;
+    return (state.tools || []).some(function (x) { return x.n === t.n && near(x.mm); }) ? t.n : 0;
   }
   async function loadedBit() {
     var note = $('gr-tool-note');
     try {
-      var ms = (await (await fetch(BASE_URL + '/api/server-state')).json()).machineState || {}, n = Number(ms.tool);
+      await readTools();
+      var n = state.loadedTool;
       if (!(n > 0)) throw new Error('No tool is loaded, so there’s no diameter to read');
-      var tool = await toolEntry(n);
-      if (!tool || !(tool.diameter > 0)) throw new Error('T' + n + ' has no diameter in ncSender’s tool table');
-      write('gr-bit', +tool.diameter);
-      state.cutTool = { n: n, mm: +tool.diameter, name: tool.name || '' };
+      var tool = (state.tools || []).filter(function (t) { return t.n === n; })[0];
+      if (!tool) throw new Error('T' + n + ' has no diameter in ncSender’s tool table');
+      write('gr-bit', tool.mm);
       if (state.feedsAuto) fillFeeds(true);
+      note.dataset.state = 'ok';
+      note.textContent = 'T' + n + (tool.name ? ' (' + tool.name + ')' : '') + ': ' + show(tool.mm) + ' ' + state.unit + '.';
       touch();
     } catch (e) {
       note.dataset.state = 'bad';
       note.textContent = /fetch|JSON/i.test(e.message) ? 'Couldn’t read the tool table from ncSender.' : e.message + '.';
-      return;
     }
+  }
+  function showBitTool() {
+    var sel = $('gr-bit-tool');
+    if (!sel) return;
+    var n = bitToolNumber(), u = ' ' + state.unit;
+    var opt = function (parent, value, text, disabled) { var o = document.createElement('option'); o.value = value; o.textContent = text; o.disabled = !!disabled; parent.appendChild(o); };
+    sel.textContent = '';
+    opt(sel, '', n ? 'Bit · T' + n + ' (' + state.unit + ')' : 'Bit Diameter (' + state.unit + ')');
+    if ((state.tools || []).length) {
+      var group = document.createElement('optgroup');
+      group.label = 'Tool change to';
+      state.tools.forEach(function (t) {
+        var name = t.name.length > 32 ? t.name.slice(0, 31) + '…' : t.name;
+        opt(group, String(t.n), (t.n === n ? '✓ ' : '') + 'T' + t.n + (name ? ' ' + name : '') + ', ' + show(t.mm) + u + (t.n === state.loadedTool ? ' (in the spindle)' : ''));
+      });
+      sel.appendChild(group);
+    } else if (state.tools) opt(sel, 'empty', 'No tools with a diameter in the tool table', true);
+    if (n) opt(sel, 'none', 'No tool change');
+    sel.value = '';
+    fitLabelSelects();
     toolNote();
+  }
+  function pickBitTool() {
+    var v = $('gr-bit-tool').value;
+    if (!v) return;
+    var t = (state.tools || []).filter(function (x) { return String(x.n) === v; })[0];
+    if (t) { write('gr-bit', t.mm); state.cutTool = { n: t.n, mm: t.mm, name: t.name }; if (state.feedsAuto) fillFeeds(true); }
+    else state.cutTool = null;
+    showBitTool();
+    touch();
   }
   function toolNote() {
-    var note = $('gr-tool-note'), t = state.cutTool, bit = read('gr-bit');
+    var note = $('gr-tool-note'), n = bitToolNumber(), t = state.cutTool;
+    if (!state.atc) { if (note.dataset.state !== 'ok' && note.dataset.state !== 'bad') note.textContent = ''; return; }
     delete note.dataset.state;
-    note.textContent = t && Math.abs(t.mm - bit) < 0.002 ? 'Bit Diameter from T' + t.n + (t.name ? ' (' + t.name + ')' : '') + ': the program starts with a tool change to it (M6 T' + t.n + ').'
-      : 'No tool change: load the bit yourself. Click Bit Diameter to take the loaded tool and change to it.';
+    note.textContent = n ? 'The program starts with a tool change to T' + n + (t.name ? ' (' + t.name + ')' : '') + ' (M6).'
+      : 'No tool change: the program cuts with the bit in the spindle. Bit Diameter’s menu picks a tool to change to.';
   }
-  async function toolStillMatches() {
-    var t = state.cutTool;
-    if (!t || !(Math.abs(t.mm - read('gr-bit')) < 0.002)) return true;
-    try {
-      var tool = await toolEntry(t.n);
-      if (tool && Math.abs(tool.diameter - t.mm) < 0.001) return true;
-    } catch (e) { return true; }
-    state.cutTool = null;
-    toolNote();
-    var note = $('gr-tool-note');
-    note.dataset.state = 'bad';
-    note.textContent = 'T' + t.n + ' isn’t ' + show(t.mm) + ' ' + state.unit + ' in ncSender’s tool table any more: click Bit Diameter again, or load the bit yourself.';
-    return false;
+  // With a tool changer: the label becomes the tool menu.
+  async function wireToolMenu() {
+    var label = $('gr-bit-label'), sel = document.createElement('select');
+    sel.className = 'gr-label-select';
+    sel.id = 'gr-bit-tool';
+    sel.setAttribute('aria-label', 'Bit Diameter, or a tool from the tool table');
+    sel.title = 'Bit Diameter. Its menu lists ncSender’s tool table: pick the tool to cut with and the program starts with a tool change to it (M6 T). Type a diameter for no tool change.';
+    label.parentNode.replaceChild(sel, label);
+    $('gr-bit').setAttribute('aria-labelledby', 'gr-bit-tool');
+    sel.addEventListener('change', pickBitTool);
+    showBitTool();
+    try { await readTools(); } catch (e) { state.tools = []; }
+    showBitTool();
+    touch();
+  }
+  // Before Generate: the tool table read again, so a changed one counts.
+  async function refreshTools() {
+    if (!state.atc) return;
+    try { await readTools(); } catch (e) { return; }
+    showBitTool();
   }
 
   // A label menu as wide as the option it shows, so its arrow sits by the text.
@@ -1964,17 +2139,20 @@ if (typeof module !== 'undefined' && module.exports) {
       }
       if (id === 'gr-size') e.target.dataset.touched = '1';
       if (e.target.classList.contains('gr-label-select')) fitLabelSelects();
-      if (/^gr-bore-(shape-)?[ab]$/.test(id)) boreExtras(/shape/.test(id));
+      if (/^gr-bore-(shape-)?[ab]$|^gr-holes-style-[ab]$/.test(id)) boreExtras(/bore-shape/.test(id));
       if (id === 'gr-b-mode' && $('gr-b-mode').value === 'ratio' && read('gr-teeth-a') > 0 && read('gr-teeth-b') > 0) write('gr-ratio', parseFloat((read('gr-teeth-a') / read('gr-teeth-b')).toFixed(4)));
-      if (id === 'gr-bit') toolNote();
+      if (id === 'gr-bit') showBitTool();
       if (id === 'gr-material' || id === 'gr-flutes') fillFeeds(false);
       if (id === 'gr-bit' && state.feedsAuto) fillFeeds(true);
       if (id === 'gr-tabs-on') ROOT.querySelectorAll('.gr-tab-field').forEach(function (f) { f.style.visibility = $('gr-tabs-on').checked ? '' : 'hidden'; });
       touch();
     });
     $('gr-animate').addEventListener('click', animate);
-    $('gr-bit-label').addEventListener('click', function (e) { e.preventDefault(); loadedBit(); });
-    $('gr-bit-label').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadedBit(); } });
+    if (state.atc) wireToolMenu();
+    else {
+      $('gr-bit-label').addEventListener('click', function (e) { e.preventDefault(); loadedBit(); });
+      $('gr-bit-label').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadedBit(); } });
+    }
     $('gr-gen-pair').addEventListener('click', function () { generate('pair'); });
     $('gr-gen-frame').addEventListener('click', function () { generate('frame'); });
   }
@@ -1984,6 +2162,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var s = await (await fetch(BASE_URL + '/api/settings')).json();
       state.imperial = (s.unitsPreference || 'metric') === 'imperial';
       state.ncSettings = s;
+      state.atc = !!(s.tool && s.tool.source && s.tool.count > 0);
       var z = Number(s.safeZHeight); state.safeZHeightMm = isFinite(z) && s.safeZHeight !== null && s.safeZHeight !== '' ? z : null;
     } catch (e) {}
     try {
@@ -2005,7 +2184,6 @@ if (typeof module !== 'undefined' && module.exports) {
     restore();
     wire();
     boreExtras(false);
-    toolNote();
     fitLabelSelects();
     if (document.fonts) document.fonts.ready.then(fitLabelSelects);
     ROOT.querySelectorAll('.gr-tab-field').forEach(function (f) { f.style.visibility = $('gr-tabs-on').checked ? '' : 'hidden'; });

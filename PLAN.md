@@ -47,7 +47,7 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
 **Each gear's body**
 - **Bore**: round or hex (done in 0.1: across the flats, dog-boned corners); D and keyed (done after 0.1.0).
 - **Hub** circle left solid around the bore.
-- **Spokes / lightening holes**: 3 to 8, round or straight-sided windows, with a rim width. Cut as
+- **Spokes / lightening holes**: round holes, or straight spokes with rounded-corner windows (done after 0.1.0). Cut as
   pockets or through-holes with Corner Radius at least the bit's.
 - **Thickness** (cut depth), depth per pass, holding tabs on the teeth profile (placed on tooth tips,
   where they're easy to sand off, never in a root).

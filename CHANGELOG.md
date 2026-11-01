@@ -10,10 +10,16 @@
 - **Center Distance:** type where the axles must be; the gears spread to it (with the extra backlash
   and the contact ratio shown, and the range that works), or **Fit Tooth Size** meshes them at exactly
   that distance. Frame Holes drills at it.
+- **Spoke windows:** in place of round lightening holes, straight spokes from the hub to the rim with
+  windows between them, their corners rounded past the bit (**Spoke Width** blank for automatic).
 - **Ratio:** Gear B's field can take the ratio instead (3 for 3:1); its teeth are worked out to the
   nearest whole tooth, with the real ratio shown.
-- **Tool change:** click Bit Diameter to take the loaded tool from ncSender's tool table; the program
-  starts with M6 to it.
+- **The tool table, as in QuickCut:** the Bit Diameter label fills in the loaded tool's diameter; with
+  a tool changer it's a menu of the tool table, and the tool picked gets a tool change (M6) at the start.
+
+### 🎨 Layout
+- Almost full screen, like Spoilboard Toolbox: on a wide screen the preview stays in the left column
+  while the cards scroll in the right; on a narrow or portrait one they stack, with a taller preview.
 
 ## 0.1.0
 
