@@ -40,6 +40,14 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
   pinions mesh. Profile shift is a later option.
 - **Center Distance** shown. Changing it to a round number with **Fit to Distance** adjusts the profile
   shift or backlash to suit.
+- **Test on the spoilboard (idea, 2026-11-01):** when Spoilboard Toolbox is installed, read its
+  settings (`/api/plugins/com.tmuka.spoilboard-toolbox/settings`: the threaded-insert grid's spacing,
+  any turn, and the bolt picked on Stock Holes) and offer pairs whose center distance is a spacing
+  the grid has (one hole apart, two, a diagonal), with bores that fit the user's usual workholding
+  bolts. Each gear then turns on a bolt in an insert, so a pair can be tried on the machine with no
+  frame. A **Fit to Grid** next to Fit to Distance: it picks the nearest grid distance and adjusts
+  the backlash, or the teeth, to suit. Say the bolt is an axle only for a test: a bolt's thread
+  wears a bore, so a sleeve, bushing or shoulder bolt is better for keeps.
 
 **Each gear's body**
 - **Bore**: round or hex (done in 0.1: across the flats, dog-boned corners), with an optional **D-flat** or a **keyway** (for a shaft or a dowel with a flat).
