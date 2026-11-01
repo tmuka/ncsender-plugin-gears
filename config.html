@@ -2474,7 +2474,7 @@ if (typeof module !== 'undefined' && module.exports) {
     state.loadedTool = Number(ms.tool) > 0 ? Number(ms.tool) : 0;
     state.probes = (tools || []).filter(function (t) { return t.type === 'probe'; }).map(function (t) { return byId ? t.toolId : t.toolNumber; });
     state.tools = (tools || []).filter(function (t) { return t.type !== 'probe'; })
-      .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '', notes: (t.metadata && t.metadata.notes) || '' }; })
+      .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '', notes: (t.metadata && t.metadata.notes) || '', flutes: (t.metadata && t.metadata.flutes) || 0 }; })
       .filter(function (t) { return t.n > 0 && t.mm > 0; })
       // The tool in the spindle first, then the rest by number.
       .sort(function (a, b) { return (b.n === state.loadedTool) - (a.n === state.loadedTool) || a.n - b.n; });
@@ -2516,9 +2516,10 @@ if (typeof module !== 'undefined' && module.exports) {
     var w = /\b(two|double|three|four)[\s-]*flutes?\b/.exec(t);
     return w ? { two: 2, double: 2, three: 3, four: 4 }[w[1]] : null;
   }
-  // Flutes set from a tool: what its name says, else 2, the usual. Returns the count.
+  // Flutes set from a tool: the tool table's count (the Fusion 360 importer fills
+  // it), else what its name says, else 2, the usual. Returns the count.
   function flutesFromTool(t) {
-    var n = flutesFromText((t.name || '') + ' ' + (t.notes || '')) || 2;
+    var n = (t.flutes > 0 ? Math.min(4, Math.round(t.flutes)) : 0) || flutesFromText((t.name || '') + ' ' + (t.notes || '')) || 2;
     $('gr-flutes').value = String(n);
     return n;
   }
