@@ -9,6 +9,9 @@ the ratio you want. It picks the teeth, shows them turning, and writes the G-cod
 Great for toys, clocks, winches, marble machines and gear-ratio demos, in plywood, MDF, hardwood,
 HDPE, acrylic or aluminum.
 
+<p align="center"><img src="docs/cut-gears.jpg" width="600" alt="A 12 and 6 tooth gear pair cut in MDF, still in the stock"></p>
+<p align="center"><em>The first pair cut with Gears: 12 and 6 teeth in MDF, straight off the machine. They mesh.</em></p>
+
 ## Three steps
 
 1. **Pick your bit.** Choose it from the tool table or type its size. Gears only offers teeth that
