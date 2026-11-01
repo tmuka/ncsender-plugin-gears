@@ -10,6 +10,8 @@
 - **Center Distance:** type where the axles must be; the gears spread to it (with the extra backlash
   and the contact ratio shown, and the range that works), or **Fit Tooth Size** meshes them at exactly
   that distance. Frame Holes drills at it.
+- **Ratio:** Gear B's field can take the ratio instead (3 for 3:1); its teeth are worked out to the
+  nearest whole tooth, with the real ratio shown.
 - **Tool change:** click Bit Diameter to take the loaded tool from ncSender's tool table; the program
   starts with M6 to it.
 

@@ -32,7 +32,7 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
 - Tooth size by **Module**, **Circular Pitch** or **Diametral Pitch** (a label menu that converts, as
   QuickCut's Across Corners / Flats does). Default: module from the bit, the smallest the bit can cut
   cleanly, rounded up to a friendly number.
-- **Teeth** for each gear, or a **Ratio** and one gear's teeth (the other worked out, nearest whole tooth,
+- **Teeth** for each gear, or a **Ratio** (done after 0.1.0) and one gear's teeth (the other worked out, nearest whole tooth,
   the real ratio shown).
 - **Pressure Angle**: 20° default; 25° suggested below about 14 teeth (stronger, less undercut).
 - **Backlash** (default 0.3 mm on the pitch circle) and **Tip Clearance** (default 0.25 × module).

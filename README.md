@@ -35,6 +35,8 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   on tooth tips, where they're easy to sand off. Conventional or Climb.
 - **Both gears in one program**, side by side with a **Gap Between**, or either one; X0 Y0 at the
   gear's center or the front-left corner of the cuts.
+- **Ratio:** Gear B's field can take the ratio A:B instead of its teeth (3 for 3:1); Gear B's teeth
+  are worked out to the nearest whole tooth and the real ratio shown.
 - **Center Distance:** blank is the gears' own. Type the distance the axles must be and either
   spread the gears to it (a little wider: more backlash, shown with the contact ratio; too wide or
   too close is refused with the range that works) or press **Fit Tooth Size** to make the teeth mesh
