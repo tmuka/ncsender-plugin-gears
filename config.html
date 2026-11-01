@@ -23,12 +23,19 @@
   /* Wide (a landscape 1080p screen): the preview stays in the left column
      while the cards scroll in the right; narrower (portrait), one column. */
   /* One column on a tall screen (portrait): a taller preview. */
-  @media (max-width: 1399px) and (min-height: 1300px) { .gr-preview#gr-preview { height: clamp(330px, 30vh, 640px); } }
-  @media (min-width: 1400px) {
+  @media (max-width: 1199px), (max-width: 1399px) and (orientation: portrait) { .gr-preview#gr-preview { height: clamp(330px, 30vh, 640px); } }
+  @media (min-width: 1400px), (min-width: 1200px) and (orientation: landscape) {
     .gr-panel.gr-two { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; align-content: start; }
     .gr-two > .gr-view-card { grid-column: 1; grid-row: 1 / span 12; position: sticky; top: 0; }
     .gr-two > :not(.gr-view-card) { grid-column: 2; }
     .gr-two .gr-preview { height: max(330px, calc(100vh - 380px)); }
+  }
+  /* Two columns on a smaller landscape screen: fewer fields a row on the right. */
+  @media (min-width: 1200px) and (max-width: 1799px) and (orientation: landscape) {
+    .gr-two .gr-row-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1200px) and (max-width: 1599px) and (orientation: landscape) {
+    .gr-two .gr-row-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 
   /* Sidebar */
@@ -283,8 +290,8 @@
             <div class="gr-field" data-bore="a keyway"><label for="gr-keyd-a">Gear A Key Depth</label><input class="gr-input" id="gr-keyd-a" data-unit="length" title="How far the keyway goes past the bore's edge."></div>
             <div class="gr-field" data-bore="b dflat"><label for="gr-flat-b">Gear B Across the Flat</label><input class="gr-input" id="gr-flat-b" data-unit="length" title="From the flat to the far side of the bore, a little over the shaft's (4.5 mm on a 5 mm D shaft, say)."></div>
             <div class="gr-field" data-bore="b keyway"><label for="gr-keyw-b">Gear B Key Width</label><input class="gr-input" id="gr-keyw-b" data-unit="length" title="The keyway's width: the key's, a little over. At least the bit's diameter."></div>
-            <div class="gr-field" data-bore="spokes"><label for="gr-spoke-w">Spoke Width</label><input class="gr-input" id="gr-spoke-w" data-unit="length" placeholder="auto" title="How wide each spoke is. Blank: about an eighth of the rim's radius, and at least 1.5 bits."></div>
             <div class="gr-field" data-bore="b keyway"><label for="gr-keyd-b">Gear B Key Depth</label><input class="gr-input" id="gr-keyd-b" data-unit="length" title="How far the keyway goes past the bore's edge."></div>
+            <div class="gr-field" data-bore="spokes"><label for="gr-spoke-w">Spoke Width</label><input class="gr-input" id="gr-spoke-w" data-unit="length" placeholder="auto" title="How wide each spoke is. Blank: about an eighth of the rim's radius, and at least 1.5 bits."></div>
           </div>
           <div class="gr-hint">Holes and spoke windows are cleared out from the middle, so nothing comes loose. Hex, D and keyed bores get a small notch in each sharp corner, where a round bit can’t reach; spoke windows get rounded corners instead.</div>
         </div>
@@ -1463,7 +1470,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var ROOT = document.querySelector('.gr-wrapper');
 
   var state = { imperial: false, unit: 'mm', safeZHeightMm: null, maxFeedMm: null, spindleMax: null, spindleMin: null,
-                view: 'pair', feedsAuto: false, turn: 0, animating: false, cache: {}, written: {}, size: null, travel: null };
+                view: 'pair', feedsAuto: false, turn: 0, animating: false, cache: {}, written: {}, filled: {}, size: null, travel: null };
   var K = function () { return state.imperial ? 25.4 : 1; };
 
   // Fields: id -> [kind, min, max, label, default in mm (lengths) or as is].
@@ -1539,6 +1546,11 @@ if (typeof module !== 'undefined' && module.exports) {
       s[id] = v;
       var optional = /^gr-(clearance|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w)$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
+      // Named as the menus on their labels say: Gear A Spokes, Gear A D Bore...
+      var nm = f[3], km = /^gr-(holes|bore)-([ab])$/.exec(id);
+      if (km && km[1] === 'holes' && $('gr-holes-style-' + km[2]).value === 'spokes') nm = nm.replace('Lightening Holes', 'Spokes');
+      if (km && km[1] === 'bore') nm = nm.replace('Bore', { round: 'Bore', hex: 'Hex Bore', dflat: 'D Bore', keyway: 'Keyed Bore' }[$('gr-bore-shape-' + km[2]).value] || 'Bore');
+      f = [f[0], f[1], f[2], nm, f[4]];
       if (v === null) { if (!optional) errs[id] = f[3] + ' is needed'; return; }
       if (isNaN(v)) { errs[id] = f[3] + ' must be a number'; return; }
       var shown = f[0] === 'length' || f[0] === 'feed' ? v / K() : v;
@@ -1559,6 +1571,12 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!errs['gr-step'] && !errs['gr-depth'] && s['gr-step'] > s['gr-depth'] + 1e-9) errs['gr-step'] = 'Depth of Cut must not exceed Total Depth';
     if ($('gr-tabs-on').checked && !errs['gr-tab-h'] && !errs['gr-depth'] && s['gr-tab-h'] >= s['gr-depth']) errs['gr-tab-h'] = 'Tab Height must be less than Total Depth';
     if (!errs['gr-frame-step'] && !errs['gr-frame-depth'] && s['gr-frame-step'] > s['gr-frame-depth'] + 1e-9) errs['gr-frame-step'] = 'Depth of Cut must not exceed Total Depth';
+    // In Ratio, the field's error line (Gear B Teeth's, the field's first input) says what's wrong with the ratio.
+    if ($('gr-b-mode').value === 'ratio') {
+      var why = errs['gr-ratio'] || (errs['gr-teeth-b'] && s['gr-teeth-b'] < 6 ? 'That gives Gear B only ' + s['gr-teeth-b'] + ' teeth: a smaller ratio, or more teeth on Gear A' : errs['gr-teeth-b']);
+      if (why) { errs['gr-teeth-b'] = why; if ($('gr-ratio').dataset.touched) $('gr-teeth-b').dataset.touched = '1'; } else delete errs['gr-teeth-b'];
+      delete errs['gr-ratio'];
+    }
     s.module = m;
     return { s: s, errs: errs };
   }
@@ -1587,9 +1605,11 @@ if (typeof module !== 'undefined' && module.exports) {
   // on Generate, cleared as soon as it's right.
   function showErrors(errs, all) {
     ROOT.querySelectorAll('.gr-field').forEach(function (f) {
-      var el = f.querySelector('input.gr-input, select.gr-select');
+      var el = f.querySelector('input.gr-input:not([hidden]), select.gr-select');
       if (!el) return;
-      var msg = errs[el.id], line = f.querySelector('.gr-error');
+      // Ratio's errors are Gear B Teeth's, the field it stands in for.
+      var msg = errs[el.id] || (el.id === 'gr-ratio' ? errs['gr-teeth-b'] : null), line = f.querySelector('.gr-error');
+      if (el.id === 'gr-ratio' && $('gr-teeth-b').dataset.touched) el.dataset.touched = '1';
       if (msg && (all || el.dataset.touched)) {
         el.classList.add('gr-bad');
         if (!line) { line = document.createElement('div'); line.className = 'gr-error'; f.appendChild(line); }
@@ -1621,13 +1641,6 @@ if (typeof module !== 'undefined' && module.exports) {
   function updatePair() {
     applyRatio();
     var r = settings(), s = r.s, errs = r.errs;
-    // In Ratio, Gear B's teeth errors belong to the Ratio field.
-    // In Ratio, the field's error line (Gear B Teeth's, the field's first input) says what's wrong with the ratio.
-    if ($('gr-b-mode').value === 'ratio') {
-      var why = errs['gr-ratio'] || (errs['gr-teeth-b'] && s['gr-teeth-b'] < 6 ? 'That gives Gear B only ' + s['gr-teeth-b'] + ' teeth: a smaller ratio, or more teeth on Gear A' : errs['gr-teeth-b']);
-      if (why) { errs['gr-teeth-b'] = why; if ($('gr-ratio').dataset.touched) $('gr-teeth-b').dataset.touched = '1'; } else delete errs['gr-teeth-b'];
-      delete errs['gr-ratio'];
-    }
     var minM = s['gr-bit'] > 0 ? G.minModule({ pressureDeg: Number($('gr-pa').value), bitRadius: s['gr-bit'] / 2, backlash: s['gr-backlash'] || 0,
       clearance: s['gr-clearance'] != null && !errs['gr-clearance'] ? s['gr-clearance'] : null }) : NaN;
     var mode = $('gr-size-mode').value;
@@ -1650,12 +1663,12 @@ if (typeof module !== 'undefined' && module.exports) {
       o = opts(s, $('gr-job').value);
       problems = gearProblems(o);
       var pr0 = G.pair(o, o.gears.A.teeth, o.gears.B.teeth);
-      if (pr0.problem) problems.push(pr0.problem.replace(/(\d+\.\d+) mm/g, function (_, v) { return show(+v) + ' ' + state.unit; }));
+      if (pr0.problem) problems.push(friendlyProblems([pr0.problem], o)[0]);
     }
     last = { s: s, errs: errs, o: o, problems: problems };
     // A problem about one field shows under it too.
     var more = {};
-    problems.forEach(function (t) { var id = problemField(t.replace(/^the /, 'The ')); if (id && !more[id]) { more[id] = t.charAt(0).toUpperCase() + t.slice(1); $(id).dataset.touched = '1'; } });
+    problems.forEach(function (t) { var id = problemField(t); if (id && !more[id]) { more[id] = t.charAt(0).toUpperCase() + t.slice(1); $(id).dataset.touched = '1'; } });
     showErrors(Object.assign({}, errs, more), false);
     drawPair();
     var box = $('gr-problems');
@@ -1688,9 +1701,11 @@ if (typeof module !== 'undefined' && module.exports) {
     var el = $('gr-cd-hint'), zs = s['gr-teeth-a'] + s['gr-teeth-b'], cd = s['gr-cd'], u = ' ' + state.unit;
     if (!(s.module > 0) || !(zs > 0) || errs['gr-teeth-a'] || errs['gr-teeth-b']) { el.textContent = ''; return; }
     var own = s.module * zs / 2;
-    if (!(cd > 0) || errs['gr-cd'] || Math.abs(cd - own) < 1e-6) { el.innerHTML = 'Their own center distance: <b>' + show(own) + u + '</b>.'; return; }
-    var m = 2 * cd / zs, html = 'Their own: <b>' + show(own) + u + '</b>. ';
-    if (isFinite(minM) && m < minM - 1e-9) html += 'Teeth that mesh at ' + show(cd) + u + ' would be too small for the bit: ' + Math.floor(2 * cd / minM) + ' teeth in all at most.';
+    var pr = G.pair({ module: s.module, pressureDeg: Number($('gr-pa').value), backlash: s['gr-backlash'] || 0 }, s['gr-teeth-a'], s['gr-teeth-b']);
+    var range = ' (spread or closer, it works from ' + show(pr.minDistance) + ' to ' + show(pr.maxDistance) + u + ')';
+    if (!(cd > 0) || errs['gr-cd'] || Math.abs(cd - own) < 1e-6) { el.innerHTML = 'Their own center distance: <b>' + show(own) + u + '</b>' + range + '.'; return; }
+    var m = 2 * cd / zs, html = 'Their own: <b>' + show(own) + u + '</b>' + range + '. ';
+    if (isFinite(minM) && m < minM - 1e-9) html += 'To mesh at ' + show(cd) + u + ' with this bit, the two gears can have at most ' + Math.floor(2 * cd / minM) + ' teeth between them.';
     else html += '<span class="gr-link" id="gr-fit-size">Fit Tooth Size</span> (' + sizeName(m, false) + ') to mesh at exactly ' + show(cd) + u + '.';
     el.innerHTML = html;
     var link = $('gr-fit-size');
@@ -1800,17 +1815,28 @@ if (typeof module !== 'undefined' && module.exports) {
   function scheduleNote() { clearTimeout(noteTimer); noteTimer = setTimeout(updateNote, 300); }
   function programFor(view) {
     var r = settings(), s = r.s, job = view === 'frame' ? 'frame' : $('gr-job').value;
-    var ids = view === 'frame' ? ['gr-bit', 'gr-feed', 'gr-plunge', 'gr-rpm', 'gr-delay', 'gr-frame-a', 'gr-frame-b', 'gr-frame-depth', 'gr-frame-step', 'gr-size', 'gr-teeth-a', 'gr-teeth-b', 'gr-bore-a', 'gr-bore-b']
+    var ids = view === 'frame' ? ['gr-bit', 'gr-feed', 'gr-plunge', 'gr-rpm', 'gr-delay', 'gr-frame-a', 'gr-frame-b', 'gr-frame-depth', 'gr-frame-step', 'gr-size', 'gr-teeth-a', 'gr-teeth-b', 'gr-bore-a', 'gr-bore-b', 'gr-cd', 'gr-ratio']
       : Object.keys(FIELDS).filter(function (id) { return !/frame/.test(id) && ($('gr-tabs-on').checked || !/tab/.test(id)); }).concat(['gr-size']);
     var bad = ids.filter(function (id) { return r.errs[id]; });
     if (bad.length) return { bad: bad, errs: r.errs };
-    var res = GC.generate(opts(s, job));
+    var o = opts(s, job), res = GC.generate(o);
+    if (res.problems.length) res = Object.assign({}, res, { problems: friendlyProblems(res.problems, o) });
     // Bigger than the machine's travel ($130, $131): it can't be cut.
     var e = res.extent, t = state.travel;
     if (!res.problems.length && e && t && (e.x1 - e.x0 > t.x + 1e-6 || e.y1 - e.y0 > t.y + 1e-6)) {
       res = Object.assign({}, res, { problems: ['the cut is ' + show(e.x1 - e.x0) + ' × ' + show(e.y1 - e.y0) + ' ' + state.unit + ', more than the machine’s travel (' + show(t.x) + ' × ' + show(t.y) + ' ' + state.unit + ')'] });
     }
     return { res: res, errs: r.errs, bad: [] };
+  }
+  // A program's problems as this dialog says them: the gears' own in its
+  // units and size mode (once for both), lengths in its units, a capital.
+  function friendlyProblems(list, o) {
+    var gears = list.some(function (t) { return /^Gear [AB]: /.test(t); }) ? gearProblems(o) : [], out = [];
+    list.forEach(function (t) {
+      if (/^Gear [AB]: /.test(t)) { gears.forEach(function (g) { if (out.indexOf(g) < 0) out.push(g); }); return; }
+      out.push(t.replace(/(\d+(?:\.\d+)?) mm\b/g, function (_, v) { return show(+v) + ' ' + state.unit; }));
+    });
+    return out.map(function (t) { return t.charAt(0).toUpperCase() + t.slice(1); });
   }
   function updateNote() {
     var view = state.view;
@@ -1888,7 +1914,15 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // ---------- Generate ----------
   async function generate(view) {
+    var had = bitToolNumber(), t0 = state.cutTool;
     await refreshTools();
+    if (had && !bitToolNumber()) {
+      var note = $('gr-tool-note');
+      note.dataset.state = 'bad';
+      note.textContent = 'T' + had + ' isn’t ' + show(t0.mm) + ' ' + state.unit + ' in ncSender’s tool table any more: pick it again from Bit Diameter’s menu, or type the size for no tool change.';
+      note.scrollIntoView({ block: 'center' });
+      return;
+    }
     ROOT.querySelectorAll('.gr-content.active input.gr-input').forEach(function (el) { el.dataset.touched = '1'; });
     var p = programFor(view);
     showErrors(p.errs, true);
@@ -1970,16 +2004,25 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // Across the Flat for a D bore, Key Width and Depth for a keyed one;
   // filled with usual sizes the first time a shape is picked.
+  // A size filled in for the user: to 0.1 mm, or 0.005 in.
+  function fillSize(id, mm) {
+    var step = state.imperial ? 0.005 * 25.4 : 0.1;
+    write(id, Math.round(mm / step) * step);
+    state.filled[id] = $(id).value;
+  }
+  // Filled when empty, and filled again when the bore changes if it still
+  // holds what was filled in (not typed over).
   function boreExtras(fill) {
     var any = false, spokes = false;
     ['a', 'b'].forEach(function (k) {
       var shape = $('gr-bore-shape-' + k).value, bore = read('gr-bore-' + k);
-      ROOT.querySelectorAll('[data-bore^="' + k + ' "]').forEach(function (f) { var on = f.dataset.bore === k + ' ' + shape; f.hidden = !on; any = any || on; });
-      if ($('gr-holes-style-' + k).value === 'spokes') spokes = true;
+      ROOT.querySelectorAll('[data-bore^="' + k + ' "]').forEach(function (f) { var on = f.dataset.bore === k + ' ' + shape && bore > 0; f.hidden = !on; any = any || on; });
+      if ($('gr-holes-style-' + k).value === 'spokes' && read('gr-holes-' + k) > 0) spokes = true;
       if (!fill || !(bore > 0)) return;
-      if (shape === 'dflat' && read('gr-flat-' + k) == null) write('gr-flat-' + k, 0.9 * bore);
-      if (shape === 'keyway' && read('gr-keyw-' + k) == null) write('gr-keyw-' + k, Math.max(read('gr-bit') || 0, 0.25 * bore));
-      if (shape === 'keyway' && read('gr-keyd-' + k) == null) write('gr-keyd-' + k, 0.125 * bore);
+      var free = function (id) { return read(id) == null || state.filled[id] === $(id).value; };
+      if (shape === 'dflat' && free('gr-flat-' + k)) fillSize('gr-flat-' + k, 0.9 * bore);
+      if (shape === 'keyway' && free('gr-keyw-' + k)) fillSize('gr-keyw-' + k, Math.max(read('gr-bit') || 0, 0.25 * bore));
+      if (shape === 'keyway' && free('gr-keyd-' + k)) fillSize('gr-keyd-' + k, Math.max(0.5, 0.125 * bore));
     });
     ROOT.querySelector('[data-bore="spokes"]').hidden = !spokes;
     $('gr-bore-extra').hidden = !any && !spokes;
@@ -1998,6 +2041,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var tools = await (await fetch(BASE_URL + '/api/tools/active')).json();
     var ms = ((await (await fetch(BASE_URL + '/api/server-state')).json()) || {}).machineState || {};
     state.loadedTool = Number(ms.tool) > 0 ? Number(ms.tool) : 0;
+    state.probes = (tools || []).filter(function (t) { return t.type === 'probe'; }).map(function (t) { return byId ? t.toolId : t.toolNumber; });
     state.tools = (tools || []).filter(function (t) { return t.type !== 'probe'; })
       .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '' }; })
       .filter(function (t) { return t.n > 0 && t.mm > 0; })
@@ -2016,6 +2060,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var n = state.loadedTool;
       if (!(n > 0)) throw new Error('No tool is loaded, so there’s no diameter to read');
       var tool = (state.tools || []).filter(function (t) { return t.n === n; })[0];
+      if (!tool && (state.probes || []).indexOf(n) >= 0) throw new Error('T' + n + ' is a probe: load a cutting tool');
       if (!tool) throw new Error('T' + n + ' has no diameter in ncSender’s tool table');
       write('gr-bit', tool.mm);
       if (state.feedsAuto) fillFeeds(true);
@@ -2139,7 +2184,7 @@ if (typeof module !== 'undefined' && module.exports) {
       }
       if (id === 'gr-size') e.target.dataset.touched = '1';
       if (e.target.classList.contains('gr-label-select')) fitLabelSelects();
-      if (/^gr-bore-(shape-)?[ab]$|^gr-holes-style-[ab]$/.test(id)) boreExtras(/bore-shape/.test(id));
+      if (/^gr-bore-(shape-)?[ab]$|^gr-holes-(style-)?[ab]$/.test(id)) boreExtras(/^gr-bore-/.test(id));
       if (id === 'gr-b-mode' && $('gr-b-mode').value === 'ratio' && read('gr-teeth-a') > 0 && read('gr-teeth-b') > 0) write('gr-ratio', parseFloat((read('gr-teeth-a') / read('gr-teeth-b')).toFixed(4)));
       if (id === 'gr-bit') showBitTool();
       if (id === 'gr-material' || id === 'gr-flutes') fillFeeds(false);
