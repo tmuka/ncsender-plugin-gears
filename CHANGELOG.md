@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.2: Add a gear to your set
 
 ### ✨ New
 - **Add a Gear to This Set** (the Center Distance card's title menu): a new gear that meshes with one you've cut.
