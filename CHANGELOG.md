@@ -1,28 +1,31 @@
 # Changelog
 
-## Unreleased
+## 0.5.0: Clock trains and diagrams
 
-- **All gears packs tighter:** each gear goes where the stock stays smallest (touching one or two placed already,
-  Gap Between apart, within the machine's travel, turned along its longer axis when that fits better), never
-  worse than the old rows: 16-27% less stock on the trains tried.
+### ✨ New
 - **Folded gear trains:** drag an axle round the one before it in the Gear Train picture, a degree at a time,
-  locking onto each 30° (or type its Angle); touch drags don't scroll the page;
-  **Fold Compact** finds the smallest fold with no gear reaching another axle's shaft, **Straighten** undoes it.
-  Frame Holes drills the axles where the picture shows them.
+  locking onto each 30° (or type its Angle). **Fold Compact** finds the smallest fold with no gear reaching another
+  axle's shaft; **Straighten** undoes it. Frame Holes drills the axles where the picture shows them.
 - **Same center:** **Last Axle on the First** finds two stages that bring the last axle back onto the first, as a
-  clock's hour wheel on the minute hand's shaft (12:1 is 8:32 then 10:30); one frame hole for both, and that
-  gear bored to a **Tube Ø** to turn on a tube over the shaft.
+  clock's hour wheel on the minute hand's shaft (12:1 is 8:32 then 10:30): one frame hole for both, and that gear
+  bored to a **Tube Ø** to turn on a tube over the shaft.
 - **Presets** in Find a Train: a clock's seconds to minutes (60:1), its minutes to hours (12:1, same center), a
-  slow crank (10:1), a spinner (1:5), each saying what its axles do.
-- **Help:** "Gear trains, plainly" (stages, compound gears, folding, same center, which way they turn) and "What
-  to make with them" (clocks, replacement gears and how to measure one, indexing wheels, jigs, turntables...).
+  slow crank (10:1) and a spinner (1:5), each saying what its axles do.
 - **Diagrams that follow the settings:**
-  - The Cut cards (Gear Pair and Gear Train) show the stock from above, drawn from the program itself: every
-    cut through at Total Depth, the bit's width, the holding tabs as orange dots, X0 Y0 and the stock's size.
+  - The Cut cards show the stock from above, drawn from the program itself: every cut through at Total Depth at
+    the bit's width, the holding tabs as orange dots, X0 Y0 and the stock's size.
   - The Depth card shows the cut from the side: Z0, each pass, the tab left standing, Total Depth into the
     wasteboard.
   - The Teeth card shows where the teeth meet, close up: a tooth of B in a space of A, the pitch circles, the
-    line of action at the pressure angle, the backlash, the tip clearance, and the bit in A's root.
+    line of action at the pressure angle, the backlash, the tip clearance and the bit in A's root.
+- **Help:** "Gear trains, plainly" (stages, compound gears, folding, same center, which way they turn) and "What
+  to make with them" (clocks, replacement gears and how to measure one, indexing wheels, jigs, turntables...).
+
+### 🔧 Changed
+- **All gears packs tighter:** each gear goes where the stock stays smallest (touching one or two placed already,
+  Gap Between apart, within the machine's travel, turned along its longer axis when that fits better), never
+  worse than the old rows: 16-27% less stock on the trains tried.
+- Touch drags on the preview's handles no longer scroll the page.
 
 ## 0.4.0: Gear trains
 
