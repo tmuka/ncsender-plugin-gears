@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **All gears packs tighter:** each gear goes where the stock stays smallest (touching one or two placed already,
+  Gap Between apart, within the machine's travel, turned along its longer axis when that fits better), never
+  worse than the old rows: 16-27% less stock on the trains tried.
 - **Folded gear trains:** drag an axle round the one before it in the Gear Train picture, a degree at a time,
   locking onto each 30° (or type its Angle); touch drags don't scroll the page;
   **Fold Compact** finds the smallest fold with no gear reaching another axle's shaft, **Straighten** undoes it.

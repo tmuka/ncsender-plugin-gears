@@ -161,3 +161,21 @@ test('same center, not exact: the fewest teeth within 0.5%, quickly; 1:1 refused
   }
   assert.match(G.solveTrain({ ratio: 1, minTeeth: 8, maxTeeth: 72, sameCenter: true }).problem, /other than 1/);
 });
+
+test('packing all the gears: never closer than the gap, inside the stock, never more stock than the rows', () => {
+  const box = (pl, its, e) => { const b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity }; pl.forEach((q) => { const r = its.find((i) => i.key === q.key).ra + e; b.x0 = Math.min(b.x0, q.x - r); b.x1 = Math.max(b.x1, q.x + r); b.y0 = Math.min(b.y0, q.y - r); b.y1 = Math.max(b.y1, q.y + r); }); return b; };
+  for (const teeth of [[8, 30, 8, 32, 8, 32], [8, 60, 8, 64], [10, 25, 10, 40], [12, 12, 40, 40, 40, 8, 8, 8], [20]]) for (const [W, H] of [[null, null], [800, 1200], [1200, 600]]) {
+    const its = teeth.map((z, i) => ({ key: 'G' + i, ra: 4 * (z + 2) / 2 })), gap = 3.6, edge = 3.175;
+    const pl = GC.packCircles(its, gap, edge, W, H);
+    assert.equal(pl.length, its.length);
+    assert.deepStrictEqual([pl[0].x, pl[0].y], [0, 0]);
+    assert.equal(its.find((i) => i.key === pl[0].key).ra, Math.max(...its.map((i) => i.ra)), 'the biggest first, at X0 Y0');
+    for (let i = 0; i < pl.length; i++) for (let j = i + 1; j < pl.length; j++) {
+      const a = its.find((q) => q.key === pl[i].key), b = its.find((q) => q.key === pl[j].key);
+      assert.ok(Math.hypot(pl[i].x - pl[j].x, pl[i].y - pl[j].y) >= a.ra + b.ra + gap - 1e-6, `${teeth} ${i}-${j} too close`);
+    }
+    const b = box(pl, its, edge), rows = box(GC.packRows(its, gap, W), its, edge);
+    if (W) assert.ok(b.x1 - b.x0 <= W + 1e-6 && b.y1 - b.y0 <= H + 1e-6, `${teeth} in ${W} x ${H}: ${(b.x1 - b.x0).toFixed(0)} x ${(b.y1 - b.y0).toFixed(0)}`);
+    assert.ok((b.x1 - b.x0) * (b.y1 - b.y0) <= (rows.x1 - rows.x0) * (rows.y1 - rows.y0) + 1e-6, `${teeth}: more stock than the rows`);
+  }
+});
