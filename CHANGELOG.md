@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- **Folded gear trains:** drag an axle round the one before it in the Gear Train picture (or type its Angle);
+- **Folded gear trains:** drag an axle round the one before it in the Gear Train picture, a degree at a time,
+  locking onto each 30° (or type its Angle); touch drags don't scroll the page;
   **Fold Compact** finds the smallest fold with no gear reaching another axle's shaft, **Straighten** undoes it.
   Frame Holes drills the axles where the picture shows them.
 - **Same center:** **Last Axle on the First** finds two stages that bring the last axle back onto the first, as a
