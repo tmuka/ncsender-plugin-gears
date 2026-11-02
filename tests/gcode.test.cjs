@@ -380,7 +380,9 @@ test('Gap Between: the whole gap, at least the bit and a tenth; blank is that le
   const both = { ...base, job: 'both', tabs: null, gears: { A: { teeth: 24, bore: 8, holes: 0 }, B: { teeth: 12, bore: 8, holes: 0 } } };
   assert.equal(GC.gapMinimum(3.175), 3.175 * 1.1);
   assert.equal(GC.gapMinimum(1), 1.2);
-  assert.match(GC.generate({ ...both, gap: 3 }).problems.join(), /Gap Between must be at least 3\.49 mm/);
+  assert.match(GC.generate({ ...both, gap: 3 }).problems.join(), /Gap Between must be at least 3\.50 mm/);
+  assert.deepEqual(GC.generate({ ...both, gap: 3.49 }).problems, []);
+  assert.deepEqual(GC.generate({ ...both, gap: 0.1374 * 25.4 }).problems, []);
   const xB = (gap) => GC.generate({ ...both, gap }).parts.find((q) => q.key === 'B').x;
   assert.ok(Math.abs(xB(null) - xB(3.175 * 1.1)) < 1e-9);
   assert.ok(xB(10) > xB(null) + 6);

@@ -1737,8 +1737,8 @@ if (typeof module !== 'undefined' && module.exports) {
   // number of teeth (so a space of B faces a tooth of A along the line
   // between them, as when they mesh), and as close as keeps their outlines
   // `clear` apart everywhere: one kerf between them, less stock.
-  // The least Gap Between two gears cut together: a bit and a tenth, so the
-  // bit never cuts into the other gear and a strip is left between them.
+  // The least Gap Between two gears cut together: a bit and a tenth, so
+  // the bit cutting one gear stays a tenth of its width off the other.
   function gapMinimum(bit) { return Math.max(1.1 * bit, bit + 0.2); }
   function nestTurn(zB) { return zB % 2 === 0 ? Math.PI / zB : 0; }
   function nestedDistance(A, B, turn, clear) {
@@ -1850,8 +1850,10 @@ if (typeof module !== 'undefined' && module.exports) {
     var xB = 0, rb = p.rack && p.info.B.basics, turnB = 0;
     var nested = p.which.length === 2 && !p.rack && !p.ring, gapMin = gapMinimum(o.bitDiameter);
     var gap = o.gap > 0 ? o.gap : gapMin;
-    if (p.which.length === 2 && o.gap > 0 && o.gap < gapMin - 1e-9) {
-      return { problems: ['Gap Between must be at least ' + gapMin.toFixed(2) + ' mm (the bit and a tenth), so the bit stays out of the other gear'], notes: p.notes, gcode: null };
+    // 0.01 mm short is let through, so the minimum as shown (to 0.01 mm,
+    // or 0.0001 in) is accepted when typed.
+    if (p.which.length === 2 && o.gap > 0 && o.gap < gapMin - 0.01) {
+      return { problems: ['Gap Between must be at least ' + (Math.ceil(gapMin * 100) / 100).toFixed(2) + ' mm (the bit and a tenth), so the bit stays out of the other gear'], notes: p.notes, gcode: null };
     }
     if (nested) {
       turnB = nestTurn(p.info.B.basics.z);
@@ -2308,7 +2310,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // Add a Gear to This Set: the tooth size and pressure angle kept, so the
   // new gear meshes with the one you have. Only whole teeth fit, so only
   // some distances: the nearest few to the one typed, to pick from.
-  var GEAR_FIELDS = ['teeth', 'bore', 'flat', 'keyw', 'keyd', 'holes', 'bore-shape', 'holes-style'];
+  var GEAR_FIELDS = ['teeth', 'bore', 'flat', 'keyw', 'keyd', 'holes', 'bore-shape', 'holes-style', 'frame'];
   function showAddOptions(s, errs) {
     var box = $('gr-solutions'), u = ' ' + state.unit, m = moduleFromSize(), pa = Number($('gr-pa').value), mode = $('gr-size-mode').value;
     if (isRack() || isRing()) { box.innerHTML = ''; state.autoPick = false; return; }
@@ -2327,7 +2329,7 @@ if (typeof module !== 'undefined' && module.exports) {
     state.autoPick = false;
     var other = kept === 'A' ? 'b' : 'a';
     if (auto && !(s['gr-teeth-' + other] === best.teeth && kept === 'A' && Math.abs(cd - best.distance) < 1e-6)) { applyAdd(best, kept); return; }
-    var undercutBelow = Math.floor(2 / Math.pow(Math.sin(pa * Math.PI / 180), 2));
+    var undercutBelow = 2 / Math.pow(Math.sin(pa * Math.PI / 180), 2);
     var turn = function (q) { return q >= 1 ? parseFloat(q.toFixed(3)) + ':1' : '1:' + parseFloat((1 / q).toFixed(3)); };
     box.innerHTML = head + opts.map(function (o) {
       var picked = kept === 'A' && s['gr-teeth-b'] === o.teeth && Math.abs((s['gr-cd'] || 0) - o.distance) < 1e-6;
@@ -2346,6 +2348,9 @@ if (typeof module !== 'undefined' && module.exports) {
         var ia = 'gr-' + f + '-a', ib = 'gr-' + f + '-b', t = $(ia).value;
         $(ia).value = $(ib).value; $(ib).value = t;
         [state.written, state.filled].forEach(function (o) { var w = o[ia]; o[ia] = o[ib]; o[ib] = w; });
+        var ta = $(ia).dataset.touched, tb = $(ib).dataset.touched;
+        if (tb) $(ia).dataset.touched = tb; else delete $(ia).dataset.touched;
+        if (ta) $(ib).dataset.touched = ta; else delete $(ib).dataset.touched;
       });
       $('gr-design-with').value = 'A';
       boreExtras(false);
@@ -2923,6 +2928,8 @@ if (typeof module !== 'undefined' && module.exports) {
     initialConfig = { v: Object.assign({}, v, { saveFiles: keep }) };
     state.autoPick = false;
     state.cutTool = null;
+    state.filled = {};
+    state.designKind = null;
     ROOT.querySelectorAll('[data-touched]').forEach(function (el) { delete el.dataset.touched; });
     restore();
     boreExtras(false);
@@ -2962,7 +2969,8 @@ if (typeof module !== 'undefined' && module.exports) {
     if (v && !v.nested && v['gr-gap'] != null && (Math.abs(v['gr-gap'] - 6) < 1e-6 || Math.abs(v['gr-gap'] - 6.35) < 1e-6)) v['gr-gap'] = 0;
     // Saved when Gap Between was extra space past one kerf and 0.5 mm: now
     // it's the whole gap, so that's added; 0 becomes blank, the least.
-    if (v && !v.gapSpace && v['gr-gap'] != null) v['gr-gap'] = v['gr-gap'] > 0 ? v['gr-gap'] + (v['gr-bit'] || 3.175) + 0.5 : null;
+    // (A rack or ring sat two kerfs and the gap off.)
+    if (v && !v.gapSpace && v['gr-gap'] != null) v['gr-gap'] = v['gr-gap'] > 0 ? v['gr-gap'] + (/^(rack|ring)$/.test(v['gr-b-mode']) ? 2 * (v['gr-bit'] || 3.175) : (v['gr-bit'] || 3.175) + 0.5) : null;
     Object.keys(FIELDS).forEach(function (id) {
       var f = FIELDS[id], x = v && v[id] != null ? v[id] : (state.imperial && imperialDefaults[id] != null ? imperialDefaults[id] : f[4]);
       write(id, x);
@@ -3219,7 +3227,8 @@ if (typeof module !== 'undefined' && module.exports) {
     $('gr-close').addEventListener('click', function () { save(true); window.postMessage({ type: 'close-plugin-dialog' }, '*'); });
     ROOT.addEventListener('input', function (e) {
       if (e.target.id === 'gr-turn') { state.turn = +e.target.value; spin(); return; }
-      if (/^gr-(cd|design-ratio|design-od)$/.test(e.target.id)) state.autoPick = true;
+      // Add a Gear: typing lists the distances; the nearest is picked when the edit is done (change).
+      if (/^gr-(cd|design-ratio|design-od)$/.test(e.target.id) && !(e.target.id === 'gr-cd' && $('gr-design-mode').value === 'add')) state.autoPick = true;
       if (/^gr-(rpm|feed|plunge|step|frame-step)$/.test(e.target.id) && e.isTrusted) state.feedsAuto = false;
       touch();
     });
@@ -3239,6 +3248,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (id === 'gr-size') e.target.dataset.touched = '1';
       if (id === 'gr-design-by' || id === 'gr-design-mode') state.autoPick = id === 'gr-design-by' || $('gr-design-mode').value === 'new';
       if (id === 'gr-design-mode') fitLabelSelects();
+      if (id === 'gr-cd' && $('gr-design-mode').value === 'add') state.autoPick = true;
       if (e.target.classList.contains('gr-label-select')) fitLabelSelects();
       if (/^gr-bore-(shape-)?[ab]$|^gr-holes-(style-)?[ab]$/.test(id)) boreExtras(/^gr-bore-/.test(id));
       if (id === 'gr-b-mode' && $('gr-b-mode').value === 'ratio' && read('gr-teeth-a') > 0 && read('gr-teeth-b') > 0) write('gr-ratio', parseFloat((read('gr-teeth-a') / read('gr-teeth-b')).toFixed(4)));
@@ -3259,7 +3269,11 @@ if (typeof module !== 'undefined' && module.exports) {
     ROOT.querySelectorAll('.gr-save-files').forEach(function (b) {
       b.addEventListener('change', function () { ROOT.querySelectorAll('.gr-save-files').forEach(function (o) { o.checked = b.checked; }); save(true); });
     });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && loadPanel) { e.stopPropagation(); closeLoadPanel(); } }, true);
+    var onEscape = function (e) {
+      if (!document.contains(ROOT)) { document.removeEventListener('keydown', onEscape, true); return; }
+      if (e.key === 'Escape' && loadPanel) { e.stopPropagation(); closeLoadPanel(); }
+    };
+    document.addEventListener('keydown', onEscape, true);
     $('gr-gen-frame').addEventListener('click', function () { generate('frame'); });
   }
 
