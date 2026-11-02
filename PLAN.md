@@ -75,7 +75,7 @@ coefficients, and they cut with a 1/8" or 1/4" end mill, not a gear hob.
 - Profile shift for small pinions; helical gears are out of scope for a 3-axis router.
 - Optional printable template (SVG) for anyone cutting on a bandsaw.
 
-## Start from the center distance (2026-11-01: the card and solver are built; the preview handles are next)
+## Start from the center distance (2026-11-01: built; the preview handles too, 2026-11-02)
 
 The user found picking the tooth size (module, circular pitch), pressure angle and backlash first unfriendly.
 Keep them all, but lead with what a builder knows:
@@ -90,6 +90,21 @@ Keep them all, but lead with what a builder knows:
   distance, drag a gear's edge to set its diameter, with the value shown beside the handle and a tap to
   type it. The fields and the picture stay in step. Touch-sized handles for the Pi.
 - Whatever is typed last wins; the others show as filled (greyed "auto") until typed over.
+
+## Gear trains (built 2026-11-02, not released)
+
+- A **Gear Train** tab: stages in a row along +X, each a driver and a driven gear; a driven gear shares its
+  axle with the next stage's driver (compound gears, glued or pinned). One tooth size and pressure angle for
+  the whole train (the Gear Pair tab's), as do the bit, feeds, depth, tabs and X0 Y0.
+- **Find a Train** (`solveTrain`): the ratio as a fraction, so "exact" is exact; one, two or three stages,
+  each a whole ratio's fewest teeth, within Fewest/Most Teeth; exact trains by fewest stages, more stages only
+  when they make the biggest gear smaller; else the nearest within 0.5%. Stage ratios of 1:1 are left out.
+- **Layout** (`trainLayout`): axles in a line, and a gear whose tips reach another axle's shaft (its mesh
+  partner's excepted) is reported; the frame isn't drilled for such a train.
+- **Cut:** a stage's two gears nested (the pair's own program), one gear, or the frame's axle holes
+  (`generate` with `axles`). Every gear bored to Axle Ø; Wheel Spokes in each stage's bigger gear.
+- Later: a folded layout (each next axle at an angle, for a compact clock frame), a different tooth size per
+  stage (bigger teeth where the torque is), a motor's D bore on the first driver, the train in one program.
 
 ## How it's built
 

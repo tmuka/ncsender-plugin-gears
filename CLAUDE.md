@@ -10,7 +10,7 @@ GPL-3.0: it reuses QuickCut's code (siganberg/ncsender-plugin-quickcut, GPL-3.0 
 | --- | --- |
 | `config.html` | The dialog: markup, styles, the UI script. ncSender runs it inline, so `lib/*.cjs` are copied into it between `/* BEGIN lib/x.cjs */` markers. |
 | `lib/gear-geometry.cjs` | Rack-generated involute teeth (`gear`), the smallest module a bit can cut (`minModule`), pair facts (`pair`), the outward offset with loop trimming (`offsetOutward`), simplification. mm, radians. |
-| `lib/gear-gcode.cjs` | The program: holes (cleared), teeth (offset path, depth passes, ramps, tabs on tips), both gears, frame holes. |
+| `lib/gear-gcode.cjs` | The program: holes (cleared), teeth (offset path, depth passes, ramps, tabs on tips), both gears, frame holes (two, or a train's `axles`). |
 | `lib/starting-feeds.cjs`, `lib/unit-input.cjs` | Copied from QuickCut; keep in step with it. |
 | `.scripts/inline.cjs` | Copies the libs into config.html; `--check` fails when a copy is stale (`npm test` runs it). |
 | `.scripts/build.sh` | `dist/com.tmuka.gears_v<version>.zip` from the last commit. |
@@ -34,7 +34,8 @@ corners, miters in inside ones, loops trimmed), started at the point farthest ou
 never overlapping through a pitch, closest at B cos α / 2; the path exactly the bit radius from the
 outline and reaching all of it; `minModule` where the gear stops fitting; G-code run through a small
 simulator (nothing below Total Depth, no rapids at depth, Z never faster than the Plunge Rate, teeth
-never gouged, tabs on tips, holes).
+never gouged, tabs on tips, holes); gear trains (`solveTrain` exact by fewest stages, in the teeth range, fast;
+`trainLayout` axles and shaft hits; a train's frame holes).
 
 UI: the test kit at `~/Documents/projects/ncsender-plugin-testkit` (its README is the method):
 `openLocal({ config: 'config.html', pluginId: 'com.tmuka.gears' })` renders as ncSender does at the Pi's

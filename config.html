@@ -25,7 +25,7 @@
   /* Wide (a landscape 1080p screen): the preview stays in the left column
      while the cards scroll in the right; narrower (portrait), one column. */
   /* One column on a tall screen (portrait): a taller preview. */
-  @media (max-width: 1199px), (max-width: 1399px) and (orientation: portrait) { .gr-preview#gr-preview { height: clamp(330px, 30vh, 640px); } }
+  @media (max-width: 1199px), (max-width: 1399px) and (orientation: portrait) { .gr-preview#gr-preview, .gr-preview#gt-preview { height: clamp(330px, 30vh, 640px); } }
   @media (min-width: 1400px), (min-width: 1200px) and (orientation: landscape) {
     .gr-panel.gr-two { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; align-content: start; }
     .gr-two > .gr-view-card { grid-column: 1; grid-row: 1 / span 12; position: sticky; top: 0; }
@@ -265,6 +265,14 @@
   .gr-load-status-line:empty { display: none; }
   .gr-file-actions { display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; }
   .gr-load-status { font-size: 0.82rem; color: var(--color-accent); }
+  .gr-set-save { display: flex; gap: 10px; align-items: center; }
+  .gr-set-save .gr-input { flex: 1; text-align: left; font-family: inherit; }
+  .gr-load-row.gr-set-row { cursor: pointer; }
+  .gr-load-del { flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; margin: 0;
+    padding: 0 !important; background: transparent !important; border: none !important; color: var(--color-text-secondary) !important; cursor: pointer; }
+  .gr-load-del:hover { color: #ff6b6b !important; background: color-mix(in srgb, #ff6b6b 12%, transparent) !important; }
+  .gr-load-del svg { width: 16px; height: 16px; }
+  .gr-load-section { padding: 10px 16px 4px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-secondary); }
   .gr-note { margin-right: auto; font-size: 0.82rem; color: var(--color-text-secondary); }
   .gr-note.gr-bad-note { color: #ff6b6b; font-weight: 600; }
   .gr-primary, .gr-secondary {
@@ -285,6 +293,11 @@
   .gr-preview .gr-path { fill: none; stroke: var(--color-accent); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
   .gr-preview .gr-dim { stroke: var(--color-text-secondary); stroke-width: 1; vector-effect: non-scaling-stroke; }
   .gr-preview .gr-mark { fill: #ff6b6b; }
+  .gr-preview .gr-handle { fill: var(--color-accent); stroke: var(--color-surface); stroke-width: 2; vector-effect: non-scaling-stroke; pointer-events: none; }
+  .gr-preview .gr-handle-hit { fill: transparent; cursor: grab; touch-action: none; }
+  .gr-preview .gr-handle-hit:hover + .gr-handle, .gr-preview .gr-dragging .gr-handle { stroke: var(--color-text-primary); }
+  .gr-preview .gr-handle-label { fill: var(--color-text-primary); font-weight: 600; paint-order: stroke; stroke: var(--color-surface); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+  .gr-preview .gr-handle-ring { fill: none; stroke: var(--color-accent); stroke-width: 1.5; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; pointer-events: none; }
   .gr-preview text { font-family: inherit; fill: var(--color-text-secondary); }
   .gr-preview .gr-bad-text { fill: #ff6b6b; }
   .gr-preview-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -314,6 +327,10 @@
         <button type="button" class="gr-nav-btn" data-view="frame">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="1.5"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="1.5"/></svg>
           <span>Frame Holes</span>
+        </button>
+        <button type="button" class="gr-nav-btn" data-view="train">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="12" r="2.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="2.8"/><path d="M5.5 9.5v-1M5.5 15.5v-1M12 7.5V6M12 18v-1.5M19 9.2V8M19 16v-1.2"/></svg>
+          <span>Gear Train</span>
         </button>
       </nav>
       <div class="gr-sidebar-footer">
@@ -517,6 +534,63 @@
       <div class="gr-footer"><span class="gr-note" id="gr-note-frame"></span><span class="gr-file-actions"><span class="gr-load-status" aria-live="polite"></span><a href="#" class="gr-load-link" title="Fill the form from a Gears program saved in File Manager">Load</a><span class="gr-load-sep" aria-hidden="true">|</span><label class="gr-switch" title="Also save each generated program to File Manager › Gears, with the settings it was made with, for Load"><input type="checkbox" class="gr-save-files"> Save to File Manager</label></span><button type="button" class="gr-primary" id="gr-gen-frame">Generate</button></div>
     </section>
 
+    <!-- Gear Train -->
+    <section class="gr-content" data-view="train">
+      <div class="gr-header">
+        <h2>Gear Train</h2>
+        <div class="gr-sub">Pairs in a row, each driven gear on one axle with the next stage&rsquo;s driver, for more ratio than one pair can make: 60:1 for a clock, say.</div>
+      </div>
+      <div class="gr-panel gr-two">
+        <div class="gr-card gr-view-card">
+          <svg class="gr-preview" id="gt-preview" viewBox="-100 -60 200 120" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="gr-preview-bar">
+            <span class="gr-hint">Turn</span>
+            <input type="range" id="gt-turn" min="0" max="360" step="0.5" value="0" title="Turn the first axle to see the train roll">
+            <button type="button" class="gr-secondary" id="gt-animate">Animate</button>
+          </div>
+          <div class="gr-facts" id="gt-facts"></div>
+          <div class="gr-problems" id="gt-problems" hidden></div>
+        </div>
+
+        <div class="gr-card">
+          <div class="gr-card-head"><h4 class="gr-card-title">Find a Train</h4></div>
+          <div class="gr-row gr-row-4">
+            <div class="gr-field"><label for="gt-ratio">Ratio</label><input class="gr-input" id="gt-ratio" title="Turns of the first axle for one turn of the last: 60 for 60:1 (a clock&rsquo;s seconds to minutes), 0.25 to turn the last four times as fast."></div>
+            <div class="gr-field"><label for="gt-stages">Stages</label>
+              <select class="gr-select" id="gt-stages" title="How many pairs. Fewest: the fewest that make the ratio, or more when they make the gears smaller."><option value="0">Fewest</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+            <div class="gr-field"><label for="gt-min">Fewest Teeth</label><input class="gr-input" id="gt-min" title="The smallest gear any stage may have. 8 is about as few as runs well; under 12 the teeth are undercut (thin at the root)."></div>
+            <div class="gr-field"><label for="gt-max">Most Teeth</label><input class="gr-input" id="gt-max" title="The biggest gear any stage may have: how big the stock and the frame can be."></div>
+          </div>
+          <div class="gr-solutions" id="gt-solutions"></div>
+        </div>
+
+        <div class="gr-card">
+          <div class="gr-card-head"><h4 class="gr-card-title">Stages</h4>
+            <div class="gr-right"><button type="button" class="gr-secondary" id="gt-add-stage" title="Add a stage at the end: its driver goes on the last axle.">Add a Stage</button></div>
+          </div>
+          <div id="gt-stage-list"></div>
+          <div class="gr-hint">Each driven gear shares its axle with the next stage&rsquo;s driver: glue or pin the two together, or fix both to the shaft. Tooth size, pressure angle, backlash, bit, feeds and depth come from the Gear Pair tab.</div>
+        </div>
+
+        <div class="gr-card">
+          <div class="gr-card-head"><h4 class="gr-card-title">Gear Bodies</h4></div>
+          <div class="gr-row gr-row-4">
+            <div class="gr-field"><label for="gt-axle">Axle Ø</label><input class="gr-input" id="gt-axle" data-unit="length" title="The shafts&rsquo; diameter: every gear&rsquo;s bore, and the frame&rsquo;s axle holes. A little over the shaft&rsquo;s for a slip fit."></div>
+            <div class="gr-field"><label for="gt-spokes">Wheel Spokes</label><input class="gr-input" id="gt-spokes" title="Spokes in the bigger gear of each stage (the wheel), with windows between them; Spoke Width is the Gear Pair tab&rsquo;s. 0: solid."></div>
+          </div>
+        </div>
+
+        <div class="gr-card">
+          <div class="gr-card-head"><h4 class="gr-card-title">Cut</h4></div>
+          <div class="gr-row gr-row-2">
+            <div class="gr-field"><label for="gt-job">Cut</label><select class="gr-select" id="gt-job" title="One stage&rsquo;s two gears nested (as Both Gears on the Gear Pair tab), one gear, or the frame&rsquo;s axle holes."></select></div>
+          </div>
+          <div class="gr-hint" id="gt-origin-say"></div>
+        </div>
+      </div>
+      <div class="gr-footer"><span class="gr-note" id="gr-note-train"></span><span class="gr-file-actions"><span class="gr-load-status" aria-live="polite"></span><a href="#" class="gr-load-link" title="Fill the form from a Gears program saved in File Manager">Load</a><span class="gr-load-sep" aria-hidden="true">|</span><label class="gr-switch" title="Also save each generated program to File Manager › Gears, with the settings it was made with, for Load"><input type="checkbox" class="gr-save-files"> Save to File Manager</label></span><button type="button" class="gr-primary" id="gr-gen-train">Generate</button></div>
+    </section>
+
     <!-- Help -->
     <section class="gr-content" data-view="help">
       <div class="gr-header"><h2>Help</h2><div class="gr-sub">How Gears works. Inspired by Matthias Wandel's gear work at <b>woodgears.ca</b>; for paper templates, his gear template generator at <b>woodgears.ca/gear</b>.</div></div>
@@ -537,7 +611,9 @@
           <li>Gear B's label menu takes the <b>Ratio A:B</b> instead of its teeth (3 for 3:1): Gear B's teeth are worked out to the nearest whole tooth, with the real ratio shown.</li>
           <li><b>Start from the Center Distance</b>: type where the axles go, then the <b>Ratio</b> (how it should turn) or <b>Gear A Outside Ø</b> (how big Gear A is), and pick one of the pairs that mesh there: <b>Coarse</b> (fewest, biggest teeth: strongest, easiest to cut), <b>Balanced</b> or <b>Fine</b> (the most teeth the bit can cut: smoother). Each says its teeth, tooth size, pressure angle (20&deg;, or 25&deg; for a small gear when the bit allows), the ratio it really makes, the outside diameters and the biggest bit that cuts it. Typing in the card picks Balanced (or the kind you last tapped) straight away, filling in the Teeth card so the gears always mesh at that distance; tap another to change it. A blank Ratio is the one the teeth make now. Everything in the Teeth card can still be changed. A small gear&rsquo;s teeth may be undercut (thin at the root): the list says so; a longer distance gives it more teeth.</li>
           <li><b>Add a Gear to This Set</b> (the same card&rsquo;s title menu): a new gear that meshes with one you&rsquo;ve cut. Gears mesh when they have the same tooth size and pressure angle; the center distance only follows from the teeth, so those two are kept from the Teeth card (Load the pair&rsquo;s program first if you&rsquo;ve changed them). Pick the gear you have in <b>Meshes With</b> and type where the new axle goes: only whole teeth fit, so it lists the nearest distances that work (each tooth moves it half a module) and picks the nearest. The new gear becomes Gear B (the one you have moves to Gear A with its bore and holes), and Cut is set to Gear B only.</li>
-          <li><b>Load</b> and <b>Save to File Manager</b> (beside Generate): with the switch on, each program is also saved in File Manager&rsquo;s Gears folder. Every program carries the settings it was made with, and Load fills the form from one, to cut a pair again or add a gear to it. The program&rsquo;s first lines also say its tooth size and pressure angle.</li>
+          <li><b>Load</b> and <b>Save to File Manager</b> (beside Generate): with the switch on, each program is also saved in File Manager&rsquo;s Gears folder. Every program carries the settings it was made with, and Load fills the form from one, to cut a pair again or add a gear to it. The program&rsquo;s first lines also say its tooth size and pressure angle. In the same panel, <b>Save as a Set</b> keeps the settings you have under a name, without a program; tap a set to load it, or its bin to delete it (with Undo).</li>
+          <li><b>Drag the preview</b>: the dot at Gear B&rsquo;s center sets the <b>Center Distance</b>, the dot on top of Gear A its outside diameter (Start from the Center Distance). The value shows as you drag; the pairs are worked out when you let go, as if you&rsquo;d typed it. A tap on a dot goes to its field.</li>
+          <li><b>Gear Train</b> (its own tab): pairs in a row for more ratio than one pair makes, each stage&rsquo;s driven gear on one axle with the next stage&rsquo;s driver (glue or pin them together, or fix both to the shaft). Type the <b>Ratio</b> (turns of axle 1 for one turn of the last: 60 for 60:1) and it lists the trains that make it within <b>Fewest</b> and <b>Most Teeth</b>: the fewest stages first, more only when they make the biggest gear smaller; exactly when whole teeth allow, else within 0.5%. Or type the stages yourself, and <b>Add a Stage</b> or remove one. Every gear is bored to the <b>Axle Ø</b>; the bigger gear of each stage gets <b>Wheel Spokes</b>. The preview turns the train and says when a gear reaches another axle&rsquo;s shaft. <b>Cut</b> one stage&rsquo;s two gears nested, one gear, or the frame&rsquo;s axle holes in a line (with the Frame Holes tab&rsquo;s depths). The tooth size, pressure angle, bit, feeds, depth, tabs and X0 Y0 are the Gear Pair tab&rsquo;s.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
@@ -1105,6 +1181,124 @@ if (typeof module !== 'undefined' && module.exports) {
     return { options: out };
   }
 
+  // A gear train: stages in a row, each a driver turning a driven gear; a
+  // stage's driven gear shares its axle with the next stage's driver. The
+  // ratio is turns of the first axle for one of the last: the product of
+  // driven / driver. Options for a target ratio: the fewest stages that
+  // reach it exactly (or within 0.5%), then the fewest teeth all told (the
+  // smallest train), stages near equal; { problem } when none does.
+  // t: { ratio, stages (0: 1 to 3), minTeeth, maxTeeth }.
+  function solveTrain(t) {
+    var R = t.ratio, lo = Math.max(6, Math.round(t.minTeeth || 8)), hi = Math.min(400, Math.round(t.maxTeeth || 72));
+    if (!(R > 0)) return { problem: 'a ratio' };
+    if (!(hi >= lo)) return { problem: 'the teeth range is empty' };
+    var counts = t.stages > 0 ? [Math.min(3, Math.round(t.stages))] : [1, 2, 3];
+    var gcd = function (a, b) { while (b) { var x = a % b; a = b; b = x; } return a; };
+    // The ratio as a fraction P/Q (7.3 is 73/10), so exact means exact.
+    var P = 1, Q = 1;
+    for (var den = 1; den <= 100000; den++) { var num = Math.round(R * den); if (num > 0 && Math.abs(num / den - R) <= 1e-9 * R) { P = num; Q = den; break; } }
+    var exactR = Math.abs(P / Q - R) <= 1e-9 * R;
+    // Each whole ratio driven/driver once, its fewest teeth: more only adds teeth.
+    var pairs = [], byKey = {};
+    for (var d = lo; d <= hi; d++) for (var w = lo; w <= hi; w++) {
+      var g = gcd(w, d), k = (w / g) + '/' + (d / g);
+      if (!byKey[k]) { byKey[k] = { driver: d, driven: w, n: w / g, m: d / g }; pairs.push(byKey[k]); }
+    }
+    var score = function (stages) {
+      var q = 1, sum = 0, logs = [];
+      stages.forEach(function (s) { q *= s.driven / s.driver; sum += s.driver + s.driven; logs.push(Math.log(s.driven / s.driver)); });
+      var mean = logs.reduce(function (a, b) { return a + b; }, 0) / logs.length;
+      var spread = logs.reduce(function (a, b) { return a + Math.abs(b - mean); }, 0);
+      return { stages: stages, ratio: q, error: Math.abs(q - R) / R, teeth: sum, spread: spread, key: sum + 2 * spread };
+    };
+    var better = function (a, b) { return !a || b.key < a.key - 1e-12; };
+    var best = {}, nearest = {};
+    var consider = function (n, stages) {
+      var o = score(stages);
+      if (o.error < 1e-9) { if (better(best[n], o)) best[n] = o; }
+      else if (o.error <= 0.005 && (!nearest[n] || o.error < nearest[n].error - 1e-12 || (Math.abs(o.error - nearest[n].error) < 1e-12 && o.key < nearest[n].key))) nearest[n] = o;
+    };
+    // The last stage, exactly: the pair making num/den, if there is one.
+    var lastExact = function (n, prefix, num, den) {
+      var g = gcd(num, den), p = byKey[(num / g) + '/' + (den / g)];
+      if (p && !(n > 1 && p.n === p.m)) consider(n, prefix.concat([p]));
+    };
+    // Or as near as whole teeth get.
+    var lastNear = function (n, prefix, need) {
+      var cut = nearest[n] ? nearest[n].error + 1e-12 : 0.005;
+      for (var d2 = lo; d2 <= hi; d2++) {
+        var w2 = Math.round(need * d2);
+        if (w2 < lo || w2 > hi || (n > 1 && w2 === d2)) continue;
+        if (Math.abs(w2 / d2 - need) / need > cut) continue;
+        consider(n, prefix.concat([{ driver: d2, driven: w2 }]));
+      }
+    };
+    counts.forEach(function (n) {
+      // A stage of 1:1 only adds an axle.
+      var per = Math.pow(R, 1 / n), band = n === 3 ? 2.5 : Infinity;
+      var some = n === 1 ? [] : pairs.filter(function (p) { var r = p.driven / p.driver; return p.n !== p.m && r >= per / band && r <= per * band; });
+      if (n === 1) { if (exactR) lastExact(1, [], P, Q); lastNear(1, [], R); return; }
+      if (n === 2) {
+        some.forEach(function (a) { if (exactR) lastExact(2, [a], P * a.m, Q * a.n); });
+        if (!best[1] && !best[2]) some.forEach(function (a) { var r = a.driven / a.driver; if (r >= per / 3 && r <= per * 3) lastNear(2, [a], R / r); });
+        return;
+      }
+      for (var i = 0; i < some.length; i++) for (var j = i; j < some.length; j++) {
+        var a = some[i], b = some[j];
+        if (exactR) lastExact(3, [a, b], P * a.m * b.m, Q * a.n * b.n);
+      }
+      // Near (not exact) three-stage trains: only when nothing exact has turned up.
+      if (!best[1] && !best[2] && !best[3]) {
+        var tight = some.filter(function (p) { var r = p.driven / p.driver; return r >= per / 1.5 && r <= per * 1.5; });
+        tight.forEach(function (a) { tight.forEach(function (b) { lastNear(3, [a, b], R * a.driver * b.driver / (a.driven * b.driven)); }); });
+      }
+    });
+    // Exact ones by fewest stages; else the nearest within 0.5%. More
+    // stages only when they make the biggest gear smaller (or, not exact,
+    // come at least twice as near).
+    var biggest = function (o) { return Math.max.apply(null, o.stages.map(function (s) { return Math.max(s.driver, s.driven); })); };
+    var pick = function (list, nearer) {
+      var out = [];
+      list.forEach(function (o) {
+        var prev = out[out.length - 1];
+        if (!prev || biggest(o) < biggest(prev) || (nearer && o.error < prev.error / 2)) out.push(o);
+      });
+      return out;
+    };
+    var out = pick(counts.map(function (n) { return best[n]; }).filter(Boolean), false);
+    if (!out.length) out = pick(counts.map(function (n) { return nearest[n]; }).filter(Boolean), true);
+    if (!out.length) return { problem: 'no train of ' + lo + ' to ' + hi + ' teeth comes within 0.5% of it: allow bigger gears (more teeth)' };
+    out.forEach(function (o) { o.stages = o.stages.map(function (s) { return { driver: s.driver, driven: s.driven }; }); delete o.key; });
+    return { options: out };
+  }
+
+  // The train's axles in a line along +X from the first at 0: each stage's
+  // gears at their own center distance. Each gear's axle, its plane (the
+  // stage) and its tip radius; and where a gear reaches another axle's
+  // shaft (diameter `shaft`, with `room` to spare): gears turn in their own
+  // planes, so only the shafts through every plane can be hit.
+  // p: { module, pressureDeg, backlash }, stages: [{ driver, driven }].
+  function trainLayout(p, stages, shaft, room) {
+    var m = p.module, axles = [0], gears = [];
+    stages.forEach(function (s, i) {
+      var cd = m * (s.driver + s.driven) / 2;
+      axles.push(axles[i] + cd);
+      gears.push({ stage: i, role: 'driver', teeth: s.driver, axle: i, ra: m * (s.driver + 2) / 2 });
+      gears.push({ stage: i, role: 'driven', teeth: s.driven, axle: i + 1, ra: m * (s.driven + 2) / 2 });
+    });
+    // Its mesh partner's axle is inside the partner's teeth: the bore's own check.
+    var hits = [], sr = (shaft || 0) / 2 + (room || 0);
+    gears.forEach(function (g) {
+      var partner = g.role === 'driver' ? g.axle + 1 : g.axle - 1;
+      axles.forEach(function (x, j) {
+        if (j === g.axle || j === partner) return;
+        if (Math.abs(x - axles[g.axle]) < g.ra + sr - 1e-9) hits.push({ gear: g, axle: j });
+      });
+    });
+    var ratio = stages.reduce(function (q, s) { return q * s.driven / s.driver; }, 1);
+    return { axles: axles, gears: gears, hits: hits, ratio: ratio, length: axles[axles.length - 1] };
+  }
+
   // A closed polyline offset outward (to the right of its counter-clockwise
   // travel) by r: arcs round the outside corners, and the loops an offset
   // makes in tight inside corners trimmed. Starts at the offset of the
@@ -1208,7 +1402,7 @@ if (typeof module !== 'undefined' && module.exports) {
     return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
   }
 
-  return { basics: basics, rack: rack, gear: gear, makeRack: makeRack, rackPair: rackPair, makeRing: makeRing, ringPair: ringPair, RING_DIFF: RING_DIFF, toolPath: toolPath, minModule: minModule, maxBitDiameter: maxBitDiameter, solvePairs: solvePairs, minClearance: minClearance, friendlyModule: friendlyModule, pair: pair,
+  return { basics: basics, rack: rack, gear: gear, makeRack: makeRack, rackPair: rackPair, makeRing: makeRing, ringPair: ringPair, RING_DIFF: RING_DIFF, toolPath: toolPath, minModule: minModule, maxBitDiameter: maxBitDiameter, solvePairs: solvePairs, solveTrain: solveTrain, trainLayout: trainLayout, minClearance: minClearance, friendlyModule: friendlyModule, pair: pair,
            offsetOutward: offsetOutward, trimLoops: trimLoops, simplify: simplify, simplifyClosed: simplifyClosed, distToSegment: distToSegment, MODULES: MODULES };
 });
 /* END lib/gear-geometry.cjs */</script>
@@ -1877,7 +2071,14 @@ if (typeof module !== 'undefined' && module.exports) {
       gh.problems.forEach(function (q) { p.problems.push(q); });
       pl.holes = gh.holes.map(function (h) { return Object.assign({}, h, { x: pl.x + h.dx, y: pl.y + h.dy, depth: o.depth }); });
     });
-    if (o.job === 'frame') {
+    if (o.job === 'frame' && o.axles) {
+      // A gear train's frame: every axle, along +X from the first.
+      o.axles.forEach(function (ax, i) {
+        if (!(ax.diameter > 0)) p.problems.push('Axle ' + (i + 1) + ': type an Axle Ø');
+        else if (!(ax.diameter >= o.bitDiameter - 1e-6)) p.problems.push('Axle Ø must be at least the bit’s diameter');
+        holes.push({ label: 'Axle hole ' + (i + 1), diameter: ax.diameter, x: ax.x, y: 0, depth: o.depth });
+      });
+    } else if (o.job === 'frame') {
       ['A', 'B'].forEach(function (k, i) {
         var d = o.frame && o.frame[k] > 0 ? o.frame[k] : frameHole(o.gears[k]);
         if (!(d > 0)) p.problems.push('Axle Hole ' + k + ': type a size (Gear ' + k + ' has no bore to take it from)');
@@ -1903,10 +2104,11 @@ if (typeof module !== 'undefined' && module.exports) {
     // the same tooth size and pressure angle.
     var dp = 25.4 / o.module, dpName = Math.abs(dp - Math.round(dp)) < 1e-6 ? ' (Diametral Pitch ' + Math.round(dp) + ')' : '';
     L.push(comment('Module ' + (+o.module.toFixed(4)) + ' mm' + dpName + ', ' + o.pressureDeg + ' deg pressure angle, backlash ' + o.backlash + ' mm, tip clearance ' + (+p.info.A.basics.c.toFixed(3)) + ' mm' + (o.clearance == null ? ' (auto)' : '')));
-    L.push(comment(p.ring ? 'Ring and pinion: ' + o.gears.B.teeth + ':' + o.gears.A.teeth + ', the pinion’s axle ' + p.pair.centerDistance.toFixed(3) + ' mm from the ring’s center'
+    if (o.axles && o.job === 'frame') L.push(comment('Gear train: ' + o.axles.length + ' axles at X ' + o.axles.map(function (ax) { return ax.x.toFixed(3); }).join(', ') + ' mm'));
+    else L.push(comment(p.ring ? 'Ring and pinion: ' + o.gears.B.teeth + ':' + o.gears.A.teeth + ', the pinion’s axle ' + p.pair.centerDistance.toFixed(3) + ' mm from the ring’s center'
       : p.rack ? 'Rack and pinion: ' + o.gears.A.teeth + ' teeth on the pinion, the rack ' + p.pair.travel.toFixed(3) + ' mm a turn, its pitch line ' + p.pair.pitchRadius.toFixed(3) + ' mm from the pinion’s axle'
       : 'Pair ' + o.gears.A.teeth + ':' + o.gears.B.teeth + ', center distance ' + p.pair.centerDistance.toFixed(3) + ' mm'));
-    L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? 'axle hole A' : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : 'Gear ' + p.which[0] + '’s center'))));
+    L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? (o.axles ? 'axle hole 1' : 'axle hole A') : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : 'Gear ' + p.which[0] + '’s center'))));
     L.push(comment('Bit ' + o.bitDiameter + ' mm, feed ' + o.feedRate + ' mm/min, plunge ' + o.plungeFeedRate + ' mm/min, ' + o.spindleRpm + ' RPM' + unitNote));
     p.notes.forEach(function (n) { L.push(comment('Note: ' + n)); });
     L.push('');
@@ -2004,7 +2206,8 @@ if (typeof module !== 'undefined' && module.exports) {
   var ROOT = document.querySelector('.gr-wrapper');
 
   var state = { imperial: false, unit: 'mm', safeZHeightMm: null, maxFeedMm: null, spindleMax: null, spindleMin: null,
-                view: 'pair', feedsAuto: false, turn: 0, animating: false, cache: {}, written: {}, filled: {}, size: null, travel: null };
+                view: 'pair', feedsAuto: false, turn: 0, animating: false, cache: {}, written: {}, filled: {}, size: null, travel: null,
+                sets: initialConfig && Array.isArray(initialConfig.sets) ? initialConfig.sets.filter(function (x) { return x && x.name && x.v; }) : [] };
   var K = function () { return state.imperial ? 25.4 : 1; };
 
   // Fields: id -> [kind, min, max, label, default in mm (lengths) or as is].
@@ -2024,7 +2227,9 @@ if (typeof module !== 'undefined' && module.exports) {
     'gr-tabs': ['whole', 1, 12, 'Tabs', 3], 'gr-tab-w': ['length', 0.5, 50, 'Tab Width', 4], 'gr-tab-h': ['length', 0.1, 50, 'Tab Height', 1.5],
     'gr-gap': ['length', 0, 200, 'Gap Between', null],
     'gr-frame-a': ['length', 0, 500, 'Axle Hole A', null], 'gr-frame-b': ['length', 0, 500, 'Axle Hole B', null],
-    'gr-frame-depth': ['length', 0.05, 200, 'Total Depth', 19], 'gr-frame-step': ['length', 0.05, 50, 'Depth of Cut', null]
+    'gr-frame-depth': ['length', 0.05, 200, 'Total Depth', 19], 'gr-frame-step': ['length', 0.05, 50, 'Depth of Cut', null],
+    'gt-ratio': ['count', 0.001, 100000, 'Ratio', 12], 'gt-min': ['whole', 6, 400, 'Fewest Teeth', 8], 'gt-max': ['whole', 6, 400, 'Most Teeth', 72],
+    'gt-axle': ['length', 0, 100, 'Axle Ø', 8], 'gt-spokes': ['whole', 0, 24, 'Wheel Spokes', 5]
   };
   var round = function (v) { return parseFloat((+v).toFixed(state.imperial ? 4 : 3)); };
   var show = function (mm) { return round(mm / K()); };
@@ -2081,7 +2286,7 @@ if (typeof module !== 'undefined' && module.exports) {
       // center distance worked out to the tooth, shown rounded).
       var f = FIELDS[id], w = state.written[id], v = w && w.text === $(id).value ? w.v : read(id);
       s[id] = v;
-      var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od)$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
+      var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od)$|^gt-ratio$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
       // Named as the menus on their labels say: Gear A Spokes, Gear A D Bore...
       var nm = f[3], km = /^gr-(holes|bore)-([ab])$/.exec(id);
@@ -2112,6 +2317,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!errs['gr-step'] && !errs['gr-depth'] && s['gr-step'] > s['gr-depth'] + 1e-9) errs['gr-step'] = 'Depth of Cut must not exceed Total Depth';
     if ($('gr-tabs-on').checked && !errs['gr-tab-h'] && !errs['gr-depth'] && s['gr-tab-h'] >= s['gr-depth']) errs['gr-tab-h'] = 'Tab Height must be less than Total Depth';
     if (!errs['gr-frame-step'] && !errs['gr-frame-depth'] && s['gr-frame-step'] > s['gr-frame-depth'] + 1e-9) errs['gr-frame-step'] = 'Depth of Cut must not exceed Total Depth';
+    if (!errs['gt-min'] && !errs['gt-max'] && s['gt-min'] > s['gt-max']) errs['gt-max'] = 'Most Teeth must be at least Fewest Teeth';
     // In Ratio, the field's error line (Gear B Teeth's, the field's first input) says what's wrong with the ratio.
     if ($('gr-b-mode').value === 'ratio') {
       var why = errs['gr-ratio'] || (errs['gr-teeth-b'] && s['gr-teeth-b'] < 6 ? 'That gives Gear B only ' + s['gr-teeth-b'] + ' teeth: a smaller ratio, or more teeth on Gear A' : errs['gr-teeth-b']);
@@ -2183,21 +2389,22 @@ if (typeof module !== 'undefined' && module.exports) {
     var rack = key === 'B' && o.gears.B.kind === 'rack', ring = key === 'B' && o.gears.B.kind === 'ring';
     if (rack) p.height = o.gears.B.rackHeight;
     if (ring) p.rim = o.gears.B.rim;
-    var k = JSON.stringify(p);
-    if (state.cache[key] && state.cache[key].k === k) return state.cache[key].v;
+    // Kept by what they're made from (the newest 16), so the Gear Pair and
+    // Gear Train tabs share them.
+    var k = (rack ? 'rack' : ring ? 'ring' : 'gear') + JSON.stringify(p);
+    if (state.cache[k]) { var hit = state.cache[k]; delete state.cache[k]; state.cache[k] = hit; return hit; }
     var g = rack ? G.makeRack(p) : ring ? G.makeRing(p) : G.gear(p);
     if (ring && !g.problem) {
       g.draw = g.outline;
       g.drawOpening = G.simplifyClosed(g.opening, Math.max(0.01, o.module / 200));
       g.path = G.simplifyClosed(g.openingPath, 0.02);
-      state.cache[key] = { k: k, v: g };
-      return g;
-    }
-    if (!g.problem) {
+    } else if (!g.problem) {
       g.draw = G.simplifyClosed(g.outline, Math.max(0.01, o.module / 200));
       g.path = G.simplifyClosed(G.toolPath(g, p.bitRadius, 0.003), 0.02);
     }
-    state.cache[key] = { k: k, v: g };
+    state.cache[k] = g;
+    var keys = Object.keys(state.cache);
+    if (keys.length > 16) delete state.cache[keys[0]];
     return g;
   }
   var d = function (pts) { return 'M' + pts.map(function (q) { return q.x.toFixed(3) + ' ' + (-q.y).toFixed(3); }).join('L') + 'Z'; };
@@ -2471,9 +2678,87 @@ if (typeof module !== 'undefined' && module.exports) {
     };
     body(A, 'A', 0, job !== 'B');
     body(B, 'B', cd, job !== 'A');
-    out.push('<line class="gr-dim" x1="0" y1="0" x2="' + cd + '" y2="0" stroke-dasharray="2 3"/>');
+    out.push('<line class="gr-dim" id="gr-dim-cd" x1="0" y1="0" x2="' + cd + '" y2="0" stroke-dasharray="2 3"/>');
+    // Handles: Gear B's center sets the Center Distance; the top of Gear A
+    // its outside diameter (Start from the Center Distance only).
+    var vb = svg.viewBox.baseVal, px = Math.max(vb.width / Math.max(1, svg.clientWidth), vb.height / Math.max(1, svg.clientHeight)) || fs / 8;
+    var handle = function (name, x, y, title) {
+      out.push('<g data-handle="' + name + '"><title>' + title + '</title><circle class="gr-handle-hit" cx="' + x.toFixed(3) + '" cy="' + y.toFixed(3) + '" r="' + (22 * px).toFixed(3) + '"/>' +
+        '<circle class="gr-handle" cx="' + x.toFixed(3) + '" cy="' + y.toFixed(3) + '" r="' + (8 * px).toFixed(3) + '"/></g>');
+    };
+    if (!A.problem && !B.problem) {
+      handle('cd', cd, 0, 'Drag to set the Center Distance; tap to type it');
+      if ($('gr-design-mode').value === 'new') handle('od', 0, -A.basics.ra, 'Drag to set Gear A’s outside diameter; tap to type it');
+    }
+    out.push('<text class="gr-handle-label" id="gr-handle-label" font-size="' + (fs * 1.2).toFixed(3) + '" text-anchor="middle"></text>');
     svg.innerHTML = out.join('');
+    state.handlePx = px;
     spin();
+  }
+  // Dragging a handle moves the picture only; the value is written (and the
+  // pairs worked out) when it's let go. A tap without a drag goes to the field.
+  function wireHandles() {
+    var svg = $('gr-preview'), drag = null;
+    var at = function (e) { var pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; var q = pt.matrixTransform(svg.getScreenCTM().inverse()); return { x: q.x, y: -q.y }; };
+    var snap = function (mm) { var st = state.imperial ? 25.4 / 16 : 0.5; return Math.max(st, Math.round(mm / st) * st); };
+    var label = function (x, y, text) { var l = $('gr-handle-label'); if (!l) return; l.setAttribute('x', x.toFixed(3)); l.setAttribute('y', (-y).toFixed(3)); l.textContent = text; };
+    svg.addEventListener('pointerdown', function (e) {
+      var h = e.target.closest && e.target.closest('[data-handle]');
+      if (!h || !last || !last.o) return;
+      e.preventDefault();
+      var o = last.o, A = gearInfo(o, 'A');
+      drag = { name: h.dataset.handle, el: h, start: { x: e.clientX, y: e.clientY }, moved: false, cd: G.pair(o, o.gears.A.teeth, o.gears.B.teeth).centerDistance, ra: A.basics.ra, value: null };
+      h.classList.add('gr-dragging');
+      try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+      if (state.animating) animate();
+    });
+    svg.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      if (!drag.moved && Math.hypot(e.clientX - drag.start.x, e.clientY - drag.start.y) < 5) return;
+      drag.moved = true;
+      var q = at(e), u = ' ' + state.unit, px = state.handlePx || 1;
+      if (drag.name === 'cd') {
+        var cd = snap(Math.max(drag.ra * 0.5, q.x));
+        drag.value = cd;
+        var gB = svg.querySelector('[data-gear="B"]');
+        if (gB) gB.setAttribute('transform', 'translate(' + cd.toFixed(3) + ' 0)');
+        var dim = $('gr-dim-cd'); if (dim) dim.setAttribute('x2', cd.toFixed(3));
+        drag.el.querySelectorAll('circle').forEach(function (c) { c.setAttribute('cx', cd.toFixed(3)); });
+        label(cd / 2, 14 * px, show(cd) + u);
+      } else {
+        var r = snap(Math.max(1, Math.hypot(q.x, q.y)) * 2) / 2;
+        drag.value = 2 * r;
+        drag.el.querySelectorAll('circle').forEach(function (c) { c.setAttribute('cx', '0'); c.setAttribute('cy', (-r).toFixed(3)); });
+        var ring = svg.querySelector('.gr-handle-ring');
+        if (!ring) { ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); ring.setAttribute('class', 'gr-handle-ring'); svg.insertBefore(ring, drag.el); }
+        ring.setAttribute('r', r.toFixed(3));
+        label(0, r + 14 * px, 'Ø ' + show(2 * r) + u);
+      }
+    });
+    var end = function () {
+      if (!drag) return;
+      var d0 = drag;
+      drag = null;
+      d0.el.classList.remove('gr-dragging');
+      if (!d0.moved) {
+        if (d0.name === 'od' && $('gr-design-by').value !== 'size') { $('gr-design-by').value = 'size'; fitLabelSelects(); updatePair(); }
+        var f = $(d0.name === 'cd' ? 'gr-cd' : 'gr-design-od');
+        f.scrollIntoView({ block: 'center' }); f.focus(); f.select && f.select();
+        return;
+      }
+      if (d0.value == null) return;
+      if (d0.name === 'cd') write('gr-cd', d0.value);
+      else {
+        if ($('gr-design-by').value !== 'size') { $('gr-design-by').value = 'size'; fitLabelSelects(); }
+        write('gr-design-od', d0.value);
+        if (!(read('gr-cd') > 0)) write('gr-cd', d0.cd);
+      }
+      $(d0.name === 'cd' ? 'gr-cd' : 'gr-design-od').dataset.touched = '1';
+      state.autoPick = true;
+      updatePair();
+    };
+    svg.addEventListener('pointerup', end);
+    svg.addEventListener('pointercancel', end);
   }
   // Rack and pinion: the pinion (Gear A) at the middle, the rack's pitch
   // line touching its pitch circle underneath, a space of the rack under
@@ -2543,6 +2828,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // Turns the pair: A by the slider, B the other way by the ratio; B's
   // tooth 0 starts half a pitch off so a space faces A's tooth.
   function spin() {
+    if (state.view === 'train') { spinTrain(); return; }
     if (!last || !last.o) return;
     var o = last.o, zA = o.gears.A.teeth, zB = o.gears.B.teeth, a = state.turn;
     var gA = ROOT.querySelector('#gr-preview [data-gear="A"] .gr-spin'), gB = ROOT.querySelector('#gr-preview [data-gear="B"] .gr-spin');
@@ -2566,11 +2852,11 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   function animate() {
     state.animating = !state.animating;
-    $('gr-animate').textContent = state.animating ? 'Stop' : 'Animate';
+    $('gr-animate').textContent = $('gt-animate').textContent = state.animating ? 'Stop' : 'Animate';
     var prev = null;
     var step = function (t) {
       if (!state.animating || !document.body.contains(ROOT)) { state.animating = false; return; }
-      if (prev != null) { state.turn = (state.turn + (t - prev) * 0.012) % 360; $('gr-turn').value = state.turn; spin(); }
+      if (prev != null) { state.turn = (state.turn + (t - prev) * 0.012) % 360; $('gr-turn').value = $('gt-turn').value = state.turn; spin(); }
       prev = t;
       requestAnimationFrame(step);
     };
@@ -2609,13 +2895,247 @@ if (typeof module !== 'undefined' && module.exports) {
     save();
   }
 
+  // ---------- Gear Train ----------
+  // Stages in a row along +X: each stage's driver turns its driven gear,
+  // which shares its axle with the next stage's driver. The tooth size,
+  // pressure angle, bit, feeds and depth are the Gear Pair tab's.
+  var DEFAULT_STAGES = [{ driver: 8, driven: 24 }, { driver: 8, driven: 32 }];
+  function stageCount() { return ROOT.querySelectorAll('#gt-stage-list .gt-stage').length; }
+  function renderStages(stages) {
+    var list = $('gt-stage-list');
+    list.innerHTML = stages.map(function (st, i) {
+      var n = i + 1, v = function (x) { return x == null || isNaN(x) ? '' : x; };
+      return '<div class="gr-row gr-row-3 gt-stage">' +
+        '<div class="gr-field"><label for="gt-s' + i + '-driver">Stage ' + n + ' Driver Teeth</label><input class="gr-input gt-teeth" id="gt-s' + i + '-driver" value="' + v(st.driver) + '" title="The gear on axle ' + n + (i ? ', fixed to the gear stage ' + i + ' drives' : ', the first: where the train is turned') + '. Whole number, 6 or more."></div>' +
+        '<div class="gr-field"><label for="gt-s' + i + '-driven">Driven Teeth</label><input class="gr-input gt-teeth" id="gt-s' + i + '-driven" value="' + v(st.driven) + '" title="The gear on axle ' + (n + 1) + ', turned by the driver. Whole number, 6 or more."></div>' +
+        '<div class="gr-field gt-stage-say"><span class="gr-hint" id="gt-s' + i + '-say"></span>' +
+        (stages.length > 1 ? '<button type="button" class="gr-secondary gt-remove" data-i="' + i + '" title="Remove stage ' + n + '">Remove</button>' : '') + '</div></div>';
+    }).join('');
+    list.querySelectorAll('.gt-remove').forEach(function (b) {
+      b.addEventListener('click', function () { var st = readStages().stages; st.splice(+b.dataset.i, 1); renderStages(st); touch(); });
+    });
+  }
+  // The stages as typed, and what's wrong with them (by field id).
+  function readStages() {
+    var stages = [], errs = {};
+    for (var i = 0; i < stageCount(); i++) {
+      var st = {};
+      ['driver', 'driven'].forEach(function (role) {
+        var id = 'gt-s' + i + '-' + role, t = String($(id).value).trim(), v = t === '' ? null : Number(t), nm = 'Stage ' + (i + 1) + ' ' + (role === 'driver' ? 'Driver' : 'Driven') + ' Teeth';
+        st[role] = v;
+        if (v == null) errs[id] = nm + ' is needed';
+        else if (!isFinite(v)) errs[id] = nm + ' must be a number';
+        else if (Math.round(v) !== v) errs[id] = nm + ' must be a whole number';
+        else if (v < 6) errs[id] = nm + ' must be at least 6';
+        else if (v > 400) errs[id] = nm + ' must not exceed 400';
+      });
+      stages.push(st);
+    }
+    return { stages: stages, errs: errs };
+  }
+  var ratioText = function (q) { return q >= 1 ? parseFloat(q.toFixed(4)) + ':1' : '1:' + parseFloat((1 / q).toFixed(4)); };
+  // Find a Train: the solver's options, kept until what they're from changes.
+  var trainSolved = { k: null, r: null };
+  function trainOptions(s, errs) {
+    if (errs['gt-ratio'] || errs['gt-min'] || errs['gt-max'] || !(s['gt-ratio'] > 0)) return null;
+    var t = { ratio: s['gt-ratio'], stages: +$('gt-stages').value, minTeeth: s['gt-min'], maxTeeth: s['gt-max'] }, k = JSON.stringify(t);
+    if (trainSolved.k !== k) trainSolved = { k: k, r: G.solveTrain(t) };
+    return trainSolved.r;
+  }
+  function showTrainOptions(s, errs, stages) {
+    var box = $('gt-solutions'), r = trainOptions(s, errs), u = ' ' + state.unit, m = s.module;
+    var auto = state.trainAutoPick;
+    state.trainAutoPick = false;
+    if (!r) { box.innerHTML = s['gt-ratio'] > 0 ? '' : '<span class="gr-hint">Type the Ratio to see trains that make it.</span>'; return false; }
+    if (r.problem) { box.innerHTML = '<span class="gr-hint">' + esc(r.problem.charAt(0).toUpperCase() + r.problem.slice(1)) + '. Or type the stages below.</span>'; return false; }
+    var same = function (o) { return o.stages.length === stages.length && o.stages.every(function (st, i) { return st.driver === stages[i].driver && st.driven === stages[i].driven; }); };
+    var picked = false;
+    if (auto && !r.options.some(same)) { renderStages(r.options[0].stages); stages = r.options[0].stages; picked = true; }
+    box.innerHTML = r.options.map(function (o) {
+      var big = Math.max.apply(null, o.stages.map(function (st) { return Math.max(st.driver, st.driven); }));
+      var len = o.stages.reduce(function (a, st) { return a + (st.driver + st.driven) / 2; }, 0) * m;
+      return '<button type="button" class="gr-solution' + (same(o) ? ' gr-picked' : '') + '">' +
+        '<span class="gr-solution-kind">' + o.stages.length + (o.stages.length === 1 ? ' stage' : ' stages') + '</span>' +
+        '<span><b>' + o.stages.map(function (st) { return st.driver + ':' + st.driven; }).join(', then ') + '</b></span>' +
+        '<span class="gr-solution-more">' + ratioText(o.ratio) + (o.error < 1e-9 ? ' exactly' : ' (' + parseFloat((o.error * 100).toFixed(2)) + '% off)') +
+        (m > 0 ? ', biggest &Oslash;' + show(m * (big + 2)) + u + ', axles ' + show(len) + u + ' first to last' : '') + '</span></button>';
+    }).join('') + '<span class="gr-hint">The one picked fills in the stages below; tap another to change it.</span>';
+    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { renderStages(r.options[i].stages); touch(); }); });
+    return picked;
+  }
+  // A train gear's settings: the axle's bore, spokes on each stage's bigger gear.
+  function trainBody(s, teeth, wheel) {
+    return { teeth: teeth, bore: s['gt-axle'], boreShape: 'round', holes: wheel ? s['gt-spokes'] : 0, holeStyle: 'spokes', spokeWidth: s['gr-spoke-w'] };
+  }
+  function trainGearName(i, role, teeth) { return 'Stage ' + (i + 1) + '’s ' + teeth + '-tooth ' + role; }
+  // The program's settings for a Cut choice: s<i>-both, s<i>-driver, s<i>-driven or frame.
+  function trainOpts(s, stages, job) {
+    var m = /^s(\d+)-(both|driver|driven)$/.exec(job), names = {};
+    if (job === 'frame') {
+      var o = opts(s, 'frame'), L = G.trainLayout({ module: s.module }, stages, 0, 0);
+      o.gears = { A: trainBody(s, stages[0].driver, false), B: trainBody(s, stages[0].driven, false) };
+      o.centerDistance = null;
+      o.axles = L.axles.map(function (x) { return { x: x, diameter: s['gt-axle'] }; });
+      return o;
+    }
+    var i = m ? Math.min(+m[1], stages.length - 1) : 0, st = stages[i], wheelDriver = st.driver > st.driven;
+    var dr = trainBody(s, st.driver, wheelDriver), dn = trainBody(s, st.driven, !wheelDriver);
+    var part = m ? m[2] : 'both', o2 = opts(s, part === 'both' ? 'both' : 'A');
+    o2.gears = part === 'driven' ? { A: dn, B: dr } : { A: dr, B: dn };
+    names.A = part === 'driven' ? trainGearName(i, 'driven gear', st.driven) : trainGearName(i, 'driver', st.driver);
+    names.B = part === 'driven' ? trainGearName(i, 'driver', st.driver) : trainGearName(i, 'driven gear', st.driven);
+    o2.centerDistance = null;
+    o2.names = names;
+    return o2;
+  }
+  // Gear A and Gear B in a program's problems, as the train names them.
+  function trainProblems(list, o) {
+    var n = o.names || { A: 'Axle 1', B: 'Axle 2' };
+    return friendlyProblems(list, o).map(function (t) {
+      return t.replace(/^Gears A and B: /, 'Both gears: ').replace(/^Gear A\b/, n.A).replace(/^Gear B\b/, n.B).replace(/^Axle Ø/, 'Axle Ø');
+    });
+  }
+  function trainJobs(stages) {
+    var sel = $('gt-job'), was = sel.value || state.trainJob || 's0-both', html = '';
+    stages.forEach(function (st, i) {
+      var ok = st.driver > 0 && st.driven > 0;
+      html += '<option value="s' + i + '-both">Stage ' + (i + 1) + ': both gears' + (ok ? ' (' + st.driver + ' and ' + st.driven + ' teeth)' : '') + '</option>' +
+        '<option value="s' + i + '-driver">Stage ' + (i + 1) + ': the driver' + (ok ? ' (' + st.driver + ' teeth)' : '') + '</option>' +
+        '<option value="s' + i + '-driven">Stage ' + (i + 1) + ': the driven gear' + (ok ? ' (' + st.driven + ' teeth)' : '') + '</option>';
+    });
+    html += '<option value="frame">Frame: the ' + (stages.length + 1) + ' axle holes</option>';
+    if (sel.innerHTML !== html) sel.innerHTML = html;
+    sel.value = was;
+    if (sel.value !== was) sel.value = 's0-both';
+    state.trainJob = sel.value;
+  }
+  var lastTrain = null;
+  function updateTrain() {
+    var r = settings(), s = r.s, errs = r.errs, rs = readStages();
+    if (showTrainOptions(s, errs, rs.stages)) rs = readStages();
+    var stages = rs.stages, allErrs = Object.assign({}, errs, rs.errs);
+    trainJobs(stages);
+    showErrors(allErrs, false);
+    var blocking = ['gr-size', 'gr-bit', 'gr-backlash', 'gr-clearance'].filter(function (id) { return errs[id]; }).concat(Object.keys(rs.errs));
+    var u = ' ' + state.unit, problems = [], L = null;
+    stages.forEach(function (st, i) {
+      var say = $('gt-s' + i + '-say');
+      say.textContent = st.driver > 0 && st.driven > 0 && !rs.errs['gt-s' + i + '-driver'] && !rs.errs['gt-s' + i + '-driven'] ?
+        ratioText(st.driven / st.driver) + ', axles ' + (i + 1) + ' and ' + (i + 2) + (s.module > 0 ? ', ' + show(s.module * (st.driver + st.driven) / 2) + u + ' apart' : '') : '';
+    });
+    if (!blocking.length) {
+      L = G.trainLayout({ module: s.module }, stages, s['gt-axle'] || 0, 0.5);
+      var seen = {};
+      L.gears.forEach(function (g) {
+        if (seen[g.teeth]) return;
+        seen[g.teeth] = 1;
+        var info = trainGear(s, g.teeth);
+        if (info.problem) problems.push(trainGearName(g.stage, g.role === 'driver' ? 'driver' : 'driven gear', g.teeth) + ': ' + gearSay(info));
+      });
+      L.hits.forEach(function (h) {
+        problems.push(trainGearName(h.gear.stage, h.gear.role === 'driver' ? 'driver' : 'driven gear', h.gear.teeth) + ' reaches axle ' + (h.axle + 1) + '’s shaft: ' +
+          (h.axle > h.gear.axle ? 'more teeth in stage ' + (h.gear.axle + 1) + ', or fewer on this gear' : 'more teeth in stage ' + h.axle + ', or fewer on this gear'));
+      });
+    }
+    lastTrain = { s: s, stages: stages, L: L, problems: problems, blocking: blocking };
+    drawTrain();
+    var box = $('gt-problems');
+    box.hidden = !problems.length;
+    box.innerHTML = problems.map(function (t) { return '<div>' + esc(t) + '</div>'; }).join('');
+    trainFacts();
+    var job = $('gt-job').value, mj = /^s(\d+)-(\w+)$/.exec(job);
+    $('gt-origin-say').textContent = job === 'frame' ? 'Zero X and Y at axle 1’s hole; the others are along +X. Total Depth and Depth of Cut are the Frame Holes tab’s. Zero Z on the top of the frame.'
+      : 'Zero X and Y at ' + ($('gr-origin').value === 'front-left' ? 'the front-left corner of what’s cut' : 'the ' + (mj && mj[2] === 'driven' ? 'driven gear’s' : 'driver’s') + ' center') +
+        (mj && mj[2] === 'both' ? '; the driven gear is cut to its right' : '') + ' (X0 Y0 is the Gear Pair tab’s). Zero Z on the top of the stock.';
+    scheduleNote();
+    save();
+  }
+  // One gear of the train, as the Gear Pair tab would make it (shared cache).
+  function trainGear(s, teeth) {
+    return gearInfo({ module: s.module, pressureDeg: Number($('gr-pa').value), backlash: s['gr-backlash'], clearance: s['gr-clearance'] != null ? s['gr-clearance'] : null,
+      bitDiameter: s['gr-bit'], gears: { A: { teeth: teeth } } }, 'A');
+  }
+  function gearSay(g) {
+    if (g.need && g.need.module) return 'the teeth are too small for this bit: use ' + sizeName(g.need.module, $('gr-size-mode').value === 'module') + ' or bigger teeth, or a bit up to ' + show(g.need.bit) + ' ' + state.unit;
+    if (g.need && g.need.clearance) return 'Tip Clearance must be at least ' + show(g.need.clearance) + ' ' + state.unit + ' with this bit (blank picks it)';
+    return g.problem;
+  }
+  function trainFacts() {
+    var t = lastTrain, el = $('gt-facts');
+    if (!t || !t.L) { el.innerHTML = ''; return; }
+    var u = ' ' + state.unit, L = t.L, s = t.s, big = Math.max.apply(null, L.gears.map(function (g) { return g.ra; }));
+    var kinds = {}; L.gears.forEach(function (g) { kinds[g.teeth] = 1; });
+    var parts = ['Ratio <b>' + ratioText(L.ratio) + '</b> (axle 1 turns ' + parseFloat(L.ratio.toFixed(4)) + ' times for one turn of axle ' + L.axles.length + ')',
+      'Axles at <b>' + L.axles.map(function (x) { return show(x); }).join(', ') + u + '</b> from axle 1',
+      'Biggest gear Ø <b>' + show(2 * big) + u + '</b>', '<b>' + L.gears.length + '</b> gears, ' + Object.keys(kinds).length + ' sizes'];
+    t.stages.forEach(function (st, i) {
+      var pr = G.pair({ module: s.module, pressureDeg: Number($('gr-pa').value), backlash: s['gr-backlash'] || 0 }, st.driver, st.driven);
+      if (pr.contactRatio < 1.2) parts.push('Stage ' + (i + 1) + ': contact ratio <b>' + pr.contactRatio.toFixed(2) + '</b> (low: more teeth)');
+    });
+    var noted = {};
+    L.gears.forEach(function (g) {
+      if (noted[g.teeth]) return; noted[g.teeth] = 1;
+      (trainGear(s, g.teeth).notes || []).forEach(function (n) { parts.push(g.teeth + '-tooth gear: ' + esc(n)); });
+    });
+    el.innerHTML = parts.map(function (x) { return '<span>' + x + '</span>'; }).join('');
+  }
+  function drawTrain() {
+    var svg = $('gt-preview'), t = lastTrain;
+    if (!t || !t.L) { svg.setAttribute('viewBox', '-100 -60 200 120'); svg.innerHTML = '<text x="0" y="0" text-anchor="middle" font-size="6">Fix the fields to see the train</text>'; return; }
+    var L = t.L, s = t.s, x0 = Infinity, x1 = -Infinity, rmax = 0;
+    L.gears.forEach(function (g) { var x = L.axles[g.axle]; x0 = Math.min(x0, x - g.ra); x1 = Math.max(x1, x + g.ra); rmax = Math.max(rmax, g.ra); });
+    var pad = Math.max(s['gr-bit'] * 2 + 4, 0.05 * (x1 - x0)), fs = (x1 - x0 + 2 * pad) / 50, h = 2 * rmax + 2 * pad + 2 * fs;
+    svg.setAttribute('viewBox', (x0 - pad) + ' ' + (-rmax - pad) + ' ' + (x1 - x0 + 2 * pad) + ' ' + h);
+    var job = $('gt-job').value, mj = /^s(\d+)-(\w+)$/.exec(job), out = [];
+    var cutting = function (g) { return job === 'frame' ? false : mj && +mj[1] === g.stage && (mj[2] === 'both' || mj[2] === g.role); };
+    var oBase = { module: s.module, pressureDeg: Number($('gr-pa').value), backlash: s['gr-backlash'], bitDiameter: s['gr-bit'] };
+    L.gears.forEach(function (g, gi) {
+      var info = trainGear(s, g.teeth), cx = L.axles[g.axle];
+      out.push('<g class="gr-gear" transform="translate(' + cx.toFixed(3) + ' 0)"><g class="gt-spin" data-g="' + gi + '">');
+      if (info.problem) out.push('<circle class="gr-pitch" r="' + info.basics.rp + '" style="stroke:#ff6b6b;opacity:1"/>');
+      else {
+        var wheel = g.teeth > (g.role === 'driver' ? t.stages[g.stage].driven : t.stages[g.stage].driver);
+        var gh = GC.gearHoles(trainBody(s, g.teeth, wheel), info, oBase, 'Gear').holes;
+        out.push('<path class="gr-body' + (g.stage % 2 ? ' gr-b' : '') + (cutting(g) || job === 'frame' ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(info.draw) + holesPath(gh) + '"/>');
+        out.push('<circle class="gr-mark" cx="' + info.basics.rp.toFixed(3) + '" cy="0" r="' + (s.module * 0.35).toFixed(3) + '"/>');
+      }
+      out.push('</g></g>');
+    });
+    L.axles.forEach(function (x, i) {
+      out.push('<circle class="gr-hole" cx="' + x.toFixed(3) + '" cy="0" r="' + Math.max(0.5, (s['gt-axle'] || 0) / 2).toFixed(3) + '"' + (job === 'frame' ? ' style="stroke:var(--color-accent);stroke-width:2"' : '') + '/>');
+      out.push('<text x="' + x.toFixed(3) + '" y="' + (rmax + pad * 0.5 + fs).toFixed(3) + '" text-anchor="middle" font-size="' + fs.toFixed(3) + '">Axle ' + (i + 1) + '</text>');
+    });
+    svg.innerHTML = out.join('');
+    spinTrain();
+  }
+  // Holes as SVG path pieces (in a gear's own frame, y up).
+  function holesPath(hs) {
+    return hs.map(function (q) {
+      if (q.shape && q.shape !== 'round') return ' M' + GC.boreOutline(q).map(function (c) { return (q.dx + c.x).toFixed(3) + ' ' + (-q.dy - c.y).toFixed(3); }).join(' L') + ' Z';
+      var r = q.diameter / 2; return ' M' + (q.dx + r).toFixed(3) + ' ' + (-q.dy).toFixed(3) + ' a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0';
+    }).join('');
+  }
+  // Axle 1 by the slider; each driven gear as a pair's Gear B (a space
+  // facing the driver's tooth 0 at the start), its axle's next driver with it.
+  function spinTrain() {
+    var t = lastTrain;
+    if (!t || !t.L) return;
+    var angle = [state.turn];
+    t.stages.forEach(function (st, i) { angle.push(180 + 180 / st.driven - angle[i] * st.driver / st.driven); });
+    ROOT.querySelectorAll('#gt-preview .gt-spin').forEach(function (el) {
+      var g = t.L.gears[+el.dataset.g];
+      if (g) el.setAttribute('transform', 'rotate(' + (-angle[g.axle]).toFixed(3) + ')');
+    });
+  }
+
   // ---------- Run note ----------
   var noteTimer = null;
   function scheduleNote() { clearTimeout(noteTimer); noteTimer = setTimeout(updateNote, 300); }
   function programFor(view) {
+    if (view === 'train') return trainProgram();
     var r = settings(), s = r.s, job = view === 'frame' ? 'frame' : $('gr-job').value;
     var ids = view === 'frame' ? ['gr-bit', 'gr-feed', 'gr-plunge', 'gr-rpm', 'gr-delay', 'gr-frame-a', 'gr-frame-b', 'gr-frame-depth', 'gr-frame-step', 'gr-size', 'gr-teeth-a', 'gr-teeth-b', 'gr-bore-a', 'gr-bore-b', 'gr-cd', 'gr-ratio']
-      : Object.keys(FIELDS).filter(function (id) { return !/frame/.test(id) && ($('gr-tabs-on').checked || !/tab/.test(id)); }).concat(['gr-size']);
+      : Object.keys(FIELDS).filter(function (id) { return !/frame|^gt-/.test(id) && ($('gr-tabs-on').checked || !/tab/.test(id)); }).concat(['gr-size']);
     var bad = ids.filter(function (id) { return r.errs[id]; });
     if (bad.length) return { bad: bad, errs: r.errs };
     var o = opts(s, job), res = GC.generate(o);
@@ -2626,6 +3146,25 @@ if (typeof module !== 'undefined' && module.exports) {
       res = Object.assign({}, res, { problems: ['the cut is ' + show(e.x1 - e.x0) + ' × ' + show(e.y1 - e.y0) + ' ' + state.unit + ', more than the machine’s travel (' + show(t.x) + ' × ' + show(t.y) + ' ' + state.unit + ')'] });
     }
     return { res: res, errs: r.errs, bad: [] };
+  }
+  // The Gear Train tab's program, for the Cut picked.
+  function trainProgram() {
+    var r = settings(), s = r.s, rs = readStages(), job = $('gt-job').value || 's0-both', frame = job === 'frame';
+    var errs = Object.assign({}, r.errs, rs.errs);
+    var ids = ['gr-bit', 'gr-feed', 'gr-plunge', 'gr-rpm', 'gr-delay', 'gr-size', 'gr-backlash', 'gr-clearance', 'gt-axle']
+      .concat(frame ? ['gr-frame-depth', 'gr-frame-step'] : ['gr-depth', 'gr-step', 'gr-gap', 'gt-spokes', 'gr-spoke-w'].concat($('gr-tabs-on').checked ? ['gr-tabs', 'gr-tab-w', 'gr-tab-h'] : []))
+      .concat(Object.keys(rs.errs));
+    var bad = ids.filter(function (id) { return errs[id]; });
+    if (bad.length) return { bad: bad, errs: errs };
+    var o = trainOpts(s, rs.stages, job), res = GC.generate(o);
+    if (res.problems.length) res = Object.assign({}, res, { problems: trainProblems(res.problems, o) });
+    // A frame for a train whose gears would hit a shaft isn't drilled.
+    if (frame && !res.problems.length && lastTrain && lastTrain.L && lastTrain.L.hits.length) res = Object.assign({}, res, { problems: lastTrain.problems.filter(function (t) { return /shaft/.test(t); }) });
+    var e = res.extent, t = state.travel;
+    if (!res.problems.length && e && t && (e.x1 - e.x0 > t.x + 1e-6 || e.y1 - e.y0 > t.y + 1e-6)) {
+      res = Object.assign({}, res, { problems: ['The cut is ' + show(e.x1 - e.x0) + ' × ' + show(e.y1 - e.y0) + ' ' + state.unit + ', more than the machine’s travel (' + show(t.x) + ' × ' + show(t.y) + ' ' + state.unit + ')'] });
+    }
+    return { res: res, errs: errs, bad: [], o: o, stages: rs.stages, job: job };
   }
   // A program's problems as this dialog says them: the gears' own in its
   // units and size mode (once for both), lengths in its units, a capital.
@@ -2735,9 +3274,11 @@ if (typeof module !== 'undefined' && module.exports) {
       return;
     }
     if (p.res.problems.length) { alert(p.res.problems.join('\n')); return; }
-    var o = opts(settings().s, view === 'frame' ? 'frame' : $('gr-job').value);
-    var mode = $('gr-size-mode').value, size = { module: 'M', dp: 'DP', cp: 'CP' }[mode] + sizeText(o.module, mode);
-    var name = view === 'frame' ? 'Gears-FrameHoles_' + o.gears.A.teeth + '-' + o.gears.B.teeth + '_' + size
+    var o = view === 'train' ? p.o : opts(settings().s, view === 'frame' ? 'frame' : $('gr-job').value);
+    var mode = $('gr-size-mode').value, size = { module: 'M', dp: 'DP', cp: 'CP' }[mode] + sizeText(o.module, mode), tj = view === 'train' && /^s(\d+)-(\w+)$/.exec(p.job);
+    var name = view === 'train' ? (p.job === 'frame' ? 'Gears-TrainFrame_' + p.stages.map(function (st) { return st.driver + '-' + st.driven; }).join('_') + '_' + size
+        : 'Gears-Train-S' + (+tj[1] + 1) + '_' + (tj[2] === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears.A.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg')
+      : view === 'frame' ? 'Gears-FrameHoles_' + o.gears.A.teeth + '-' + o.gears.B.teeth + '_' + size
       : o.gears.B.kind === 'ring' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Ring' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Ring' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
       : o.gears.B.kind === 'rack' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Rack' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Rack' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
       : 'Gears-' + (o.job === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears[o.job].teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg';
@@ -2853,9 +3394,11 @@ if (typeof module !== 'undefined' && module.exports) {
     panel.innerHTML =
       '<h3 class="gr-load-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>' +
         'Load settings <span class="gr-load-count"></span></h3>' +
-      '<p>Pick a Gears program saved in File Manager to fill the form with the settings it was made with: the same teeth, tooth size and bores, to cut again or to add a gear that meshes. Programs made before Load have none.</p>' +
+      '<p>Pick a named set, or a Gears program saved in File Manager, to fill the form with its settings: the same teeth, tooth size and bores, to cut again or to add a gear that meshes. Programs made before Load have none. A set is kept in the plugin&rsquo;s settings, no program needed.</p>' +
+      '<div class="gr-set-save"><input class="gr-input gr-set-name" type="text" maxlength="60" placeholder="Name the settings you have now: Clock train, say" autocomplete="off" spellcheck="false" aria-label="Name for a set">' +
+        '<button type="button" class="gr-secondary gr-set-save-btn">Save as a Set</button></div>' +
       '<div class="gr-load-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' +
-        '<input class="gr-load-filter" type="text" placeholder="Search Gears files..." autocomplete="off" spellcheck="false" aria-label="Search Gears files">' +
+        '<input class="gr-load-filter" type="text" placeholder="Search sets and Gears files..." autocomplete="off" spellcheck="false" aria-label="Search sets and Gears files">' +
         '<button type="button" class="gr-load-clear" title="Clear search" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>' +
       '<div class="gr-load-status-line">Loading the list…</div>' +
       '<div class="gr-load-head" hidden><span>Name</span><span class="gr-load-size">Size</span><span class="gr-load-date">Modified</span><span class="gr-load-go"></span></div>' +
@@ -2866,6 +3409,23 @@ if (typeof module !== 'undefined' && module.exports) {
     var clear = panel.querySelector('.gr-load-clear'), count = panel.querySelector('.gr-load-count'), files = [];
     panel.querySelector('.gr-load-cancel').addEventListener('click', closeLoadPanel);
     clear.addEventListener('click', function () { filter.value = ''; render(); filter.focus(); });
+    var SET_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+    var DEL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
+    var nameBox = panel.querySelector('.gr-set-name'), loaded = false;
+    // Save as a Set: the settings as they are, under a name; the same name
+    // again replaces it.
+    var saveSet = function () {
+      var name = nameBox.value.trim();
+      if (!name) { nameBox.focus(); status.textContent = 'Type a name for the set first.'; return; }
+      var had = state.sets.some(function (x) { return x.name.toLowerCase() === name.toLowerCase(); });
+      state.sets = [{ name: name, when: new Date().toISOString(), v: collect() }].concat(state.sets.filter(function (x) { return x.name.toLowerCase() !== name.toLowerCase(); }));
+      save(true);
+      nameBox.value = '';
+      render();
+      status.textContent = (had ? 'Replaced the set “' : 'Saved the set “') + name + '”.';
+    };
+    panel.querySelector('.gr-set-save-btn').addEventListener('click', saveSet);
+    nameBox.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); saveSet(); } });
     function fileSize(bytes) {
       if (!(bytes > 0)) return bytes === 0 ? '0 B' : '';
       var i = Math.min(3, Math.floor(Math.log(bytes) / Math.log(1024)));
@@ -2880,14 +3440,48 @@ if (typeof module !== 'undefined' && module.exports) {
       return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
     }
     function render() {
-      var q = filter.value.trim().toLowerCase(), shown = files.filter(function (f) { return !q || f.name.toLowerCase().indexOf(q) >= 0; });
+      var q = filter.value.trim().toLowerCase(), match = function (n) { return !q || n.toLowerCase().indexOf(q) >= 0; };
+      var shown = files.filter(function (f) { return match(f.name); }), sets = state.sets.filter(function (x) { return match(x.name); });
       clear.hidden = !q;
-      count.textContent = files.length ? '(' + (q ? shown.length + ' of ' : '') + files.length + (files.length === 1 ? ' file)' : ' files)') : '';
+      var all = files.length + state.sets.length, seen = shown.length + sets.length;
+      count.textContent = all ? '(' + (q ? seen + ' of ' : '') + all + ')' : '';
       list.innerHTML = '';
-      panel.querySelector('.gr-load-head').hidden = !shown.length;
-      if (!shown.length) {
-        list.innerHTML = '<div class="gr-load-empty">' + FILE_SVG + '<span></span></div>';
-        list.querySelector('span').textContent = !files.length ? 'No programs in File Manager › Gears yet. Turn on Save to File Manager, then Generate.' : 'No Gears files match “' + filter.value.trim() + '”.';
+      panel.querySelector('.gr-load-head').hidden = !seen;
+      if (sets.length) { var hs = document.createElement('div'); hs.className = 'gr-load-section'; hs.textContent = 'Sets'; list.appendChild(hs); }
+      sets.forEach(function (x) {
+        var row = document.createElement('div');
+        row.className = 'gr-load-row gr-set-row'; row.tabIndex = 0; row.setAttribute('role', 'button'); row.title = 'Load the set ' + x.name;
+        row.innerHTML = '<span class="gr-load-icon">' + SET_SVG + '</span><span class="gr-load-name"></span><span class="gr-load-size">Set</span><span class="gr-load-date"></span>' +
+          '<button type="button" class="gr-load-del" title="Delete this set">' + DEL_SVG + '</button>';
+        row.querySelector('.gr-load-name').textContent = x.name;
+        row.querySelector('.gr-load-date').textContent = fileDate(x.when);
+        var go = function () {
+          applySettings(x.v);
+          closeLoadPanel();
+          ROOT.querySelectorAll('.gr-load-status').forEach(function (el) { el.textContent = 'Loaded the set ' + x.name; });
+          setTimeout(function () { ROOT.querySelectorAll('.gr-load-status').forEach(function (el) { el.textContent = ''; }); }, 6000);
+        };
+        row.addEventListener('click', function (e) {
+          if (e.target.closest('.gr-load-del')) {
+            state.sets = state.sets.filter(function (y) { return y !== x; });
+            save(true);
+            render();
+            status.innerHTML = 'Deleted the set “' + esc(x.name) + '”. <span class="gr-link">Undo</span>';
+            status.querySelector('.gr-link').addEventListener('click', function () { state.sets = [x].concat(state.sets); save(true); render(); });
+            return;
+          }
+          go();
+        });
+        row.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target === row) { e.preventDefault(); go(); } });
+        list.appendChild(row);
+      });
+      if (sets.length && shown.length) { var hf = document.createElement('div'); hf.className = 'gr-load-section'; hf.textContent = 'Programs in File Manager › Gears'; list.appendChild(hf); }
+      if (!seen) {
+        var e0 = document.createElement('div');
+        e0.className = 'gr-load-empty';
+        e0.innerHTML = FILE_SVG + '<span></span>';
+        e0.querySelector('span').textContent = !loaded ? 'Reading File Manager…' : !all ? 'No sets or programs yet. Name the settings above, or turn on Save to File Manager, then Generate.' : 'Nothing matches “' + filter.value.trim() + '”.';
+        list.appendChild(e0);
       }
       shown.forEach(function (f) {
         var row = document.createElement('button');
@@ -2903,13 +3497,19 @@ if (typeof module !== 'undefined' && module.exports) {
       status.textContent = '';
     }
     filter.addEventListener('input', render);
+    render();
+    status.textContent = 'Reading File Manager…';
     try {
       var res = await fetch(BASE_URL + '/api/gcode-files');
       files = gearsFiles(treeOf(res.ok ? await res.json() : null));
       if (panel !== loadPanel) return;
+      loaded = true;
       render();
       filter.focus();
     } catch (err) {
+      if (panel !== loadPanel) return;
+      loaded = true;
+      render();
       status.textContent = 'Could not read File Manager: ' + err.message;
     }
   }
@@ -2954,7 +3554,7 @@ if (typeof module !== 'undefined' && module.exports) {
   function save(now) {
     clearTimeout(saveTimer);
     var go = function () {
-      fetch(BASE_URL + '/api/plugins/' + PLUGIN + '/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: collect() }) }).catch(function () {});
+      fetch(BASE_URL + '/api/plugins/' + PLUGIN + '/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: collect(), sets: state.sets }) }).catch(function () {});
     };
     if (now) go(); else saveTimer = setTimeout(go, 800);
   }
@@ -2967,11 +3567,14 @@ if (typeof module !== 'undefined' && module.exports) {
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
       v.module = moduleFromSize(); v.nested = true; v.gapSpace = true; v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
       v.saveFiles = $('gr-gen-pair').parentNode.querySelector('.gr-save-files').checked;
+      v.trainStages = readStages().stages;
+      v['gt-stages'] = $('gt-stages').value;
+      v['gt-job'] = $('gt-job').value || state.trainJob || 's0-both';
       return v;
   }
   function restore() {
     var v = (initialConfig && initialConfig.v) || null;
-    var imperialDefaults = { 'gr-bit': 3.175, 'gr-backlash': 0.3048, 'gr-bore-a': 7.9375, 'gr-bore-b': 7.9375, 'gr-depth': 13.208, 'gr-tab-w': 3.96875, 'gr-tab-h': 1.5875, 'gr-frame-depth': 19.558 };
+    var imperialDefaults = { 'gr-bit': 3.175, 'gr-backlash': 0.3048, 'gr-bore-a': 7.9375, 'gr-bore-b': 7.9375, 'gr-depth': 13.208, 'gr-tab-w': 3.96875, 'gr-tab-h': 1.5875, 'gr-frame-depth': 19.558, 'gt-axle': 7.9375 };
     // Saved before both gears were nested: the old default gap (6 mm, a
     // quarter inch) was room the nesting makes up; any other gap was chosen.
     if (v && !v.nested && v['gr-gap'] != null && (Math.abs(v['gr-gap'] - 6) < 1e-6 || Math.abs(v['gr-gap'] - 6.35) < 1e-6)) v['gr-gap'] = 0;
@@ -2985,6 +3588,10 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
     ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { if (v && v[id] != null) $(id).checked = !!v[id]; });
+    $('gt-stages').value = v && v['gt-stages'] != null ? v['gt-stages'] : '0';
+    renderStages(v && Array.isArray(v.trainStages) && v.trainStages.length ? v.trainStages : DEFAULT_STAGES);
+    state.trainJob = v && v['gt-job'] || 's0-both';
+    trainJobs(readStages().stages);
     if (!v) {
       // First open: MDF feeds for the bit, and the smallest friendly teeth it can cut.
       $('gr-size-mode').value = state.imperial ? 'dp' : 'module';
@@ -3216,25 +3823,27 @@ if (typeof module !== 'undefined' && module.exports) {
   // ---------- Wiring ----------
   var lastView = 'pair';
   function showView(view) {
-    if (view !== 'pair' && state.animating) animate();
+    if (view !== state.view && state.animating) animate();
     if (view !== 'help') lastView = view;
     state.view = view;
     ROOT.querySelectorAll('.gr-content').forEach(function (c) { c.classList.toggle('active', c.dataset.view === view); });
     ROOT.querySelectorAll('.gr-nav-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.view === view); });
     if (view === 'pair') updatePair();
     if (view === 'frame') drawFrame();
+    if (view === 'train') updateTrain();
   }
   var touchTimer = null;
   function touch() {
     clearTimeout(touchTimer);
-    touchTimer = setTimeout(function () { if (state.view === 'frame') drawFrame(); else updatePair(); }, 120);
+    touchTimer = setTimeout(function () { if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, 120);
   }
   function wire() {
     ROOT.querySelectorAll('.gr-nav-btn').forEach(function (b) { b.addEventListener('click', function () { showView(b.dataset.view); }); });
     $('gr-help-back').addEventListener('click', function () { showView(lastView); });
     $('gr-close').addEventListener('click', function () { save(true); window.postMessage({ type: 'close-plugin-dialog' }, '*'); });
     ROOT.addEventListener('input', function (e) {
-      if (e.target.id === 'gr-turn') { state.turn = +e.target.value; spin(); return; }
+      if (e.target.id === 'gr-turn' || e.target.id === 'gt-turn') { state.turn = +e.target.value; $('gr-turn').value = $('gt-turn').value = state.turn; spin(); return; }
+      if (/^gt-(ratio|min|max)$/.test(e.target.id)) state.trainAutoPick = true;
       // Add a Gear: typing lists the distances; the nearest is picked when the edit is done (change).
       if (/^gr-(cd|design-ratio|design-od)$/.test(e.target.id) && !(e.target.id === 'gr-cd' && $('gr-design-mode').value === 'add')) state.autoPick = true;
       if (/^gr-(rpm|feed|plunge|step|frame-step)$/.test(e.target.id) && e.isTrusted) state.feedsAuto = false;
@@ -3253,7 +3862,9 @@ if (typeof module !== 'undefined' && module.exports) {
         var m = state.size && $('gr-size').value === state.size.text ? state.size.m : moduleFromText($('gr-size').value, prev.mode);
         if (m > 0) writeSize(m); else if (state.size) state.size.mode = $('gr-size-mode').value;
       }
-      if (id === 'gr-size') e.target.dataset.touched = '1';
+      if (id === 'gr-size' || e.target.classList.contains('gt-teeth')) e.target.dataset.touched = '1';
+      if (id === 'gt-stages') state.trainAutoPick = true;
+      if (id === 'gt-job') state.trainJob = e.target.value;
       if (id === 'gr-design-by' || id === 'gr-design-mode') state.autoPick = id === 'gr-design-by' || $('gr-design-mode').value === 'new';
       if (id === 'gr-design-mode') fitLabelSelects();
       if (id === 'gr-cd' && $('gr-design-mode').value === 'add') state.autoPick = true;
@@ -3267,6 +3878,15 @@ if (typeof module !== 'undefined' && module.exports) {
       touch();
     });
     $('gr-animate').addEventListener('click', animate);
+    wireHandles();
+    $('gt-animate').addEventListener('click', animate);
+    $('gt-add-stage').addEventListener('click', function () {
+      var st = readStages().stages, prev = st[st.length - 1] || DEFAULT_STAGES[0];
+      st.push({ driver: prev.driver, driven: prev.driven });
+      renderStages(st);
+      touch();
+    });
+    $('gr-gen-train').addEventListener('click', function () { generate('train'); });
     if (state.atc) wireToolMenu();
     else {
       $('gr-bit-label').addEventListener('click', function (e) { e.preventDefault(); loadedBit(); });
