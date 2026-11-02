@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- **Diagrams that follow the settings:**
+  - The Cut cards (Gear Pair and Gear Train) show the stock from above, drawn from the program itself: every
+    cut through at Total Depth, the bit's width, the holding tabs as orange dots, X0 Y0 and the stock's size.
+  - The Depth card shows the cut from the side: Z0, each pass, the tab left standing, Total Depth into the
+    wasteboard.
+  - The Teeth card shows where the teeth meet, close up: a tooth of B in a space of A, the pitch circles, the
+    line of action at the pressure angle, the backlash, the tip clearance, and the bit in A's root.
+
 ## 0.4.0: Gear trains
 
 ### ✨ New

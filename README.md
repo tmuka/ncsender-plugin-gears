@@ -125,6 +125,11 @@ one stage, one gear, or the frame's axle holes, and warns when a gear would reac
   biggest gear, and it warns when a gear reaches another axle's shaft (the frame isn't drilled for such a
   train). Cut all the gears in one program (packed in rows, biggest first), a stage's two gears nested, one
   gear, or the frame's axle holes in a line. Tooth size, bit, feeds and depth are the Gear Pair tab's.
+- **Diagrams that follow the settings:** the Cut card shows the stock from above as the program cuts it (each
+  cut the bit's width, the tabs, X0 Y0, the stock's size), read back from the G-code itself; the Depth card
+  the cut from the side (each pass, the tab, Total Depth into the wasteboard); the Teeth card where the teeth
+  meet, close up (pitch circles, the pressure angle's line of action, backlash, tip clearance, the bit in the
+  root).
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
   the machine's max feed and spindle range.
