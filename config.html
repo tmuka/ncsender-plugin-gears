@@ -612,8 +612,8 @@
           <li><b>Start from the Center Distance</b>: type where the axles go, then the <b>Ratio</b> (how it should turn) or <b>Gear A Outside Ø</b> (how big Gear A is), and pick one of the pairs that mesh there: <b>Coarse</b> (fewest, biggest teeth: strongest, easiest to cut), <b>Balanced</b> or <b>Fine</b> (the most teeth the bit can cut: smoother). Each says its teeth, tooth size, pressure angle (20&deg;, or 25&deg; for a small gear when the bit allows), the ratio it really makes, the outside diameters and the biggest bit that cuts it. Typing in the card picks Balanced (or the kind you last tapped) straight away, filling in the Teeth card so the gears always mesh at that distance; tap another to change it. A blank Ratio is the one the teeth make now. Everything in the Teeth card can still be changed. A small gear&rsquo;s teeth may be undercut (thin at the root): the list says so; a longer distance gives it more teeth.</li>
           <li><b>Add a Gear to This Set</b> (the same card&rsquo;s title menu): a new gear that meshes with one you&rsquo;ve cut. Gears mesh when they have the same tooth size and pressure angle; the center distance only follows from the teeth, so those two are kept from the Teeth card (Load the pair&rsquo;s program first if you&rsquo;ve changed them). Pick the gear you have in <b>Meshes With</b> and type where the new axle goes: only whole teeth fit, so it lists the nearest distances that work (each tooth moves it half a module) and picks the nearest. The new gear becomes Gear B (the one you have moves to Gear A with its bore and holes), and Cut is set to Gear B only.</li>
           <li><b>Load</b> and <b>Save to File Manager</b> (beside Generate): with the switch on, each program is also saved in File Manager&rsquo;s Gears folder. Every program carries the settings it was made with, and Load fills the form from one, to cut a pair again or add a gear to it. The program&rsquo;s first lines also say its tooth size and pressure angle. In the same panel, <b>Save as a Set</b> keeps the settings you have under a name, without a program; tap a set to load it, or its bin to delete it (with Undo).</li>
-          <li><b>Drag the preview</b>: the dot at Gear B&rsquo;s center sets the <b>Center Distance</b>, the dot on top of Gear A its outside diameter (Start from the Center Distance). The value shows as you drag; the pairs are worked out when you let go, as if you&rsquo;d typed it. A tap on a dot goes to its field.</li>
-          <li><b>Gear Train</b> (its own tab): pairs in a row for more ratio than one pair makes, each stage&rsquo;s driven gear on one axle with the next stage&rsquo;s driver (glue or pin them together, or fix both to the shaft). Type the <b>Ratio</b> (turns of axle 1 for one turn of the last: 60 for 60:1) and it lists the trains that make it within <b>Fewest</b> and <b>Most Teeth</b>: the fewest stages first, more only when they make the biggest gear smaller; exactly when whole teeth allow, else within 0.5%. Or type the stages yourself, and <b>Add a Stage</b> or remove one. Every gear is bored to the <b>Axle Ø</b>; the bigger gear of each stage gets <b>Wheel Spokes</b>. The preview turns the train and says when a gear reaches another axle&rsquo;s shaft. <b>Cut</b> all the gears in one program (packed in rows, biggest first, Gap Between apart), one stage&rsquo;s two gears nested, one gear, or the frame&rsquo;s axle holes in a line (with the Frame Holes tab&rsquo;s depths). The tooth size, pressure angle, bit, feeds, depth, tabs and X0 Y0 are the Gear Pair tab&rsquo;s.</li>
+          <li><b>Drag the preview</b>: the dot at Gear B&rsquo;s center sets the <b>Center Distance</b>, the dot on top of Gear A its outside diameter (Start from the Center Distance). The value shows as you drag; the pairs are worked out when you let go, as if you&rsquo;d typed it (in Add a Gear to This Set, the nearest distance whole teeth allow is picked). A tap on a dot goes to its field. Not for a rack or a ring.</li>
+          <li><b>Gear Train</b> (its own tab): pairs in a row for more ratio than one pair makes, each stage&rsquo;s driven gear on one axle with the next stage&rsquo;s driver (glue or pin them together, or fix both to the shaft). Type the <b>Ratio</b> (turns of axle 1 for one turn of the last: 60 for 60:1) and it lists the trains that make it within <b>Fewest</b> and <b>Most Teeth</b>: the fewest stages first, more only when they make the biggest gear smaller (or, when no train makes it exactly, come at least twice as near); exactly when whole teeth allow, else within 0.5%. Every stage turns the way the whole train does: no speed-up inside a reduction. Or type the stages yourself, and <b>Add a Stage</b> or remove one. Every gear is bored to the <b>Axle Ø</b>; the bigger gear of each stage gets <b>Wheel Spokes</b>. The preview turns the train and warns when a gear reaches another axle&rsquo;s shaft (the frame&rsquo;s holes aren&rsquo;t drilled for such a train; the gears can still be cut). <b>Cut</b> all the gears in one program (packed in rows, biggest first, Gap Between apart), one stage&rsquo;s two gears nested, one gear, or the frame&rsquo;s axle holes in a line (with the Frame Holes tab&rsquo;s depths). The tooth size, pressure angle, bit, feeds, depth, tabs and X0 Y0 are the Gear Pair tab&rsquo;s.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
@@ -1193,16 +1193,23 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!(R > 0)) return { problem: 'a ratio' };
     if (!(hi >= lo)) return { problem: 'the teeth range is empty' };
     var counts = t.stages > 0 ? [Math.min(3, Math.round(t.stages))] : [1, 2, 3];
+    // A search that would freeze the dialog stops here; what it found by then is given.
+    var budget = t.budgetMs > 0 ? t.budgetMs : 400, t0 = Date.now(), partial = false;
+    var late = function () { if (!partial && Date.now() - t0 > budget) partial = true; return partial; };
     var gcd = function (a, b) { while (b) { var x = a % b; a = b; b = x; } return a; };
     // The ratio as a fraction P/Q (7.3 is 73/10), so exact means exact.
     var P = 1, Q = 1;
     for (var den = 1; den <= 100000; den++) { var num = Math.round(R * den); if (num > 0 && Math.abs(num / den - R) <= 1e-9 * R) { P = num; Q = den; break; } }
     var exactR = Math.abs(P / Q - R) <= 1e-9 * R;
+    // Every stage turns the way the whole train does (a speed-up inside a
+    // reduction only adds teeth), and none is 1:1.
+    var dir = R > 1 + 1e-12 ? 1 : R < 1 - 1e-12 ? -1 : 0;
+    var way = function (d, w) { return dir > 0 ? w > d : dir < 0 ? w < d : true; };
     // Each whole ratio driven/driver once, its fewest teeth: more only adds teeth.
-    var pairs = [], byKey = {};
+    var W = hi + 1, byKey = new Array(W * W), pairs = [];
     for (var d = lo; d <= hi; d++) for (var w = lo; w <= hi; w++) {
-      var g = gcd(w, d), k = (w / g) + '/' + (d / g);
-      if (!byKey[k]) { byKey[k] = { driver: d, driven: w, n: w / g, m: d / g }; pairs.push(byKey[k]); }
+      var g = gcd(w, d), k = (w / g) * W + d / g;
+      if (!byKey[k]) { byKey[k] = { driver: d, driven: w, n: w / g, m: d / g, sum: d + w }; pairs.push(byKey[k]); }
     }
     var score = function (stages) {
       var q = 1, sum = 0, logs = [];
@@ -1211,46 +1218,62 @@ if (typeof module !== 'undefined' && module.exports) {
       var spread = logs.reduce(function (a, b) { return a + Math.abs(b - mean); }, 0);
       return { stages: stages, ratio: q, error: Math.abs(q - R) / R, teeth: sum, spread: spread, key: sum + 2 * spread };
     };
-    var better = function (a, b) { return !a || b.key < a.key - 1e-12; };
     var best = {}, nearest = {};
     var consider = function (n, stages) {
       var o = score(stages);
-      if (o.error < 1e-9) { if (better(best[n], o)) best[n] = o; }
+      if (o.error < 1e-9) { if (!best[n] || o.key < best[n].key - 1e-12) best[n] = o; }
       else if (o.error <= 0.005 && (!nearest[n] || o.error < nearest[n].error - 1e-12 || (Math.abs(o.error - nearest[n].error) < 1e-12 && o.key < nearest[n].key))) nearest[n] = o;
     };
     // The last stage, exactly: the pair making num/den, if there is one.
     var lastExact = function (n, prefix, num, den) {
-      var g = gcd(num, den), p = byKey[(num / g) + '/' + (den / g)];
-      if (p && !(n > 1 && p.n === p.m)) consider(n, prefix.concat([p]));
+      var g = gcd(num, den), a = num / g, b = den / g;
+      if (a > hi || b > hi) return;
+      var p = byKey[a * W + b];
+      if (p && !(n > 1 && (p.n === p.m || !way(p.driver, p.driven)))) consider(n, prefix.concat([p]));
     };
     // Or as near as whole teeth get.
     var lastNear = function (n, prefix, need) {
       var cut = nearest[n] ? nearest[n].error + 1e-12 : 0.005;
       for (var d2 = lo; d2 <= hi; d2++) {
         var w2 = Math.round(need * d2);
-        if (w2 < lo || w2 > hi || (n > 1 && w2 === d2)) continue;
+        if (w2 < lo || w2 > hi || (n > 1 && (w2 === d2 || !way(d2, w2)))) continue;
         if (Math.abs(w2 / d2 - need) / need > cut) continue;
         consider(n, prefix.concat([{ driver: d2, driven: w2 }]));
       }
     };
     counts.forEach(function (n) {
-      // A stage of 1:1 only adds an axle.
+      if (n > 1 && !dir) return;
       var per = Math.pow(R, 1 / n), band = n === 3 ? 2.5 : Infinity;
-      var some = n === 1 ? [] : pairs.filter(function (p) { var r = p.driven / p.driver; return p.n !== p.m && r >= per / band && r <= per * band; });
+      var inBand = function (r) { return r >= per / band / 1.0001 && r <= per * band * 1.0001; };
+      // Fewest teeth first, so a train found early cuts the search short.
+      var some = n === 1 ? [] : pairs.filter(function (p) { return p.n !== p.m && way(p.driver, p.driven) && inBand(p.driven / p.driver); })
+        .sort(function (a, b) { return a.sum - b.sum; });
       if (n === 1) { if (exactR) lastExact(1, [], P, Q); lastNear(1, [], R); return; }
       if (n === 2) {
-        some.forEach(function (a) { if (exactR) lastExact(2, [a], P * a.m, Q * a.n); });
-        if (!best[1] && !best[2]) some.forEach(function (a) { var r = a.driven / a.driver; if (r >= per / 3 && r <= per * 3) lastNear(2, [a], R / r); });
+        if (exactR) some.forEach(function (a) { lastExact(2, [a], P * a.m, Q * a.n); });
+        if (!best[1] && !best[2]) some.forEach(function (a) { var r = a.driven / a.driver; if (!late() && r >= per / 3 && r <= per * 3) lastNear(2, [a], R / r); });
         return;
       }
-      for (var i = 0; i < some.length; i++) for (var j = i; j < some.length; j++) {
-        var a = some[i], b = some[j];
-        if (exactR) lastExact(3, [a, b], P * a.m * b.m, Q * a.n * b.n);
+      if (exactR) {
+        for (var i = 0; i < some.length && !late(); i++) {
+          var a = some[i];
+          if (best[3] && 2 * a.sum + 2 * lo >= best[3].key) break;
+          for (var j = i; j < some.length; j++) {
+            var b = some[j];
+            if (best[3] && a.sum + b.sum + 2 * lo >= best[3].key) break;
+            var need = R * a.driver * b.driver / (a.driven * b.driven);
+            if (!inBand(need)) continue;
+            lastExact(3, [a, b], P * a.m * b.m, Q * a.n * b.n);
+          }
+        }
       }
       // Near (not exact) three-stage trains: only when nothing exact has turned up.
       if (!best[1] && !best[2] && !best[3]) {
         var tight = some.filter(function (p) { var r = p.driven / p.driver; return r >= per / 1.5 && r <= per * 1.5; });
-        tight.forEach(function (a) { tight.forEach(function (b) { lastNear(3, [a, b], R * a.driver * b.driver / (a.driven * b.driven)); }); });
+        for (var x = 0; x < tight.length && !late(); x++) for (var y = x; y < tight.length; y++) {
+          var need3 = R * tight[x].driver * tight[y].driver / (tight[x].driven * tight[y].driven);
+          if (inBand(need3)) lastNear(3, [tight[x], tight[y]], need3);
+        }
       }
     });
     // Exact ones by fewest stages; else the nearest within 0.5%. More
@@ -1267,9 +1290,9 @@ if (typeof module !== 'undefined' && module.exports) {
     };
     var out = pick(counts.map(function (n) { return best[n]; }).filter(Boolean), false);
     if (!out.length) out = pick(counts.map(function (n) { return nearest[n]; }).filter(Boolean), true);
-    if (!out.length) return { problem: 'no train of ' + lo + ' to ' + hi + ' teeth comes within 0.5% of it: allow bigger gears (more teeth)' };
+    if (!out.length) return { problem: partial ? 'none found in the time allowed: a narrower range of teeth searches faster' : 'no train of ' + lo + ' to ' + hi + ' teeth comes within 0.5% of it: allow bigger gears (more teeth)', partial: partial };
     out.forEach(function (o) { o.stages = o.stages.map(function (s) { return { driver: s.driver, driven: s.driven }; }); delete o.key; });
-    return { options: out };
+    return { options: out, partial: partial };
   }
 
   // The train's axles in a line along +X from the first at 0: each stage's
@@ -2153,7 +2176,7 @@ if (typeof module !== 'undefined' && module.exports) {
     else L.push(comment(p.ring ? 'Ring and pinion: ' + o.gears.B.teeth + ':' + o.gears.A.teeth + ', the pinion’s axle ' + p.pair.centerDistance.toFixed(3) + ' mm from the ring’s center'
       : p.rack ? 'Rack and pinion: ' + o.gears.A.teeth + ' teeth on the pinion, the rack ' + p.pair.travel.toFixed(3) + ' mm a turn, its pitch line ' + p.pair.pitchRadius.toFixed(3) + ' mm from the pinion’s axle'
       : 'Pair ' + o.gears.A.teeth + ':' + o.gears.B.teeth + ', center distance ' + p.pair.centerDistance.toFixed(3) + ' mm'));
-    L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? (o.axles ? 'axle hole 1' : 'axle hole A') : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : (o.many ? 'the first gear cut, ' : '') + nameOf(p.which[0]) + '’s center'))));
+    L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? (o.axles ? 'axle hole 1' : 'axle hole A') : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : (o.many ? 'the first gear cut, ' + nameOf(placed[0].key) : nameOf(p.which[0])) + '’s center'))));
     L.push(comment('Bit ' + o.bitDiameter + ' mm, feed ' + o.feedRate + ' mm/min, plunge ' + o.plungeFeedRate + ' mm/min, ' + o.spindleRpm + ' RPM' + unitNote));
     p.notes.forEach(function (n) { L.push(comment('Note: ' + n)); });
     L.push('');
@@ -2726,7 +2749,7 @@ if (typeof module !== 'undefined' && module.exports) {
     out.push('<line class="gr-dim" id="gr-dim-cd" x1="0" y1="0" x2="' + cd + '" y2="0" stroke-dasharray="2 3"/>');
     // Handles: Gear B's center sets the Center Distance; the top of Gear A
     // its outside diameter (Start from the Center Distance only).
-    var vb = svg.viewBox.baseVal, px = Math.max(vb.width / Math.max(1, svg.clientWidth), vb.height / Math.max(1, svg.clientHeight)) || fs / 8;
+    var vb = svg.viewBox.baseVal, px = svg.clientWidth > 50 && svg.clientHeight > 50 ? Math.max(vb.width / svg.clientWidth, vb.height / svg.clientHeight) : vb.width / 800;
     var handle = function (name, x, y, title) {
       out.push('<g data-handle="' + name + '"><title>' + title + '</title><circle class="gr-handle-hit" cx="' + x.toFixed(3) + '" cy="' + y.toFixed(3) + '" r="' + (22 * px).toFixed(3) + '"/>' +
         '<circle class="gr-handle" cx="' + x.toFixed(3) + '" cy="' + y.toFixed(3) + '" r="' + (8 * px).toFixed(3) + '"/></g>');
@@ -2754,11 +2777,13 @@ if (typeof module !== 'undefined' && module.exports) {
       var o = last.o, A = gearInfo(o, 'A');
       drag = { name: h.dataset.handle, el: h, start: { x: e.clientX, y: e.clientY }, moved: false, cd: G.pair(o, o.gears.A.teeth, o.gears.B.teeth).centerDistance, ra: A.basics.ra, value: null };
       h.classList.add('gr-dragging');
+      state.dragging = true;
       try { svg.setPointerCapture(e.pointerId); } catch (err) {}
       if (state.animating) animate();
     });
     svg.addEventListener('pointermove', function (e) {
       if (!drag) return;
+      if (!svg.contains(drag.el)) { drag = null; state.dragging = false; return; }
       if (!drag.moved && Math.hypot(e.clientX - drag.start.x, e.clientY - drag.start.y) < 5) return;
       drag.moved = true;
       var q = at(e), u = ' ' + state.unit, px = state.handlePx || 1;
@@ -2784,6 +2809,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (!drag) return;
       var d0 = drag;
       drag = null;
+      state.dragging = false;
       d0.el.classList.remove('gr-dragging');
       if (!d0.moved) {
         if (d0.name === 'od' && $('gr-design-by').value !== 'size') { $('gr-design-by').value = 'size'; fitLabelSelects(); updatePair(); }
@@ -2993,6 +3019,7 @@ if (typeof module !== 'undefined' && module.exports) {
     state.trainAutoPick = false;
     if (!r) { box.innerHTML = s['gt-ratio'] > 0 ? '' : '<span class="gr-hint">Type the Ratio to see trains that make it.</span>'; return false; }
     if (r.problem) { box.innerHTML = '<span class="gr-hint">' + esc(r.problem.charAt(0).toUpperCase() + r.problem.slice(1)) + '. Or type the stages below.</span>'; return false; }
+    var more = r.partial ? ' Not every train was tried in the time allowed: a narrower range of teeth searches them all.' : '';
     var same = function (o) { return o.stages.length === stages.length && o.stages.every(function (st, i) { return st.driver === stages[i].driver && st.driven === stages[i].driven; }); };
     var picked = false;
     if (auto && !r.options.some(same)) { renderStages(r.options[0].stages); stages = r.options[0].stages; picked = true; }
@@ -3004,7 +3031,7 @@ if (typeof module !== 'undefined' && module.exports) {
         '<span><b>' + o.stages.map(function (st) { return st.driver + ':' + st.driven; }).join(', then ') + '</b></span>' +
         '<span class="gr-solution-more">' + ratioText(o.ratio) + (o.error < 1e-9 ? ' exactly' : ' (' + parseFloat((o.error * 100).toFixed(2)) + '% off)') +
         (m > 0 ? ', biggest &Oslash;' + show(m * (big + 2)) + u + ', axles ' + show(len) + u + ' first to last' : '') + '</span></button>';
-    }).join('') + '<span class="gr-hint">The one picked fills in the stages below; tap another to change it.</span>';
+    }).join('') + '<span class="gr-hint">The one picked fills in the stages below; tap another to change it.' + more + '</span>';
     box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { renderStages(r.options[i].stages); touch(); }); });
     return picked;
   }
@@ -3034,7 +3061,7 @@ if (typeof module !== 'undefined' && module.exports) {
       oa.gears = { A: many[0].body, B: many[1].body };
       oa.centerDistance = null;
       oa.many = many;
-      oa.sheetWidth = state.travel ? state.travel.x : null;
+      oa.sheetWidth = state.travel ? state.travel.x - 2 * s['gr-bit'] : null;
       return oa;
     }
     var i = m ? Math.min(+m[1], stages.length - 1) : 0, st = stages[i], wheelDriver = st.driver > st.driven;
@@ -3093,7 +3120,7 @@ if (typeof module !== 'undefined' && module.exports) {
       });
       L.hits.forEach(function (h) {
         problems.push(trainGearName(h.gear.stage, h.gear.role === 'driver' ? 'driver' : 'driven gear', h.gear.teeth) + ' reaches axle ' + (h.axle + 1) + '’s shaft: ' +
-          (h.axle > h.gear.axle ? 'more teeth in stage ' + (h.gear.axle + 1) + ', or fewer on this gear' : 'more teeth in stage ' + h.axle + ', or fewer on this gear'));
+          'more teeth in stage ' + (h.axle > h.gear.axle ? h.gear.axle + 1 : h.gear.axle) + ', or fewer on this gear');
       });
     }
     lastTrain = { s: s, stages: stages, L: L, problems: problems, blocking: blocking };
@@ -3529,7 +3556,10 @@ if (typeof module !== 'undefined' && module.exports) {
             save(true);
             render();
             status.innerHTML = 'Deleted the set “' + esc(x.name) + '”. <span class="gr-link">Undo</span>';
-            status.querySelector('.gr-link').addEventListener('click', function () { state.sets = [x].concat(state.sets); save(true); render(); });
+            status.querySelector('.gr-link').addEventListener('click', function () {
+              state.sets = [x].concat(state.sets.filter(function (y) { return y.name.toLowerCase() !== x.name.toLowerCase(); }));
+              save(true); render(); status.textContent = 'Restored the set “' + x.name + '”.';
+            });
             return;
           }
           go();
@@ -3595,6 +3625,10 @@ if (typeof module !== 'undefined' && module.exports) {
   // Save to File Manager switch stays as it is.
   function applySettings(v) {
     var keep = ROOT.querySelector('.gr-save-files').checked;
+    // Settings saved before the Gear Train tab leave the train as it is.
+    var now = collect();
+    v = Object.assign({}, v);
+    ['gt-ratio', 'gt-min', 'gt-max', 'gt-axle', 'gt-spokes', 'gt-stages', 'gt-job', 'trainStages'].forEach(function (k) { if (v[k] == null && now[k] != null) v[k] = now[k]; });
     initialConfig = { v: Object.assign({}, v, { saveFiles: keep }) };
     state.autoPick = false;
     state.cutTool = null;
@@ -3653,6 +3687,7 @@ if (typeof module !== 'undefined' && module.exports) {
     $('gt-stages').value = v && v['gt-stages'] != null ? v['gt-stages'] : '0';
     renderStages(v && Array.isArray(v.trainStages) && v.trainStages.length ? v.trainStages : DEFAULT_STAGES);
     state.trainJob = v && v['gt-job'] || 's0-both';
+    $('gt-job').innerHTML = '';
     trainJobs(readStages().stages);
     if (!v) {
       // First open: MDF feeds for the bit, and the smallest friendly teeth it can cut.
@@ -3897,7 +3932,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var touchTimer = null;
   function touch() {
     clearTimeout(touchTimer);
-    touchTimer = setTimeout(function () { if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, 120);
+    touchTimer = setTimeout(function () { if (state.dragging) { touch(); return; } if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, 120);
   }
   function wire() {
     ROOT.querySelectorAll('.gr-nav-btn').forEach(function (b) { b.addEventListener('click', function () { showView(b.dataset.view); }); });

@@ -98,7 +98,8 @@ Keep them all, but lead with what a builder knows:
   the whole train (the Gear Pair tab's), as do the bit, feeds, depth, tabs and X0 Y0.
 - **Find a Train** (`solveTrain`): the ratio as a fraction, so "exact" is exact; one, two or three stages,
   each a whole ratio's fewest teeth, within Fewest/Most Teeth; exact trains by fewest stages, more stages only
-  when they make the biggest gear smaller; else the nearest within 0.5%. Stage ratios of 1:1 are left out.
+  when they make the biggest gear smaller; else the nearest within 0.5%. Every stage turns the train's way (no
+  1:1, no speed-up in a reduction); sorted by teeth so a found train prunes the rest; a 400 ms budget at worst.
 - **Layout** (`trainLayout`): axles in a line, and a gear whose tips reach another axle's shaft (its mesh
   partner's excepted) is reported; the frame isn't drilled for such a train.
 - **Cut:** all the gears in one program (`many`, packed in rows by `packRows`, biggest first), a stage's two gears nested (the pair's own program), one gear, or the frame's axle holes

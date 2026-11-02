@@ -35,6 +35,21 @@ test('a train for a ratio: exact when whole teeth allow, fewest stages first, in
   assert.equal(G.solveTrain({ ratio: 1.5, minTeeth: 8, maxTeeth: 72 }).options.length, 1);
 });
 
+test('every stage turns the way the train does: no stages that cancel, no speed-up in a reduction', () => {
+  for (const [R, lo, hi] of [[6.1, 8, 72], [7.1, 8, 60], [4.7, 8, 60], [5.3, 8, 60], [8.3, 8, 90], [7.3, 6, 150], [2, 8, 72], [0.3, 8, 72]]) {
+    const r = G.solveTrain({ ratio: R, stages: 3, minTeeth: lo, maxTeeth: hi });
+    for (const o of r.options || []) for (const s of o.stages) assert.ok(R > 1 ? s.driven > s.driver : s.driven < s.driver, `${R}: ${JSON.stringify(o.stages)}`);
+  }
+});
+
+test('a wide range of teeth doesn’t freeze the dialog', () => {
+  for (const [R, lo, hi] of [[60, 6, 400], [7.3, 6, 150], [Math.PI, 8, 100], [1.0001, 8, 72], [3.14159, 10, 120]]) {
+    const t = Date.now(), r = G.solveTrain({ ratio: R, minTeeth: lo, maxTeeth: hi });
+    assert.ok(Date.now() - t < 900, `${R} ${lo}-${hi}: ${Date.now() - t} ms`);
+    assert.ok(r.options || r.problem);
+  }
+});
+
 test('a train it can’t make, or no ratio, says so', () => {
   assert.ok(G.solveTrain({ ratio: 3600, minTeeth: 8, maxTeeth: 72 }).problem);
   assert.ok(G.solveTrain({ ratio: null }).problem);
@@ -84,6 +99,7 @@ test('a whole train in one program: every gear, packed apart, safe', () => {
   // Biggest first; every pair of gears at least the least gap apart, tip to tip.
   const ra = (z) => 3.5 * (z + 2) / 2;
   assert.match(r.gcode, /\(Gears: a gear train, 4 gears: 8, 24, 8, 32 teeth\)/);
+  assert.match(r.gcode, /X0 Y0: the first gear cut, Gear 4 of 32’s center/);
   const teeth = r.parts.map((q) => r.info[q.key].basics.z);
   assert.deepStrictEqual(teeth, [32, 24, 8, 8]);
   for (let i = 0; i < r.parts.length; i++) for (let j = i + 1; j < r.parts.length; j++) {
