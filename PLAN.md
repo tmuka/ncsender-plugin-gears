@@ -91,7 +91,7 @@ Keep them all, but lead with what a builder knows:
   type it. The fields and the picture stay in step. Touch-sized handles for the Pi.
 - Whatever is typed last wins; the others show as filled (greyed "auto") until typed over.
 
-## Gear trains (built 2026-11-02, not released)
+## Gear trains (released in 0.4.0, 2026-11-02)
 
 - A **Gear Train** tab: stages in a row along +X, each a driver and a driven gear; a driven gear shares its
   axle with the next stage's driver (compound gears, glued or pinned). One tooth size and pressure angle for
