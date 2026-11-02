@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.1: Small bores in big-toothed gears
 
 ### 🐛 Fixes
 - A small bore in a gear with big teeth is no longer refused: a 6 mm D shaft in a 6-tooth pinion of
