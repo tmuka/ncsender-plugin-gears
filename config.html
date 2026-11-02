@@ -154,6 +154,116 @@
   .gr-switch input:checked { background: var(--color-accent); }
   .gr-switch input:checked::after { transform: translateX(16px); }
   .gr-footer { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--color-border); }
+  .gr-load-link { color: var(--color-accent); font-weight: 600; text-decoration: none; }
+  .gr-load-link:hover { text-decoration: underline; }
+  .gr-load-sep { color: var(--color-text-secondary); }
+  /* Load: Gears programs in File Manager, over the dialog. */
+  .gr-load-panel {
+    position: absolute;
+    inset: 16px;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 20px;
+    background: var(--color-surface, #fff);
+    border: 2px solid var(--color-text-secondary, #888);
+    border-radius: var(--radius-medium);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+  .gr-load-panel p { margin: 0; font-size: 0.85rem; color: var(--color-text-secondary); }
+  /* Their display: flex would otherwise beat the hidden attribute. */
+  .gr-load-panel [hidden] { display: none !important; }
+  /* The list, search and rows follow ncSender's File Manager (its own
+     styles are scoped to it, so they're matched here from the same
+     theme variables). */
+  .gr-load-title { display: flex; align-items: center; gap: 12px; margin: 0; font-size: 1.25rem; font-weight: 600; }
+  .gr-load-title svg { width: 28px; height: 28px; color: var(--color-accent); flex-shrink: 0; }
+  .gr-load-count { font-size: 0.9rem; font-weight: 400; color: var(--color-text-secondary); }
+  .gr-load-search { position: relative; display: flex; align-items: center; }
+  .gr-load-search > svg { position: absolute; left: 12px; width: 18px; height: 18px; color: var(--color-text-secondary); pointer-events: none; }
+  .gr-load-filter {
+    width: 100%;
+    padding: 10px 36px 10px 40px;
+    background: var(--color-surface-muted, var(--color-surface));
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small, 6px);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+  .gr-load-filter:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 10%, transparent); }
+  .gr-load-filter::placeholder { color: var(--color-text-secondary); }
+  /* Buttons here override ncSender's plugin-dialog button style, as the
+     other Gears buttons do. */
+  .gr-load-clear {
+    position: absolute; right: 8px; width: 24px; height: 24px; padding: 0 !important;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent !important; border: none !important; border-radius: var(--radius-small, 6px) !important;
+    color: var(--color-text-secondary) !important; cursor: pointer;
+  }
+  .gr-load-clear:hover { background: var(--color-surface) !important; color: var(--color-text-primary) !important; opacity: 1; }
+  .gr-load-clear svg { width: 14px; height: 14px; }
+  .gr-load-filtered {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    border-radius: var(--radius-small, 6px);
+    color: var(--color-accent); font-size: 0.85rem;
+  }
+  .gr-load-filtered svg { width: 14px; height: 14px; }
+  .gr-load-filtered button {
+    margin-left: auto; padding: 3px 10px !important;
+    background: transparent !important; border: 1px solid var(--color-accent) !important; border-radius: var(--radius-small, 6px) !important;
+    color: var(--color-accent) !important; font: inherit; font-size: 0.8rem; cursor: pointer;
+  }
+  .gr-load-filtered button:hover { background: color-mix(in srgb, var(--color-accent) 15%, transparent) !important; opacity: 1; }
+  .gr-load-head { display: flex; align-items: center; gap: 12px; padding: 0 16px 6px; border-bottom: 1px solid var(--color-border); font-size: 0.8rem; color: var(--color-text-secondary); }
+  .gr-load-head span:first-child { flex: 1; padding-left: 52px; }
+  .gr-load-head .gr-load-go { opacity: 0; background: none; }
+  .gr-load-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+  .gr-load-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px !important;
+    min-height: 56px;
+    border: none !important;
+    border-radius: var(--radius-medium, 8px) !important;
+    background: transparent !important;
+    color: var(--color-text-primary) !important;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+  .gr-load-row:hover, .gr-load-row:focus-visible { background: var(--color-surface-muted, var(--color-surface)) !important; outline: none; opacity: 1; }
+  .gr-load-icon { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--color-accent); }
+  .gr-load-icon svg { width: 36px; height: 36px; }
+  .gr-load-badge {
+    position: absolute; bottom: 0; right: -2px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    background: var(--color-accent); color: #fff; padding: 1px 4px; border-radius: 3px;
+  }
+  .gr-load-name { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gr-load-size, .gr-load-date { font-size: 0.8rem; color: var(--color-text-secondary); flex-shrink: 0; text-align: right; }
+  .gr-load-size { width: 64px; }
+  .gr-load-date { width: 110px; }
+  .gr-load-go {
+    width: 36px; height: 36px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--gradient-accent, var(--color-accent)); color: #fff;
+    border-radius: var(--radius-small, 6px);
+    opacity: 0; transition: opacity 0.15s ease;
+  }
+  .gr-load-go svg { width: 18px; height: 18px; }
+  .gr-load-row:hover .gr-load-go, .gr-load-row:focus-visible .gr-load-go { opacity: 1; }
+  .gr-load-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; flex: 1; min-height: 160px; color: var(--color-text-secondary); text-align: center; font-size: 0.9rem; }
+  .gr-load-actions { display: flex; justify-content: flex-end; }
+  .gr-load-status-line { font-size: 0.85rem; color: var(--color-text-secondary); }
+  .gr-load-status-line:empty { display: none; }
+  .gr-file-actions { display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+  .gr-load-status { font-size: 0.82rem; color: var(--color-accent); }
   .gr-note { margin-right: auto; font-size: 0.82rem; color: var(--color-text-secondary); }
   .gr-note.gr-bad-note { color: #ff6b6b; font-weight: 600; }
   .gr-primary, .gr-secondary {
@@ -375,7 +485,7 @@
           <div class="gr-hint" id="gr-origin-say"></div>
         </div>
       </div>
-      <div class="gr-footer"><span class="gr-note" id="gr-note-pair"></span><button type="button" class="gr-primary" id="gr-gen-pair">Generate</button></div>
+      <div class="gr-footer"><span class="gr-note" id="gr-note-pair"></span><span class="gr-file-actions"><span class="gr-load-status" aria-live="polite"></span><a href="#" class="gr-load-link" title="Fill the form from a Gears program saved in File Manager">Load</a><span class="gr-load-sep" aria-hidden="true">|</span><label class="gr-switch" title="Also save each generated program to File Manager › Gears, with the settings it was made with, for Load"><input type="checkbox" class="gr-save-files"> Save to File Manager</label></span><button type="button" class="gr-primary" id="gr-gen-pair">Generate</button></div>
     </section>
 
     <!-- Frame Holes -->
@@ -400,7 +510,7 @@
           <div class="gr-hint">X0 Y0 is Axle Hole A's center; Hole B is along +X. Bit, feeds and the gears' teeth come from the Gear Pair tab.</div>
         </div>
       </div>
-      <div class="gr-footer"><span class="gr-note" id="gr-note-frame"></span><button type="button" class="gr-primary" id="gr-gen-frame">Generate</button></div>
+      <div class="gr-footer"><span class="gr-note" id="gr-note-frame"></span><span class="gr-file-actions"><span class="gr-load-status" aria-live="polite"></span><a href="#" class="gr-load-link" title="Fill the form from a Gears program saved in File Manager">Load</a><span class="gr-load-sep" aria-hidden="true">|</span><label class="gr-switch" title="Also save each generated program to File Manager › Gears, with the settings it was made with, for Load"><input type="checkbox" class="gr-save-files"> Save to File Manager</label></span><button type="button" class="gr-primary" id="gr-gen-frame">Generate</button></div>
     </section>
 
     <!-- Help -->
@@ -1773,7 +1883,10 @@ if (typeof module !== 'undefined' && module.exports) {
     if (o.origin === 'front-left') { sx = -ext.x0; sy = -ext.y0; }
     var unitNote = o.imperial ? ' (the program is in mm; G20 at the end puts the machine back in inches)' : '';
     L.push(comment('Gears: ' + (o.job === 'frame' ? 'frame holes' : p.which.map(function (k) { return (k === 'B' && p.rack ? 'a rack of ' : k === 'B' && p.ring ? 'a ring gear of ' : 'Gear ' + k + ' ') + o.gears[k].teeth + ' teeth'; }).join(', '))));
-    L.push(comment('Module ' + (+o.module.toFixed(4)) + ' mm, ' + o.pressureDeg + ' deg pressure angle, backlash ' + o.backlash + ' mm, tip clearance ' + (+p.info.A.basics.c.toFixed(3)) + ' mm' + (o.clearance == null ? ' (auto)' : '')));
+    // A whole Diametral Pitch is named too: gears that mesh with these need
+    // the same tooth size and pressure angle.
+    var dp = 25.4 / o.module, dpName = Math.abs(dp - Math.round(dp)) < 1e-6 ? ' (Diametral Pitch ' + Math.round(dp) + ')' : '';
+    L.push(comment('Module ' + (+o.module.toFixed(4)) + ' mm' + dpName + ', ' + o.pressureDeg + ' deg pressure angle, backlash ' + o.backlash + ' mm, tip clearance ' + (+p.info.A.basics.c.toFixed(3)) + ' mm' + (o.clearance == null ? ' (auto)' : '')));
     L.push(comment(p.ring ? 'Ring and pinion: ' + o.gears.B.teeth + ':' + o.gears.A.teeth + ', the pinion’s axle ' + p.pair.centerDistance.toFixed(3) + ' mm from the ring’s center'
       : p.rack ? 'Rack and pinion: ' + o.gears.A.teeth + ' teeth on the pinion, the rack ' + p.pair.travel.toFixed(3) + ' mm a turn, its pitch line ' + p.pair.pitchRadius.toFixed(3) + ' mm from the pinion’s axle'
       : 'Pair ' + o.gears.A.teeth + ':' + o.gears.B.teeth + ', center distance ' + p.pair.centerDistance.toFixed(3) + ' mm'));
@@ -2556,10 +2669,23 @@ if (typeof module !== 'undefined' && module.exports) {
       : 'Gears-' + (o.job === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears[o.job].teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg';
     var btn = $('gr-gen-' + view), label = btn.textContent;
     btn.disabled = true; btn.textContent = 'Generating…';
+    var filename = name.replace(/[^\w.-]+/g, '_') + '.nc', gcode = p.res.gcode + settingsBlock(collect());
+    var saving = btn.parentNode.querySelector('.gr-save-files').checked;
+    var pathLookup = saving ? freeSavePath(filename).catch(function (err) { return err; }) : null;
     try {
       var res = await fetch(BASE_URL + '/api/gcode-files/load-temp', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: name.replace(/[^\w.-]+/g, '_') + '.nc', content: p.res.gcode }) });
+        body: JSON.stringify({ filename: filename, content: gcode }) });
       if (!res.ok) throw new Error('ncSender answered ' + res.status);
+      // Saved before the dialog closes, or the save would be abandoned.
+      if (saving) {
+        try {
+          var path = await pathLookup;
+          if (path instanceof Error) throw path;
+          await saveProgram(gcode, path);
+        } catch (err) {
+          alert('Gears: the program is loaded, but saving it to File Manager failed: ' + err.message);
+        }
+      }
       save(true);
       setTimeout(function () { window.postMessage({ type: 'close-plugin-dialog' }, '*'); }, 100);
     } catch (err) {
@@ -2580,20 +2706,192 @@ if (typeof module !== 'undefined' && module.exports) {
     touch();
   }
 
+  // ---------- Programs in File Manager ----------
+  // Settings block: every setting (as saved, in mm) as base64 JSON in short
+  // comment lines after M30, so Load can fill the form from a program, as
+  // QuickCut does. Short lines because ncSender sends comments to the
+  // controller too, and its line buffer is small.
+  function settingsBlock(v) {
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify({ gears: 1, v: v }))));
+    var out = ['', '(Gears settings - used by Load)'];
+    for (var i = 0; i < b64.length; i += 60) out.push('(GR1 ' + b64.slice(i, i + 60) + ')');
+    return out.join('\n') + '\n';
+  }
+  function readSettingsBlock(gcode) {
+    var b64 = '';
+    gcode.split(/\r?\n/).forEach(function (line) { var m = /^\(GR1 ([A-Za-z0-9+\/=]+)\)\s*$/.exec(line.trim()); if (m) b64 += m[1]; });
+    if (!b64) return null;
+    try {
+      var data = JSON.parse(decodeURIComponent(escape(atob(b64))));
+      return data && data.gears === 1 && data.v && typeof data.v === 'object' ? data.v : null;
+    } catch (e) { return null; }
+  }
+  function treeOf(list) { return list && (list.tree || list.Tree); }
+  function pathOf(e) { return String(e && (e.path != null ? e.path : e.Path) || '').replace(/\\/g, '/').replace(/^\//, ''); }
+  function gearsFiles(tree) {
+    var files = [];
+    (function walk(entries) {
+      (entries || []).forEach(function (e) {
+        var path = pathOf(e), kids = e && (e.children || e.Children);
+        if (kids && kids.length) walk(kids);
+        else if (/^Gears\//i.test(path) && /\.(nc|gcode|ngc|tap)$/i.test(path)) files.push({ path: path, name: e.name || path.slice(6), when: e.uploadedAt || '', size: e.size != null ? e.size : e.Size });
+      });
+    })(tree);
+    return files.sort(function (a, b) { return a.when < b.when ? 1 : a.when > b.when ? -1 : 0; });
+  }
+  // File Manager › Gears/<name>, or "<name> (2)" and on when it's taken:
+  // a program saved before is never overwritten.
+  function savePathFor(filename, n) {
+    var dot = filename.lastIndexOf('.'), stem = dot > 0 ? filename.slice(0, dot) : filename, ext = dot > 0 ? filename.slice(dot) : '';
+    return 'Gears/' + (n < 2 ? filename : stem + ' (' + n + ')' + ext);
+  }
+  async function freeSavePath(filename) {
+    var taken = {};
+    try {
+      var res = await fetch(BASE_URL + '/api/gcode-files');
+      (function walk(entries) { (entries || []).forEach(function (e) { taken[pathOf(e)] = true; walk(e && (e.children || e.Children)); }); })(treeOf(res.ok ? await res.json() : null));
+    } catch (e) { /* probe from the first name */ }
+    var n = 1;
+    while (taken[savePathFor(filename, n)] && n < 999) n = n < 2 ? 2 : n + 1;
+    for (;;) {
+      var path = savePathFor(filename, n), probe = await fetch(BASE_URL + '/api/gcode-files/file?path=' + encodeURIComponent(path));
+      if (probe.status === 404) return path;
+      if (!probe.ok) throw new Error('could not check for an existing file (' + probe.status + ')');
+      if (n > 999) throw new Error('too many saved copies of ' + filename);
+      n = n < 2 ? 2 : n + 1;
+    }
+  }
+  async function saveProgram(gcode, path) {
+    var res = await fetch(BASE_URL + '/api/gcode-files/file/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: path, content: gcode }) });
+    if (!res.ok) throw new Error('save failed (' + res.status + ')');
+  }
+
+  // Load: the programs in File Manager › Gears, newest first; a pick
+  // fills the form with the settings it was made with. Nothing is
+  // generated or run.
+  var loadPanel = null;
+  function closeLoadPanel() { if (loadPanel) { loadPanel.remove(); loadPanel = null; } }
+  async function openLoadPanel() {
+    closeLoadPanel();
+    var FILE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>';
+    var panel = loadPanel = document.createElement('div');
+    panel.className = 'gr-load-panel';
+    panel.innerHTML =
+      '<h3 class="gr-load-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>' +
+        'Load settings <span class="gr-load-count"></span></h3>' +
+      '<p>Pick a Gears program saved in File Manager to fill the form with the settings it was made with: the same teeth, tooth size and bores, to cut again or to add a gear that meshes. Programs made before Load have none.</p>' +
+      '<div class="gr-load-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' +
+        '<input class="gr-load-filter" type="text" placeholder="Search Gears files..." autocomplete="off" spellcheck="false" aria-label="Search Gears files">' +
+        '<button type="button" class="gr-load-clear" title="Clear search" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>' +
+      '<div class="gr-load-status-line">Loading the list…</div>' +
+      '<div class="gr-load-head" hidden><span>Name</span><span class="gr-load-size">Size</span><span class="gr-load-date">Modified</span><span class="gr-load-go"></span></div>' +
+      '<div class="gr-load-list"></div>' +
+      '<div class="gr-load-actions"><button type="button" class="gr-primary gr-load-cancel">Close</button></div>';
+    ROOT.appendChild(panel);
+    var list = panel.querySelector('.gr-load-list'), status = panel.querySelector('.gr-load-status-line'), filter = panel.querySelector('.gr-load-filter');
+    var clear = panel.querySelector('.gr-load-clear'), count = panel.querySelector('.gr-load-count'), files = [];
+    panel.querySelector('.gr-load-cancel').addEventListener('click', closeLoadPanel);
+    clear.addEventListener('click', function () { filter.value = ''; render(); filter.focus(); });
+    function fileSize(bytes) {
+      if (!(bytes > 0)) return bytes === 0 ? '0 B' : '';
+      var i = Math.min(3, Math.floor(Math.log(bytes) / Math.log(1024)));
+      return parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
+    }
+    function fileDate(iso) {
+      if (!iso) return '';
+      var d = new Date(iso), now = new Date(), y = new Date(now);
+      y.setDate(y.getDate() - 1);
+      if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (d.toDateString() === y.toDateString()) return 'Yesterday';
+      return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+    }
+    function render() {
+      var q = filter.value.trim().toLowerCase(), shown = files.filter(function (f) { return !q || f.name.toLowerCase().indexOf(q) >= 0; });
+      clear.hidden = !q;
+      count.textContent = files.length ? '(' + (q ? shown.length + ' of ' : '') + files.length + (files.length === 1 ? ' file)' : ' files)') : '';
+      list.innerHTML = '';
+      panel.querySelector('.gr-load-head').hidden = !shown.length;
+      if (!shown.length) {
+        list.innerHTML = '<div class="gr-load-empty">' + FILE_SVG + '<span></span></div>';
+        list.querySelector('span').textContent = !files.length ? 'No programs in File Manager › Gears yet. Turn on Save to File Manager, then Generate.' : 'No Gears files match “' + filter.value.trim() + '”.';
+      }
+      shown.forEach(function (f) {
+        var row = document.createElement('button');
+        row.type = 'button'; row.className = 'gr-load-row'; row.title = 'Load the settings ' + f.name + ' was made with';
+        row.innerHTML = '<span class="gr-load-icon">' + FILE_SVG + '<span class="gr-load-badge">NC</span></span><span class="gr-load-name"></span><span class="gr-load-size"></span><span class="gr-load-date"></span>' +
+          '<span class="gr-load-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>';
+        row.querySelector('.gr-load-name').textContent = f.name;
+        row.querySelector('.gr-load-size').textContent = fileSize(f.size);
+        row.querySelector('.gr-load-date').textContent = fileDate(f.when);
+        row.addEventListener('click', function () { loadFromFile(f, status); });
+        list.appendChild(row);
+      });
+      status.textContent = '';
+    }
+    filter.addEventListener('input', render);
+    try {
+      var res = await fetch(BASE_URL + '/api/gcode-files');
+      files = gearsFiles(treeOf(res.ok ? await res.json() : null));
+      if (panel !== loadPanel) return;
+      render();
+      filter.focus();
+    } catch (err) {
+      status.textContent = 'Could not read File Manager: ' + err.message;
+    }
+  }
+  async function loadFromFile(file, status) {
+    status.textContent = 'Reading ' + file.name + '…';
+    try {
+      var res = await fetch(BASE_URL + '/api/gcode-files/file?path=' + encodeURIComponent(file.path));
+      if (!res.ok) throw new Error('status ' + res.status);
+      var body = await res.json();
+      var v = readSettingsBlock(String(body && (body.content != null ? body.content : body.Content) || ''));
+      if (!v) { status.textContent = file.name + ' has no Gears settings (it was made before Load, or not by Gears).'; return; }
+      applySettings(v);
+      closeLoadPanel();
+      ROOT.querySelectorAll('.gr-load-status').forEach(function (el) { el.textContent = 'Loaded ' + file.name; });
+      setTimeout(function () { ROOT.querySelectorAll('.gr-load-status').forEach(function (el) { el.textContent = ''; }); }, 6000);
+    } catch (err) {
+      status.textContent = 'Could not read ' + file.name + ': ' + err.message;
+    }
+  }
+  // The form from saved settings (a program's block), as on opening; the
+  // Save to File Manager switch stays as it is.
+  function applySettings(v) {
+    var keep = ROOT.querySelector('.gr-save-files').checked;
+    initialConfig = { v: Object.assign({}, v, { saveFiles: keep }) };
+    state.autoPick = false;
+    state.cutTool = null;
+    ROOT.querySelectorAll('[data-touched]').forEach(function (el) { delete el.dataset.touched; });
+    restore();
+    boreExtras(false);
+    showBitTool();
+    fitLabelSelects();
+    ROOT.querySelectorAll('.gr-tab-field').forEach(function (f) { f.style.visibility = $('gr-tabs-on').checked ? '' : 'hidden'; });
+    showView(v.view && v.view !== 'help' ? v.view : 'pair');
+    touch();
+    save(true);
+  }
+
   // ---------- Saved settings ----------
   var saveTimer = null;
   function save(now) {
     clearTimeout(saveTimer);
     var go = function () {
+      fetch(BASE_URL + '/api/plugins/' + PLUGIN + '/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: collect() }) }).catch(function () {});
+    };
+    if (now) go(); else saveTimer = setTimeout(go, 800);
+  }
+  // Every setting as saved: also what a program's settings block holds.
+  function collect() {
       var v = {};
       // A field as written keeps the exact value it was written from.
       Object.keys(FIELDS).forEach(function (id) { var w = state.written[id], x = w && w.text === $(id).value ? w.v : read(id); if (x != null && !isNaN(x)) v[id] = x; });
       ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by'].forEach(function (id) { v[id] = $(id).value; });
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
       v.module = moduleFromSize(); v.nested = true; v.gapSpace = true; v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
-      fetch(BASE_URL + '/api/plugins/' + PLUGIN + '/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: v }) }).catch(function () {});
-    };
-    if (now) go(); else saveTimer = setTimeout(go, 800);
+      v.saveFiles = $('gr-gen-pair').parentNode.querySelector('.gr-save-files').checked;
+      return v;
   }
   function restore() {
     var v = (initialConfig && initialConfig.v) || null;
@@ -2623,6 +2921,7 @@ if (typeof module !== 'undefined' && module.exports) {
       state.feedsAuto = !!v.feedsAuto;
     }
     if (v && v.view && v.view !== 'help') showView(v.view);
+    ROOT.querySelectorAll('.gr-save-files').forEach(function (b) { b.checked = !!(v && v.saveFiles); });
   }
 
   // Across the Flat for a D bore, Key Width and Depth for a keyed one;
@@ -2894,6 +3193,11 @@ if (typeof module !== 'undefined' && module.exports) {
       $('gr-bit-label').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadedBit(); } });
     }
     $('gr-gen-pair').addEventListener('click', function () { generate('pair'); });
+    ROOT.querySelectorAll('.gr-load-link').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); openLoadPanel(); }); });
+    ROOT.querySelectorAll('.gr-save-files').forEach(function (b) {
+      b.addEventListener('change', function () { ROOT.querySelectorAll('.gr-save-files').forEach(function (o) { o.checked = b.checked; }); save(true); });
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && loadPanel) { e.stopPropagation(); closeLoadPanel(); } }, true);
     $('gr-gen-frame').addEventListener('click', function () { generate('frame'); });
   }
 
