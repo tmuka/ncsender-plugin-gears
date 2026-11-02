@@ -96,6 +96,11 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
   size). Picking a tool, or taking the loaded one, sets **Flutes** from its name or notes
   (O flute, 0flute, single flute, 2 flute, 3FL...), or to 2 when they don't say.
 - **Start from the Center Distance:** type where the axles go, then the ratio (or Gear A's outside diameter), and pick one of the pairs that mesh there, coarse to fine: tooth counts, tooth size and pressure angle worked out for the bit you're cutting with. A tap fills in the Teeth card, where it can still be changed.
+- **Add a Gear to This Set:** the same card keeps your pair's tooth size and pressure angle, so a new gear meshes with
+  the ones you've cut. Pick the gear you have and type where the new axle goes; it lists the nearest distances whole
+  teeth allow, and cuts just the new gear.
+- **Load and Save to File Manager:** every program carries the settings it was made with. Turn on Save to File
+  Manager and each one is kept in File Manager's Gears folder; **Load** fills the form back in from any of them.
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
   the machine's max feed and spindle range.

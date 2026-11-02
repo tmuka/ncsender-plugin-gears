@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### ✨ New
+- **Add a Gear to This Set** (the Center Distance card's title menu): a new gear that meshes with one you've cut.
+  The tooth size and pressure angle are kept; pick the gear you have and type where the new axle goes, and it
+  lists the nearest distances whole teeth allow. The new gear becomes Gear B and Cut is set to it alone.
+- **Load** and **Save to File Manager**, as in QuickCut: every program ends with the settings it was made with;
+  with the switch on it's also saved in File Manager › Gears (never over an older one), and Load fills the form
+  from any of them. The program's header names a whole Diametral Pitch beside the module.
+
+### 🔧 Changed
+- **Gap Between** is the whole space between the gears where they come closest: at least the bit's diameter
+  and a tenth, which is what blank gives. A gap you had saved carries over as the same space.
+
 ## 0.3.1: Small bores in big-toothed gears
 
 ### 🐛 Fixes

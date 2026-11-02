@@ -104,6 +104,7 @@
     background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2393a2b4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 1px center / 9px 6px;
     font-family: inherit; font-size: 0.78rem; font-weight: 600; color: var(--color-text-secondary); letter-spacing: 0.02em;
   }
+  .gr-card-title .gr-label-select { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); letter-spacing: 0; background-position: right 1px center; }
   .gr-label-select option { background: var(--color-surface); color: var(--color-text-primary); font-size: 0.9rem; }
   .gr-error { color: #ff6b6b; font-size: 0.78rem; font-weight: 500; line-height: 1.3; }
   .gr-hint { font-size: 0.82rem; color: var(--color-text-secondary); }
@@ -369,10 +370,13 @@
         </div>
 
         <div class="gr-card gr-not-special" id="gr-design-card">
-          <div class="gr-card-head"><h4 class="gr-card-title">Start from the Center Distance</h4></div>
+          <div class="gr-card-head"><h4 class="gr-card-title"><select class="gr-label-select" id="gr-design-mode" aria-label="Design" title="Start from the Center Distance: a new pair, its teeth and tooth size picked for where the axles go. Add a Gear to This Set: keep this pair&rsquo;s tooth size and pressure angle, so a new gear meshes with the ones you cut; Load the pair&rsquo;s program first if you&rsquo;ve changed it since.">
+            <option value="new">Start from the Center Distance</option><option value="add">Add a Gear to This Set</option></select></h4></div>
           <div class="gr-row gr-row-4">
             <div class="gr-field"><label for="gr-cd">Center Distance</label><input class="gr-input" id="gr-cd" data-unit="length" placeholder="auto" title="Where the axles go: the distance between them. With the Ratio or Gear A&rsquo;s size, the pairs that mesh there are listed below to pick from. Blank: the gears&rsquo; own (the two pitch radii). Typed a little wider than their own, the gears are spread to it: more backlash, which the facts show. The frame&rsquo;s holes are drilled at it."></div>
-            <div class="gr-field">
+            <div class="gr-field" id="gr-design-with-field" hidden><label for="gr-design-with">Meshes With</label>
+              <select class="gr-select" id="gr-design-with" title="The gear you already have. The new gear becomes Gear B, and Cut is set to Gear B only."><option value="A">Gear A</option><option value="B">Gear B</option></select></div>
+            <div class="gr-field" id="gr-design-by-field">
               <select class="gr-label-select" id="gr-design-by" aria-label="Then" title="Ratio: how it should turn (turns of Gear B for one of Gear A: 3 for 3:1, 0.5 for 1:2). Gear A Outside &Oslash;: how big Gear A is, when it has to fit a space; Gear B follows from the distance.">
                 <option value="ratio">Ratio A:B</option><option value="size">Gear A Outside &Oslash;</option>
               </select>
@@ -532,6 +536,8 @@
           <li><b>Rack Teeth</b> on Gear B's menu makes it a straight rack, Gear A its pinion: the same teeth, on a bar <b>Rack Height</b> deep, with screw holes (Gear B's Bore and Holes fields) along it, cut from outside with tabs on its bottom edge. The preview rolls the pinion along it; the facts say how far the rack goes a turn and where to mount it from the pinion's axle. Frame Holes is for two gears.</li>
           <li>Gear B's label menu takes the <b>Ratio A:B</b> instead of its teeth (3 for 3:1): Gear B's teeth are worked out to the nearest whole tooth, with the real ratio shown.</li>
           <li><b>Start from the Center Distance</b>: type where the axles go, then the <b>Ratio</b> (how it should turn) or <b>Gear A Outside Ø</b> (how big Gear A is), and pick one of the pairs that mesh there: <b>Coarse</b> (fewest, biggest teeth: strongest, easiest to cut), <b>Balanced</b> or <b>Fine</b> (the most teeth the bit can cut: smoother). Each says its teeth, tooth size, pressure angle (20&deg;, or 25&deg; for a small gear when the bit allows), the ratio it really makes, the outside diameters and the biggest bit that cuts it. Typing in the card picks Balanced (or the kind you last tapped) straight away, filling in the Teeth card so the gears always mesh at that distance; tap another to change it. A blank Ratio is the one the teeth make now. Everything in the Teeth card can still be changed. A small gear&rsquo;s teeth may be undercut (thin at the root): the list says so; a longer distance gives it more teeth.</li>
+          <li><b>Add a Gear to This Set</b> (the same card&rsquo;s title menu): a new gear that meshes with one you&rsquo;ve cut. Gears mesh when they have the same tooth size and pressure angle; the center distance only follows from the teeth, so those two are kept from the Teeth card (Load the pair&rsquo;s program first if you&rsquo;ve changed them). Pick the gear you have in <b>Meshes With</b> and type where the new axle goes: only whole teeth fit, so it lists the nearest distances that work (each tooth moves it half a module) and picks the nearest. The new gear becomes Gear B (the one you have moves to Gear A with its bore and holes), and Cut is set to Gear B only.</li>
+          <li><b>Load</b> and <b>Save to File Manager</b> (beside Generate): with the switch on, each program is also saved in File Manager&rsquo;s Gears folder. Every program carries the settings it was made with, and Load fills the form from one, to cut a pair again or add a gear to it. The program&rsquo;s first lines also say its tooth size and pressure angle.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
@@ -2061,7 +2067,9 @@ if (typeof module !== 'undefined' && module.exports) {
   function settings() {
     var s = {}, errs = {};
     Object.keys(FIELDS).forEach(function (id) {
-      var f = FIELDS[id], v = read(id);
+      // A field as written keeps the exact value it was written from (a
+      // center distance worked out to the tooth, shown rounded).
+      var f = FIELDS[id], w = state.written[id], v = w && w.text === $(id).value ? w.v : read(id);
       s[id] = v;
       var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od)$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
@@ -2257,6 +2265,9 @@ if (typeof module !== 'undefined' && module.exports) {
   // always meshes at the distance; a tap picks another. The Teeth card can
   // still be changed by hand. A blank Ratio is the one the teeth make now.
   function showSolutions(s, errs) {
+    var adding = $('gr-design-mode').value === 'add';
+    $('gr-design-with-field').hidden = !adding; $('gr-design-by-field').hidden = adding;
+    if (adding) { showAddOptions(s, errs); return; }
     var byRatio = $('gr-design-by').value === 'ratio';
     $('gr-design-ratio').hidden = !byRatio; $('gr-design-od').hidden = byRatio;
     var box = $('gr-solutions');
@@ -2293,6 +2304,56 @@ if (typeof module !== 'undefined' && module.exports) {
         (o.undercut ? '; ' + small + '&rsquo;s teeth are undercut (thin at the root)' : '') + '</span></button>';
     }).join('') + '<span class="gr-hint">' + (r.options.length > 1 ? 'Coarse: fewer, bigger teeth (strongest, easiest to cut). Fine: more, smaller teeth (smoother). ' : '') + 'The one picked fills in the Teeth card below; tap another to change it.</span>';
     box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { state.designKind = r.options[i].kind; applySolution(r.options[i], s['gr-cd']); }); });
+  }
+  // Add a Gear to This Set: the tooth size and pressure angle kept, so the
+  // new gear meshes with the one you have. Only whole teeth fit, so only
+  // some distances: the nearest few to the one typed, to pick from.
+  var GEAR_FIELDS = ['teeth', 'bore', 'flat', 'keyw', 'keyd', 'holes', 'bore-shape', 'holes-style'];
+  function showAddOptions(s, errs) {
+    var box = $('gr-solutions'), u = ' ' + state.unit, m = moduleFromSize(), pa = Number($('gr-pa').value), mode = $('gr-size-mode').value;
+    if (isRack() || isRing()) { box.innerHTML = ''; state.autoPick = false; return; }
+    ['A', 'B'].forEach(function (k) { var o = $('gr-design-with').querySelector('option[value="' + k + '"]'), z = s['gr-teeth-' + k.toLowerCase()]; o.textContent = 'Gear ' + k + (z > 0 ? ' · ' + z + ' teeth' : ''); });
+    var kept = $('gr-design-with').value, zk = s['gr-teeth-' + kept.toLowerCase()];
+    var dp = 25.4 / m, size = SIZE_NAMES[mode] + ' ' + sizeText(m, mode) + (mode === 'cp' ? u : '') + (mode !== 'dp' && Math.abs(dp - Math.round(dp)) < 1e-6 ? ' (Diametral Pitch ' + Math.round(dp) + ')' : '');
+    var head = '<span class="gr-hint">Kept from the Teeth card: <b>' + size + ', ' + pa + '&deg;</b>, and Gear ' + kept + '&rsquo;s ' + (zk > 0 ? zk : '?') + ' teeth. Every option meshes with it.</span>';
+    if (!(m > 0) || errs['gr-size'] || !(zk >= 6) || errs['gr-teeth-' + kept.toLowerCase()]) { box.innerHTML = head; state.autoPick = false; return; }
+    var cd = s['gr-cd'];
+    if (!(cd > 0) || errs['gr-cd']) { box.innerHTML = head + '<span class="gr-hint">Type the Center Distance for the new gear&rsquo;s axle, from Gear ' + kept + '&rsquo;s: each tooth on the new gear moves it ' + show(m / 2) + u + '.</span>'; state.autoPick = false; return; }
+    var n0 = Math.round(2 * cd / m - zk), opts = [];
+    [n0 - 1, n0, n0 + 1].forEach(function (n) { if (n >= 6 && n <= 400) opts.push({ teeth: n, distance: m * (zk + n) / 2 }); });
+    if (!opts.length) { box.innerHTML = head + '<span class="gr-hint">Too close for a new gear of 6 teeth or more: at least ' + show(m * (zk + 6) / 2) + u + '.</span>'; state.autoPick = false; return; }
+    var best = opts.reduce(function (a, b) { return Math.abs(b.distance - cd) < Math.abs(a.distance - cd) ? b : a; });
+    var auto = state.autoPick;
+    state.autoPick = false;
+    var other = kept === 'A' ? 'b' : 'a';
+    if (auto && !(s['gr-teeth-' + other] === best.teeth && kept === 'A' && Math.abs(cd - best.distance) < 1e-6)) { applyAdd(best, kept); return; }
+    var undercutBelow = Math.floor(2 / Math.pow(Math.sin(pa * Math.PI / 180), 2));
+    var turn = function (q) { return q >= 1 ? parseFloat(q.toFixed(3)) + ':1' : '1:' + parseFloat((1 / q).toFixed(3)); };
+    box.innerHTML = head + opts.map(function (o) {
+      var picked = kept === 'A' && s['gr-teeth-b'] === o.teeth && Math.abs((s['gr-cd'] || 0) - o.distance) < 1e-6;
+      return '<button type="button" class="gr-solution' + (picked ? ' gr-picked' : '') + '">' +
+        '<span class="gr-solution-kind">' + show(o.distance) + u + '</span>' +
+        '<span><b>' + o.teeth + ' teeth</b> with Gear ' + kept + '&rsquo;s ' + zk + '</span>' +
+        '<span class="gr-solution-more">' + turn(zk / o.teeth) + ', &Oslash;' + show(m * (o.teeth + 2)) + u + ' outside' + (o.teeth < undercutBelow ? '; its teeth are undercut (thin at the root)' : '') + '</span></button>';
+    }).join('') + '<span class="gr-hint">The one picked becomes Gear B (' + (kept === 'B' ? 'Gear B&rsquo;s settings move to Gear A' : 'Gear A stays') + ') and Cut is set to Gear B only.</span>';
+    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { applyAdd(opts[i], kept); }); });
+  }
+  function applyAdd(o, kept) {
+    if ($('gr-b-mode').value === 'ratio') { $('gr-b-mode').value = 'teeth'; fitLabelSelects(); }
+    if (kept === 'B') {
+      // The gear you have becomes Gear A, with its bore and holes.
+      GEAR_FIELDS.forEach(function (f) {
+        var ia = 'gr-' + f + '-a', ib = 'gr-' + f + '-b', t = $(ia).value;
+        $(ia).value = $(ib).value; $(ib).value = t;
+        [state.written, state.filled].forEach(function (o) { var w = o[ia]; o[ia] = o[ib]; o[ib] = w; });
+      });
+      $('gr-design-with').value = 'A';
+      boreExtras(false);
+    }
+    write('gr-teeth-b', o.teeth);
+    write('gr-cd', o.distance);
+    $('gr-job').value = 'B';
+    touch();
   }
   function applySolution(o, cd) {
     if ($('gr-b-mode').value === 'ratio') { $('gr-b-mode').value = 'teeth'; fitLabelSelects(); }
@@ -2887,7 +2948,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var v = {};
       // A field as written keeps the exact value it was written from.
       Object.keys(FIELDS).forEach(function (id) { var w = state.written[id], x = w && w.text === $(id).value ? w.v : read(id); if (x != null && !isNaN(x)) v[id] = x; });
-      ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by'].forEach(function (id) { v[id] = $(id).value; });
+      ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode'].forEach(function (id) { v[id] = $(id).value; });
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
       v.module = moduleFromSize(); v.nested = true; v.gapSpace = true; v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
       v.saveFiles = $('gr-gen-pair').parentNode.querySelector('.gr-save-files').checked;
@@ -2906,7 +2967,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var f = FIELDS[id], x = v && v[id] != null ? v[id] : (state.imperial && imperialDefaults[id] != null ? imperialDefaults[id] : f[4]);
       write(id, x);
     });
-    ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
+    ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
     ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { if (v && v[id] != null) $(id).checked = !!v[id]; });
     if (!v) {
       // First open: MDF feeds for the bit, and the smallest friendly teeth it can cut.
@@ -3176,7 +3237,8 @@ if (typeof module !== 'undefined' && module.exports) {
         if (m > 0) writeSize(m); else if (state.size) state.size.mode = $('gr-size-mode').value;
       }
       if (id === 'gr-size') e.target.dataset.touched = '1';
-      if (id === 'gr-design-by') state.autoPick = true;
+      if (id === 'gr-design-by' || id === 'gr-design-mode') state.autoPick = id === 'gr-design-by' || $('gr-design-mode').value === 'new';
+      if (id === 'gr-design-mode') fitLabelSelects();
       if (e.target.classList.contains('gr-label-select')) fitLabelSelects();
       if (/^gr-bore-(shape-)?[ab]$|^gr-holes-(style-)?[ab]$/.test(id)) boreExtras(/^gr-bore-/.test(id));
       if (id === 'gr-b-mode' && $('gr-b-mode').value === 'ratio' && read('gr-teeth-a') > 0 && read('gr-teeth-b') > 0) write('gr-ratio', parseFloat((read('gr-teeth-a') / read('gr-teeth-b')).toFixed(4)));
