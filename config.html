@@ -611,7 +611,7 @@
           <li>Gear B's label menu takes the <b>Ratio A:B</b> instead of its teeth (3 for 3:1): Gear B's teeth are worked out to the nearest whole tooth, with the real ratio shown.</li>
           <li><b>Start from the Center Distance</b>: type where the axles go, then the <b>Ratio</b> (how it should turn) or <b>Gear A Outside Ø</b> (how big Gear A is), and pick one of the pairs that mesh there: <b>Coarse</b> (fewest, biggest teeth: strongest, easiest to cut), <b>Balanced</b> or <b>Fine</b> (the most teeth the bit can cut: smoother). Each says its teeth, tooth size, pressure angle (20&deg;, or 25&deg; for a small gear when the bit allows), the ratio it really makes, the outside diameters and the biggest bit that cuts it. Typing in the card picks Balanced (or the kind you last tapped) straight away, filling in the Teeth card so the gears always mesh at that distance; tap another to change it. A blank Ratio is the one the teeth make now. Everything in the Teeth card can still be changed. A small gear&rsquo;s teeth may be undercut (thin at the root): the list says so; a longer distance gives it more teeth.</li>
           <li><b>Add a Gear to This Set</b> (the same card&rsquo;s title menu): a new gear that meshes with one you&rsquo;ve cut. Gears mesh when they have the same tooth size and pressure angle; the center distance only follows from the teeth, so those two are kept from the Teeth card (Load the pair&rsquo;s program first if you&rsquo;ve changed them). Pick the gear you have in <b>Meshes With</b> and type where the new axle goes: only whole teeth fit, so it lists the nearest distances that work (each tooth moves it half a module) and picks the nearest. The new gear becomes Gear B (the one you have moves to Gear A with its bore and holes), and Cut is set to Gear B only.</li>
-          <li><b>Load</b> and <b>Save to File Manager</b> (beside Generate): with the switch on, each program is also saved in File Manager&rsquo;s Gears folder. Every program carries the settings it was made with, and Load fills the form from one, to cut a pair again or add a gear to it. The program&rsquo;s first lines also say its tooth size and pressure angle. In the same panel, <b>Save as a Set</b> keeps the settings you have under a name, without a program; tap a set to load it, or its bin to delete it (with Undo).</li>
+          <li><b>Load</b> and <b>Save to File Manager</b> (beside Generate): with the switch on, each program is also saved in File Manager&rsquo;s Gears folder. Every program carries the settings it was made with, and Load fills the form from one, to cut a pair again or add a gear to it. The program&rsquo;s first lines also say its tooth size and pressure angle. In the same panel, <b>Save as a Set</b> keeps the settings you have under a name (the program&rsquo;s name to start with, selected so typing replaces it), without a program; tap a set to load it, or its bin to delete it (with Undo).</li>
           <li><b>Drag the preview</b>: the dot at Gear B&rsquo;s center sets the <b>Center Distance</b>, the dot on top of Gear A its outside diameter (Start from the Center Distance). The value shows as you drag; the pairs are worked out when you let go, as if you&rsquo;d typed it (in Add a Gear to This Set, the nearest distance whole teeth allow is picked). A tap on a dot goes to its field. Not for a rack or a ring.</li>
           <li><b>Gear Train</b> (its own tab): pairs in a row for more ratio than one pair makes, each stage&rsquo;s driven gear on one axle with the next stage&rsquo;s driver (glue or pin them together, or fix both to the shaft). Type the <b>Ratio</b> (turns of axle 1 for one turn of the last: 60 for 60:1) and it lists the trains that make it within <b>Fewest</b> and <b>Most Teeth</b>: the fewest stages first, more only when they make the biggest gear smaller (or, when no train makes it exactly, come at least twice as near); exactly when whole teeth allow, else within 0.5%. Every stage turns the way the whole train does: no speed-up inside a reduction. Or type the stages yourself, and <b>Add a Stage</b> or remove one. Every gear is bored to the <b>Axle Ø</b>; the bigger gear of each stage gets <b>Wheel Spokes</b>. The preview turns the train and warns when a gear reaches another axle&rsquo;s shaft (the frame&rsquo;s holes aren&rsquo;t drilled for such a train; the gears can still be cut). <b>Cut</b> all the gears in one program (packed in rows, biggest first, Gap Between apart), one stage&rsquo;s two gears nested, one gear, or the frame&rsquo;s axle holes in a line (with the Frame Holes tab&rsquo;s depths). The tooth size, pressure angle, bit, feeds, depth, tabs and X0 Y0 are the Gear Pair tab&rsquo;s.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
@@ -3341,6 +3341,29 @@ if (typeof module !== 'undefined' && module.exports) {
     return min;
   }
 
+  // The program's name, as Generate gives it (and Save as a Set offers):
+  // what's cut, the tooth size and the pressure angle.
+  function programName(view, o, job, stages) {
+    var mode = $('gr-size-mode').value, size = { module: 'M', dp: 'DP', cp: 'CP' }[mode] + sizeText(o.module, mode), tj = view === 'train' && /^s(\d+)-(\w+)$/.exec(job);
+    var chain = function () { return stages.map(function (st) { return st.driver + '-' + st.driven; }).join('_'); };
+    return view === 'train' ? (job === 'all' ? 'Gears-Train-All_' + chain() + 'T_' + size + '_' + o.pressureDeg + 'deg'
+        : job === 'frame' ? 'Gears-TrainFrame_' + chain() + '_' + size
+        : 'Gears-Train-S' + (+tj[1] + 1) + '_' + (tj[2] === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears.A.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg')
+      : view === 'frame' ? 'Gears-FrameHoles_' + o.gears.A.teeth + '-' + o.gears.B.teeth + '_' + size
+      : o.gears.B.kind === 'ring' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Ring' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Ring' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
+      : o.gears.B.kind === 'rack' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Rack' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Rack' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
+      : 'Gears-' + (o.job === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears[o.job].teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg';
+  }
+  // The name for the settings as they are now, on the tab shown; '' when
+  // the fields can't make one.
+  function currentName() {
+    try {
+      var view = state.view === 'help' ? lastView : state.view, s = settings().s, n;
+      if (view === 'train') { var st = readStages().stages, job = $('gt-job').value || 's0-both'; n = programName('train', trainOpts(s, st, job), job, st); }
+      else n = programName(view, opts(s, view === 'frame' ? 'frame' : $('gr-job').value));
+      return /NaN|undefined|null/.test(n) ? '' : n;
+    } catch (e) { return ''; }
+  }
   // ---------- Generate ----------
   async function generate(view) {
     var had = bitToolNumber(), t0 = state.cutTool;
@@ -3363,14 +3386,7 @@ if (typeof module !== 'undefined' && module.exports) {
     }
     if (p.res.problems.length) { alert(p.res.problems.join('\n')); return; }
     var o = view === 'train' ? p.o : opts(settings().s, view === 'frame' ? 'frame' : $('gr-job').value);
-    var mode = $('gr-size-mode').value, size = { module: 'M', dp: 'DP', cp: 'CP' }[mode] + sizeText(o.module, mode), tj = view === 'train' && /^s(\d+)-(\w+)$/.exec(p.job);
-    var name = view === 'train' ? (p.job === 'all' ? 'Gears-Train-All_' + p.stages.map(function (st) { return st.driver + '-' + st.driven; }).join('_') + 'T_' + size + '_' + o.pressureDeg + 'deg'
-        : p.job === 'frame' ? 'Gears-TrainFrame_' + p.stages.map(function (st) { return st.driver + '-' + st.driven; }).join('_') + '_' + size
-        : 'Gears-Train-S' + (+tj[1] + 1) + '_' + (tj[2] === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears.A.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg')
-      : view === 'frame' ? 'Gears-FrameHoles_' + o.gears.A.teeth + '-' + o.gears.B.teeth + '_' + size
-      : o.gears.B.kind === 'ring' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Ring' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Ring' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
-      : o.gears.B.kind === 'rack' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Rack' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Rack' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
-      : 'Gears-' + (o.job === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears[o.job].teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg';
+    var name = programName(view, o, p.job, p.stages);
     var btn = $('gr-gen-' + view), label = btn.textContent;
     btn.disabled = true; btn.textContent = 'Generating…';
     var filename = name.replace(/[^\w.-]+/g, '_') + '.nc', gcode = p.res.gcode + settingsBlock(collect());
@@ -3501,6 +3517,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var SET_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
     var DEL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
     var nameBox = panel.querySelector('.gr-set-name'), loaded = false;
+    nameBox.value = currentName();
     // Save as a Set: the settings as they are, under a name; the same name
     // again replaces it.
     var saveSet = function () {
@@ -3509,12 +3526,12 @@ if (typeof module !== 'undefined' && module.exports) {
       var had = state.sets.some(function (x) { return x.name.toLowerCase() === name.toLowerCase(); });
       state.sets = [{ name: name, when: new Date().toISOString(), v: collect() }].concat(state.sets.filter(function (x) { return x.name.toLowerCase() !== name.toLowerCase(); }));
       save(true);
-      nameBox.value = '';
       render();
       status.textContent = (had ? 'Replaced the set “' : 'Saved the set “') + name + '”.';
     };
     panel.querySelector('.gr-set-save-btn').addEventListener('click', saveSet);
     nameBox.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); saveSet(); } });
+    nameBox.addEventListener('focus', function () { nameBox.select(); });
     function fileSize(bytes) {
       if (!(bytes > 0)) return bytes === 0 ? '0 B' : '';
       var i = Math.min(3, Math.floor(Math.log(bytes) / Math.log(1024)));

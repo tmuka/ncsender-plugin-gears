@@ -10,7 +10,7 @@
   axle holes.
 - **Drag the preview:** Gear B's center sets the Center Distance, the top of Gear A its outside diameter. A tap
   goes to the field. Two gears only.
-- **Named sets** in the Load panel: save the settings you have under a name, load or delete them (with Undo),
+- **Named sets** in the Load panel: save the settings you have under a name (the program's name to start with), load or delete them (with Undo),
   no program needed. Kept in the plugin's settings.
 - **The fine print** in Help and the README: you run the machine, check each program first, no warranty or
   liability (GPL-3.0), not an official ncSender plugin.
