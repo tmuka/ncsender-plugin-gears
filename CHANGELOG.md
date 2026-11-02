@@ -1,22 +1,26 @@
 # Changelog
 
-## Unreleased
+## 0.4.0: Gear trains
 
-- **Gear Train** tab: pairs in a row, each driven gear on one axle with the next stage's driver. Type a ratio and
-  it finds the smallest trains that make it (exactly when whole teeth allow, else within 0.5%), within a range of
-  teeth, every stage turning the same way; or type the stages. Every gear gets the Axle Ø bore, each stage's bigger gear Wheel Spokes. The preview
-  turns the train and warns when a gear reaches another axle's shaft (the frame isn't drilled for such a train).
-  Cut all the gears in one program (packed in rows, biggest first), a stage's pair, one gear, or the frame's
-  axle holes.
+### ✨ New
+- **Gear Train** tab: pairs in a row, each driven gear on one axle with the next stage's driver, for more ratio
+  than one pair makes (60:1 for a clock). Type a ratio and it finds the smallest trains that make it (exactly
+  when whole teeth allow, else within 0.5%), within a range of teeth, every stage turning the same way; or type
+  the stages. Every gear gets the Axle Ø bore, each stage's bigger gear Wheel Spokes. The preview turns the
+  train and warns when a gear reaches another axle's shaft (the frame isn't drilled for such a train). Cut all
+  the gears in one program (packed in rows, biggest first), a stage's pair, one gear, or the frame's axle holes.
 - **Drag the preview:** Gear B's center sets the Center Distance, the top of Gear A its outside diameter. A tap
   goes to the field. Two gears only.
-- **Holes and Windows: Cut Out** (the new default): lightening holes and spoke windows are cut round their
-  edge with two tabs holding the piece, instead of cleared out: a clock train with spoked wheels went from
-  56 minutes to 20. **Clear Out** is the old way. Bores are still cleared.
-- **Named sets** in the Load panel: save the settings you have under a name (the program's name to start with), load or delete them (with Undo),
-  no program needed. Kept in the plugin's settings.
+- **Named sets** in the Load panel: save the settings you have under a name (the program's name to start with),
+  load or delete them (with Undo), no program needed. Kept in the plugin's settings.
 - **The fine print** in Help and the README: you run the machine, check each program first, no warranty or
   liability (GPL-3.0), not an official ncSender plugin.
+
+### 🔧 Changed
+- **Holes and Windows: Cut Out** is the new default: lightening holes and spoke windows are cut round their
+  edge with two tabs holding the piece, instead of cleared out. A clock train with spoked wheels went from
+  56 minutes to 20. **Clear Out** is the old way. Bores are still cleared.
+- Tab heights in a program's comments are rounded (an inch tab showed 1.5239999999999998 mm).
 
 ## 0.3.2: Add a gear to your set
 
