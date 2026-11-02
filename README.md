@@ -67,8 +67,11 @@ one stage, one gear, or the frame's axle holes, and warns when a gear would reac
   **Key Depth** past the bore). Each sharp corner gets a small notch so a sharp-cornered shaft or key
   fits. And **Lightening Holes** in a ring between the hub and the teeth, or **Spokes**: straight
   spokes from the hub to the rim (**Spoke Width**, blank for automatic) with windows between them,
-  their corners rounded past the bit. Holes and windows are cleared out from the middle, so nothing
-  comes loose.
+  their corners rounded past the bit. **Holes and Windows:** **Cut Out** (the default) cuts round their edge
+  only, with two small tabs holding the piece inside to knock out after (on a clock train's spoked wheels, about
+  20 minutes instead of an hour); **Clear Out** cuts all the wood inside away from the middle, nothing to knock
+  out. Cut Out needs Holding Tabs on, and small holes are cleared anyway. Bores are always cleared from the
+  middle, so nothing comes loose.
 - **Cutting:** each gear's holes, then its teeth from outside a bit radius out; depth passes, each
   ramped down along the path at 5° or less (Z never faster than the Plunge Rate), and **Holding Tabs**
   on tooth tips, where they're easy to sand off. Conventional or Climb.

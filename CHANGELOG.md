@@ -10,6 +10,9 @@
   axle holes.
 - **Drag the preview:** Gear B's center sets the Center Distance, the top of Gear A its outside diameter. A tap
   goes to the field. Two gears only.
+- **Holes and Windows: Cut Out** (the new default): lightening holes and spoke windows are cut round their
+  edge with two tabs holding the piece, instead of cleared out: a clock train with spoked wheels went from
+  56 minutes to 20. **Clear Out** is the old way. Bores are still cleared.
 - **Named sets** in the Load panel: save the settings you have under a name (the program's name to start with), load or delete them (with Undo),
   no program needed. Kept in the plugin's settings.
 - **The fine print** in Help and the README: you run the machine, check each program first, no warranty or

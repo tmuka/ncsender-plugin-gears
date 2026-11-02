@@ -387,3 +387,40 @@ test('Gap Between: the whole gap, at least the bit and a tenth; blank is that le
   assert.ok(Math.abs(xB(null) - xB(3.175 * 1.1)) < 1e-9);
   assert.ok(xB(10) > xB(null) + 6);
 });
+
+test('Cut Out: windows and lightening holes cut round their edge a bit radius in, two tabs, the bore still cleared', () => {
+  const r = base.bitDiameter / 2;
+  for (const direction of ['conventional', 'climb']) for (const style of ['spokes', 'round']) {
+    const o = { ...base, direction, holeCut: 'out', gears: { A: { teeth: 48, bore: 8, holes: 5, holeStyle: style }, B: base.gears.B } };
+    const res = GC.generate(o);
+    assert.deepEqual(res.problems, []);
+    const g = G.gear({ ...o, teeth: 48, bitRadius: r });
+    const h = GC.gearHoles(o.gears.A, g, o, 'Gear A').holes.find((q) => q.slug);
+    const outline = h.shape === 'window' ? GC.windowLap(h.win, 0) : Array.from({ length: 360 }, (_, i) => ({ x: h.dx + h.diameter / 2 * Math.cos(i * Math.PI / 180), y: h.dy + h.diameter / 2 * Math.sin(i * Math.PI / 180) }));
+    const oc = outline.concat([outline[0]]);
+    const edge = (q) => Math.min(...oc.slice(1).map((b, i) => G.distToSegment(q, oc[i], b)));
+    const inside = (q) => { let c = false; for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) { const a = outline[i], b = outline[j]; if ((a.y > q.y) !== (b.y > q.y) && q.x < (b.x - a.x) * (q.y - a.y) / (b.y - a.y) + a.x) c = !c; } return c; };
+    const label = h.shape === 'window' ? /window 1:/ : /lightening hole 1:/;
+    const lines = res.gcode.split('\n'), i0 = lines.findIndex((l) => label.test(l));
+    assert.match(lines[i0 + 1], /Cut out round its edge, 2 tabs/);
+    // That hole's own lines: from its comment to the next one after the Cut Out note, from where it starts.
+    const end = lines.findIndex((l, i) => i > i0 + 1 && /^\(/.test(l));
+    const pre = lines.slice(0, i0).filter((l) => /^G[0-3]\b/.test(l) && !/G53/.test(l)).pop() || '';
+    const mv = run([pre].concat(lines.slice(i0 + 2, end)).join('\n')).slice(1).filter((m) => m.g >= 1 && m.z < 0);
+    assert.ok(mv.length > 50, `${direction} ${style}: ${mv.length} moves`);
+    // Exactly a bit radius in from the edge: never into the spokes or rim, nothing inside cleared.
+    for (const m of mv) assert.ok(inside(m) && Math.abs(edge(m) - r) < 0.02, `${direction} ${style}: ${m.line} is ${edge(m).toFixed(3)} from the edge`);
+    // Two tabs: on the last passes the cut rises to the tab top twice a lap.
+    const levels = GC.depthLevels(o.depth, o.depthOfCut, o.depth - o.tabs.height).filter((d) => d > o.depth - o.tabs.height + 1e-9).length;
+    assert.equal(mv.filter((m) => /; Tab/.test(m.raw)).length, 2 * levels, `${direction} ${style}: two tabs on each pass below their top`);
+    assert.ok(Math.min(...mv.map((m) => m.z)) >= -o.depth - 1e-6);
+    // The bore is still cleared from the middle.
+    assert.ok(lines.some((l) => /Gear A bore/.test(l)));
+  }
+  // Without Holding Tabs nothing would hold the piece: cleared as before.
+  const noTabs = GC.generate({ ...base, tabs: null, holeCut: 'out', gears: { A: { teeth: 48, bore: 8, holes: 5, holeStyle: 'spokes' }, B: base.gears.B } });
+  assert.ok(!/Cut out round its edge/.test(noTabs.gcode));
+  // And 'clear' (or none given) is the old way, unchanged.
+  const a = GC.generate({ ...base, holeCut: 'clear' }), b = GC.generate(base);
+  assert.equal(a.gcode, b.gcode);
+});
