@@ -107,6 +107,17 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
 - **Units:** follows ncSender's (mm or inches); module is in mm either way. Programs are written in mm,
   and an inch machine gets G20 back at the end.
 
+## The fine print
+
+- **You're the machinist.** Gears writes programs; you decide whether to run them. Check each one first: the preview, then ncSender's visualizer, with the bit, the Total Depth and Z0 you'll really use. Air-cut the first program on a new setup.
+- **Safety is yours.** Clamp the work well, wear eye and hearing protection, keep a hand near the E-stop, and stay with a running machine.
+- **No warranty.** Gears is free software under the GPL-3.0, provided as is, without any warranty that it works or suits your purpose. It surely still has bugs.
+- **No liability.** The author and contributors aren't responsible for any damage, loss or injury from using it: to your machine, bits, stock, shop or you.
+- **Not official.** It's an independent plugin, not made, endorsed or supported by ncSender's developer or your machine's maker.
+- **Not for anything that must not fail.** Gears cut from wood or plastic aren't rated for any load. Don't use them where a broken tooth could hurt someone: lifts, brakes, guards or anything holding weight overhead.
+
+Using Gears means you accept all of the above. Now go make something, carefully.
+
 ## Install
 
 From ncSender's Plugin Manager, or download the zip from

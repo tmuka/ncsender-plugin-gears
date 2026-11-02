@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **The fine print** in Help and the README: you run the machine, check each program first, no warranty or
+  liability (GPL-3.0), not an official ncSender plugin.
+
 ## 0.3.2: Add a gear to your set
 
 ### ✨ New
