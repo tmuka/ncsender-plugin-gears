@@ -169,6 +169,11 @@ test('review fixes: no gouge with Gear B, front-left, or wide tabs; tabs on tips
   // A bore too big for the gear, and tabs covering too much, are refused.
   assert.match(GC.generate({ ...base, module: 4, gears: { A: { teeth: 12, bore: 60, holes: 0 }, B: base.gears.B } }).problems.join(), /Bore is too big/);
   assert.match(GC.generate({ ...base, tabs: { count: 12, width: 50, height: 1.5 } }).problems.join(), /tabs would cover/);
+  // A 6 mm D shaft in a coarse 6-tooth pinion (module 8.47) fits: a module of material under its teeth.
+  const pinion = { ...base, job: 'both', module: 8.466666666666665, pressureDeg: 25, clearance: null, centerDistance: null,
+    gears: { A: { teeth: 12, bore: 0, holes: 0 }, B: { teeth: 6, bore: 6, boreShape: 'dflat', flat: 5.461, holes: 0 } } };
+  assert.deepEqual(GC.generate(pinion).problems, []);
+  assert.match(GC.generate({ ...pinion, gears: { ...pinion.gears, B: { teeth: 6, bore: 20, holes: 0 } } }).problems.join(), /needs 8\.5 mm of material/);
   // A Tip Clearance under what the bit's rounding needs is refused; blank picks it.
   assert.match(G.gear({ module: 4, teeth: 30, pressureDeg: 20, backlash: 0.3, clearance: 0.1, bitRadius: 1.5875 }).problem, /Tip Clearance must be at least/);
   const auto = G.gear({ module: 3.4, teeth: 30, pressureDeg: 20, backlash: 0.3, bitRadius: 1.5875 });

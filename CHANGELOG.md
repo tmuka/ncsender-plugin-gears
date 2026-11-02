@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### 🐛 Fixes
+- A small bore in a gear with big teeth is no longer refused: a 6 mm D shaft in a 6-tooth pinion of
+  module 8.5 was asked for 12.7 mm of material under the teeth (a spoked rim's 1.5 modules). A solid gear
+  now needs one module, or the bit's width, and the message says how much the bore leaves.
+
 ## 0.3.0
 
 **Start from where the axles go, cut a rack or a ring gear, and use less stock.** A pair from this release
