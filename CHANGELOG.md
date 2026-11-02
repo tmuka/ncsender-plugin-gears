@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Folded gear trains:** drag an axle round the one before it in the Gear Train picture (or type its Angle);
+  **Fold Compact** finds the smallest fold with no gear reaching another axle's shaft, **Straighten** undoes it.
+  Frame Holes drills the axles where the picture shows them.
+- **Same center:** **Last Axle on the First** finds two stages that bring the last axle back onto the first, as a
+  clock's hour wheel on the minute hand's shaft (12:1 is 8:32 then 10:30); one frame hole for both.
+- **Presets** in Find a Train: a clock's seconds to minutes (60:1), its minutes to hours (12:1, same center), a
+  slow crank (10:1), a spinner (1:5), each saying what its axles do.
+- **Help:** "Gear trains, plainly" (stages, compound gears, folding, same center, which way they turn) and "What
+  to make with them" (clocks, replacement gears and how to measure one, indexing wheels, jigs, turntables...).
 - **Diagrams that follow the settings:**
   - The Cut cards (Gear Pair and Gear Train) show the stock from above, drawn from the program itself: every
     cut through at Total Depth, the bit's width, the holding tabs as orange dots, X0 Y0 and the stock's size.

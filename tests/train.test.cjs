@@ -66,7 +66,7 @@ test('a train fast enough to type into on the Pi', () => {
 
 test('the layout: axles a center distance apart, and a gear reaching another axle’s shaft found', () => {
   const L = G.trainLayout({ module: 2 }, [{ driver: 8, driven: 60 }, { driver: 8, driven: 64 }], 8, 0.5);
-  assert.deepStrictEqual(L.axles, [0, 68, 140]);
+  assert.deepStrictEqual(L.axles, [{ x: 0, y: 0 }, { x: 68, y: 0 }, { x: 140, y: 0 }]);
   assert.equal(L.ratio, 60);
   assert.equal(L.hits.length, 0);
   assert.equal(L.gears.length, 4);
@@ -82,7 +82,7 @@ test('a train’s frame: a hole at every axle, safe', () => {
   const r = GC.generate(o);
   assert.deepStrictEqual(r.problems, []);
   assert.deepStrictEqual(r.holes.map((h) => h.x), [0, 136, 280]);
-  assert.match(r.gcode, /\(Gear train: 3 axles at X 0.000, 136.000, 280.000 mm\)/);
+  assert.match(r.gcode, /\(Gear train: 3 axles at X Y 0.000 0.000, 136.000 0.000, 280.000 0.000 mm\)/);
   const zs = r.gcode.split('\n').map((l) => /Z(-?[\d.]+)/.exec(l)).filter(Boolean).map((m) => +m[1]);
   assert.ok(Math.min(...zs) >= -19 - 1e-6);
   assert.ok(GC.generate({ ...o, axles: [{ x: 0, diameter: 2 }, { x: 68, diameter: 8 }] }).problems.length);
@@ -112,4 +112,42 @@ test('a whole train in one program: every gear, packed apart, safe', () => {
   // Rows no wider than the stock.
   const packed = GC.packRows([1, 2, 3, 4, 5].map((k) => ({ key: k, ra: 10 })), 4, 60);
   assert.ok(Math.max(...packed.map((q) => q.x + 10)) - Math.min(...packed.map((q) => q.x - 10)) <= 60 + 1e-9);
+});
+
+test('a folded train: axles at their angles, shaft hits in two dimensions, the fold that fits smallest', () => {
+  const st = [{ driver: 8, driven: 30, angle: 0 }, { driver: 8, driven: 32, angle: 90 }, { driver: 8, driven: 32, angle: 0 }];
+  const L = G.trainLayout({ module: 2 }, st, 8, 0.5);
+  assert.deepStrictEqual(L.axles.map((a) => [Math.round(a.x), Math.round(a.y)]), [[0, 0], [38, 0], [38, 40], [78, 40]]);
+  // A 30-tooth wheel's tips (32 mm out) at axle 2 clear axle 4's shaft, 56.6 mm away; folded tighter, they don't.
+  assert.equal(L.hits.length, 0);
+  // Folded straight back, axle 3 lands 2 mm from axle 1: the 32-tooth wheel there reaches axle 1's shaft.
+  const tight = G.trainLayout({ module: 2 }, st.map((s, i) => ({ ...s, angle: i === 1 ? 180 : s.angle })), 8, 0.5);
+  assert.ok(tight.hits.length > 0);
+  // The fold found has no hits and is no bigger than the straight line.
+  const flat = st.map((s) => ({ ...s, angle: 0 })), f = G.foldTrain({ module: 2 }, flat, 8, 0.5);
+  const area = (T) => (T.box.x1 - T.box.x0) * (T.box.y1 - T.box.y0);
+  const folded = G.trainLayout({ module: 2 }, flat.map((s, i) => ({ ...s, angle: f[i] })), 8, 0.5);
+  assert.equal(folded.hits.length, 0);
+  assert.ok(area(folded) <= area(G.trainLayout({ module: 2 }, flat, 8, 0.5)) + 1e-6);
+  // When no fold can help (a stage shorter than the wheel before it is wide), none is offered.
+  assert.equal(G.foldTrain({ module: 2 }, flat.concat([{ driver: 8, driven: 20 }]), 8, 0.5), null);
+});
+
+test('same center: two stages that bring the last axle back onto the first, one frame hole for both', () => {
+  const r = G.solveTrain({ ratio: 12, minTeeth: 8, maxTeeth: 64, sameCenter: true }).options[0];
+  const [a, b] = r.stages;
+  assert.equal(r.error, 0);
+  assert.equal(a.driver + a.driven, b.driver + b.driven);
+  assert.equal(a.driven * b.driven / (a.driver * b.driver), 12);
+  const L = G.trainLayout({ module: 2 }, r.stages, 8, 0.5);
+  assert.deepStrictEqual(L.concentric, [[0, 2]]);
+  assert.equal(L.hits.length, 0);
+  const o = { job: 'frame', module: 4, pressureDeg: 20, backlash: 0.3, bitDiameter: 3.175, feedRate: 1000, plungeFeedRate: 300, spindleRpm: 18000,
+    depth: 19, depthOfCut: 3, tabs: null, gears: { A: { teeth: a.driver, bore: 8 }, B: { teeth: a.driven, bore: 8 } }, origin: 'center',
+    axles: G.trainLayout({ module: 4 }, r.stages, 0, 0).axles.map((q) => ({ ...q, diameter: 8 })) };
+  const g = GC.generate(o);
+  assert.deepStrictEqual(g.problems, []);
+  assert.equal(g.holes.length, 2);
+  assert.match(g.holes[0].label, /Axle hole 1 and 3/);
+  assert.ok(G.solveTrain({ ratio: 12, minTeeth: 8, maxTeeth: 12, sameCenter: true }).problem);
 });

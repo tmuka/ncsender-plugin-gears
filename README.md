@@ -45,6 +45,18 @@ one stage, one gear, or the frame's axle holes, and warns when a gear would reac
 
 ![The Gear Train tab: 60:1 as 8:60 then 8:64, with a 3-stage option](docs/train.png)
 
+Drag the axles in the picture to fold the train into a compact frame, or press **Fold Compact**; the frame's
+holes follow. Not sure what you need? **Start from a Preset**: a clock's seconds to minutes (60:1), its minutes
+to hours (12:1, with the hour wheel coming back onto the minute hand's shaft, as on a real dial), a slow crank,
+or a spinner. Help explains the ideas plainly.
+
+## What to make
+
+Wooden clocks and automata; replacement gears for a toy, a blind or a mixer (count the teeth and measure across
+the tips: module = diameter in mm ÷ (teeth + 2)); indexing wheels for dividing a circle on the lathe or drill
+press; fine adjusters and camera sliders (rack and pinion); turntables and displays; planetary demonstrators;
+marble machines and kinetic art. Not for anything that could hurt someone if a tooth broke: see the fine print.
+
 ## Everything it does
 
 - **A gear pair** that meshes: teeth for Gear A and Gear B, one tooth size (**Module**, **Diametral
@@ -123,7 +135,9 @@ one stage, one gear, or the frame's axle holes, and warns when a gear would reac
   every stage turning the same way), with every gear bored for one **Axle Ø** and **Wheel Spokes** in each
   stage's bigger gear. The preview turns the whole train; the facts give the ratio, where each axle goes and the
   biggest gear, and it warns when a gear reaches another axle's shaft (the frame isn't drilled for such a
-  train). Cut all the gears in one program (packed in rows, biggest first), a stage's two gears nested, one
+  train). Fold it by dragging the axles, typing each stage's angle, or **Fold Compact** (the smallest fold with no
+  shaft hit); **Last Axle on the First** finds two stages whose last axle lands back on the first (same center,
+  one frame hole); **Presets** for clocks, a slow crank and a spinner. Cut all the gears in one program (packed in rows, biggest first), a stage's two gears nested, one
   gear, or the frame's axle holes in a line. Tooth size, bit, feeds and depth are the Gear Pair tab's.
 - **Diagrams that follow the settings:** the Cut card shows the stock from above as the program cuts it (each
   cut the bit's width, the tabs, X0 Y0, the stock's size), read back from the G-code itself; the Depth card
