@@ -72,3 +72,28 @@ test('a train’s frame: a hole at every axle, safe', () => {
   assert.ok(Math.min(...zs) >= -19 - 1e-6);
   assert.ok(GC.generate({ ...o, axles: [{ x: 0, diameter: 2 }, { x: 68, diameter: 8 }] }).problems.length);
 });
+
+test('a whole train in one program: every gear, packed apart, safe', () => {
+  const body = (z, holes) => ({ teeth: z, bore: 8, holes, holeStyle: 'spokes' });
+  const many = [[8, 0], [24, 4], [8, 0], [32, 5]].map(([z, h], i) => ({ label: 'Gear ' + (i + 1) + ' of ' + z, body: body(z, h) }));
+  const o = { job: 'all', module: 3.5, pressureDeg: 20, backlash: 0.3, bitDiameter: 3.175, feedRate: 1000, plungeFeedRate: 300, spindleRpm: 18000,
+    depth: 6, depthOfCut: 3, tabs: { count: 3, width: 4, height: 1.5 }, gears: { A: body(8, 0), B: body(24, 4) }, origin: 'center', many };
+  const r = GC.generate(o);
+  assert.deepStrictEqual(r.problems, []);
+  assert.equal(r.parts.length, 4);
+  // Biggest first; every pair of gears at least the least gap apart, tip to tip.
+  const ra = (z) => 3.5 * (z + 2) / 2;
+  assert.match(r.gcode, /\(Gears: a gear train, 4 gears: 8, 24, 8, 32 teeth\)/);
+  const teeth = r.parts.map((q) => r.info[q.key].basics.z);
+  assert.deepStrictEqual(teeth, [32, 24, 8, 8]);
+  for (let i = 0; i < r.parts.length; i++) for (let j = i + 1; j < r.parts.length; j++) {
+    const a = r.parts[i], b = r.parts[j];
+    assert.ok(Math.hypot(a.x - b.x, a.y - b.y) >= ra(teeth[i]) + ra(teeth[j]) + GC.gapMinimum(3.175) - 1e-9, `${i} ${j}`);
+  }
+  const zs2 = r.gcode.split('\n').map((l) => /Z(-?[\d.]+)/.exec(l)).filter(Boolean).map((m) => +m[1]);
+  assert.ok(Math.min(...zs2) >= -6 - 1e-6);
+  assert.ok(GC.generate({ ...o, gap: 1 }).problems.length, 'a gap under the least is refused');
+  // Rows no wider than the stock.
+  const packed = GC.packRows([1, 2, 3, 4, 5].map((k) => ({ key: k, ra: 10 })), 4, 60);
+  assert.ok(Math.max(...packed.map((q) => q.x + 10)) - Math.min(...packed.map((q) => q.x - 10)) <= 60 + 1e-9);
+});

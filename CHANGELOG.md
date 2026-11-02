@@ -5,8 +5,8 @@
 - **Gear Train** tab: pairs in a row, each driven gear on one axle with the next stage's driver. Type a ratio and
   it finds the smallest trains that make it (exactly when whole teeth allow, else within 0.5%), within a range of
   teeth; or type the stages. Every gear gets the Axle Ø bore, each stage's bigger gear Wheel Spokes. The preview
-  turns the train and warns when a gear reaches another axle's shaft. Cut a stage's pair, one gear, or the frame's
-  axle holes.
+  turns the train and warns when a gear reaches another axle's shaft. Cut all the gears in one program (packed in rows, biggest
+  first), a stage's pair, one gear, or the frame's axle holes.
 - **Drag the preview:** Gear B's center sets the Center Distance, the top of Gear A its outside diameter. A tap
   goes to the field.
 - **Named sets** in the Load panel: save the settings you have under a name, load or delete them (with Undo),

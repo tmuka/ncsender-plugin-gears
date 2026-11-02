@@ -40,7 +40,7 @@ Gears isn't affiliated with him: its geometry is the standard involute, written 
 
 For more ratio than one pair makes, the **Gear Train** tab chains pairs: each driven gear shares an axle with the
 next stage's driver. Type the ratio (60 for 60:1, a clock's seconds to minutes) and it finds the smallest trains
-that make it, exactly when whole teeth allow: 60:1 is 8:60 then 8:64. It cuts one stage, one gear, or the frame's
+that make it, exactly when whole teeth allow: 60:1 is 8:60 then 8:64. It cuts the whole train in one program, one stage, one gear, or the frame's
 axle holes, and checks that no gear reaches another axle's shaft.
 
 ## Everything it does
@@ -114,8 +114,8 @@ axle holes, and checks that no gear reaches another axle's shaft.
 - **Gear trains:** a **Gear Train** tab of stages (driver and driven teeth each), found for a ratio within the
   teeth range you allow (fewest stages first, then the smallest gears), with every gear bored for one **Axle Ø**
   and **Wheel Spokes** in each stage's bigger gear. The preview turns the whole train; the facts give the ratio,
-  where each axle goes and the biggest gear. Cut a stage's two gears nested, one gear, or the frame's axle holes
-  in a line. Tooth size, bit, feeds and depth are the Gear Pair tab's.
+  where each axle goes and the biggest gear. Cut all the gears in one program (packed in rows, biggest first), a stage's two gears nested,
+  one gear, or the frame's axle holes in a line. Tooth size, bit, feeds and depth are the Gear Pair tab's.
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
   the machine's max feed and spindle range.

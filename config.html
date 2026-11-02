@@ -613,7 +613,7 @@
           <li><b>Add a Gear to This Set</b> (the same card&rsquo;s title menu): a new gear that meshes with one you&rsquo;ve cut. Gears mesh when they have the same tooth size and pressure angle; the center distance only follows from the teeth, so those two are kept from the Teeth card (Load the pair&rsquo;s program first if you&rsquo;ve changed them). Pick the gear you have in <b>Meshes With</b> and type where the new axle goes: only whole teeth fit, so it lists the nearest distances that work (each tooth moves it half a module) and picks the nearest. The new gear becomes Gear B (the one you have moves to Gear A with its bore and holes), and Cut is set to Gear B only.</li>
           <li><b>Load</b> and <b>Save to File Manager</b> (beside Generate): with the switch on, each program is also saved in File Manager&rsquo;s Gears folder. Every program carries the settings it was made with, and Load fills the form from one, to cut a pair again or add a gear to it. The program&rsquo;s first lines also say its tooth size and pressure angle. In the same panel, <b>Save as a Set</b> keeps the settings you have under a name, without a program; tap a set to load it, or its bin to delete it (with Undo).</li>
           <li><b>Drag the preview</b>: the dot at Gear B&rsquo;s center sets the <b>Center Distance</b>, the dot on top of Gear A its outside diameter (Start from the Center Distance). The value shows as you drag; the pairs are worked out when you let go, as if you&rsquo;d typed it. A tap on a dot goes to its field.</li>
-          <li><b>Gear Train</b> (its own tab): pairs in a row for more ratio than one pair makes, each stage&rsquo;s driven gear on one axle with the next stage&rsquo;s driver (glue or pin them together, or fix both to the shaft). Type the <b>Ratio</b> (turns of axle 1 for one turn of the last: 60 for 60:1) and it lists the trains that make it within <b>Fewest</b> and <b>Most Teeth</b>: the fewest stages first, more only when they make the biggest gear smaller; exactly when whole teeth allow, else within 0.5%. Or type the stages yourself, and <b>Add a Stage</b> or remove one. Every gear is bored to the <b>Axle Ø</b>; the bigger gear of each stage gets <b>Wheel Spokes</b>. The preview turns the train and says when a gear reaches another axle&rsquo;s shaft. <b>Cut</b> one stage&rsquo;s two gears nested, one gear, or the frame&rsquo;s axle holes in a line (with the Frame Holes tab&rsquo;s depths). The tooth size, pressure angle, bit, feeds, depth, tabs and X0 Y0 are the Gear Pair tab&rsquo;s.</li>
+          <li><b>Gear Train</b> (its own tab): pairs in a row for more ratio than one pair makes, each stage&rsquo;s driven gear on one axle with the next stage&rsquo;s driver (glue or pin them together, or fix both to the shaft). Type the <b>Ratio</b> (turns of axle 1 for one turn of the last: 60 for 60:1) and it lists the trains that make it within <b>Fewest</b> and <b>Most Teeth</b>: the fewest stages first, more only when they make the biggest gear smaller; exactly when whole teeth allow, else within 0.5%. Or type the stages yourself, and <b>Add a Stage</b> or remove one. Every gear is bored to the <b>Axle Ø</b>; the bigger gear of each stage gets <b>Wheel Spokes</b>. The preview turns the train and says when a gear reaches another axle&rsquo;s shaft. <b>Cut</b> all the gears in one program (packed in rows, biggest first, Gap Between apart), one stage&rsquo;s two gears nested, one gear, or the frame&rsquo;s axle holes in a line (with the Frame Holes tab&rsquo;s depths). The tooth size, pressure angle, bit, feeds, depth, tabs and X0 Y0 are the Gear Pair tab&rsquo;s.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
@@ -2023,7 +2023,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var q0 = at(nT >= 2 ? 0.5 : -0.25), s0 = nearest(sg, q0.x, q0.y);
       tabs = mergeTabs(tabs, s0, sg.total);
       if (tabs.reduce(function (a, iv) { return a + iv[1] - iv[0]; }, 0) > 0.5 * sg.total) { p.problems.push('The ring’s tabs would cover half its edge or more: fewer or narrower tabs'); return; }
-      L.push(comment(title + (tabs.length ? ', ' + tabs.length + ' tabs ' + o.tabs.height + ' mm high' : '')));
+      L.push(comment(title + (tabs.length ? ', ' + tabs.length + ' tabs ' + (+o.tabs.height.toFixed(3)) + ' mm high' : '')));
       profile(L, sg, s0, tabs, o);
       parts.push({ key: 'B', x: cx, y: cy, path: path });
     };
@@ -2037,6 +2037,31 @@ if (typeof module !== 'undefined' && module.exports) {
     cutOne(place(out, false), 'Ring outside: ' + (2 * b.rOut).toFixed(3) + ' mm across', function (k) { var a = (k + 0.5) * TAU / Math.max(1, nT); return { x: R * Math.cos(a), y: R * Math.sin(a) }; });
   }
 
+  // Circles (radius ra) in rows, biggest first, `gap` apart where they come
+  // closest: each row as long as the stock is wide (`width`), else about as
+  // long as the rows are tall all told. The first's center at (0, 0), rows
+  // going +Y.
+  function packRows(items, gap, width) {
+    var list = items.slice().sort(function (a, b) { return b.ra - a.ra; }), out = [];
+    var area = list.reduce(function (a, q) { return a + Math.pow(2 * q.ra + gap, 2); }, 0);
+    var W = Math.max(2 * list[0].ra, width > 0 ? Math.min(width, Math.sqrt(area) * 1.15) : Math.sqrt(area) * 1.15);
+    var row = [], rows = [];
+    list.forEach(function (q) {
+      var used = row.reduce(function (a, c) { return a + 2 * c.ra + gap; }, 0);
+      if (row.length && used + 2 * q.ra > W + 1e-9) { rows.push(row); row = []; }
+      row.push(q);
+    });
+    if (row.length) rows.push(row);
+    var y = 0, x0 = -list[0].ra;
+    rows.forEach(function (rw, i) {
+      var top = rw[0].ra;
+      if (i) y += rows[i - 1][0].ra + gap + top;
+      var x = x0;
+      rw.forEach(function (q) { out.push({ key: q.key, x: x + q.ra, y: y }); x += 2 * q.ra + gap; });
+    });
+    return out;
+  }
+
   // The whole program. All lengths mm, feeds mm/min.
   function generate(o) {
     var p = plan(o), r = o.bitDiameter / 2;
@@ -2045,6 +2070,23 @@ if (typeof module !== 'undefined' && module.exports) {
     o = Object.assign({}, o);
     Object.keys(DEFAULTS).forEach(function (k) { if (o[k] == null) o[k] = DEFAULTS[k]; });
     var L = [], parts = [], placed = [];
+    var nameOf = function (k) { return o.labels && o.labels[k] || 'Gear ' + k; };
+    // Many gears (a gear train's): each made and named, then packed in rows.
+    if (o.many) {
+      o.gears = Object.assign({}, o.gears); o.labels = {}; p.info = Object.assign({}, p.info);
+      var keys = [];
+      o.many.forEach(function (g, i) {
+        var k = 'G' + (i + 1);
+        keys.push(k); o.gears[k] = g.body; o.labels[k] = g.label;
+        p.info[k] = G.gear(Object.assign({ teeth: g.body.teeth }, p.base));
+        if (p.info[k].problem) p.problems.push(g.label + ': ' + p.info[k].problem);
+        (p.info[k].notes || []).forEach(function (n) { if (p.notes.indexOf(n) < 0) p.notes.push(n); });
+      });
+      if (o.gap > 0 && o.gap < gapMinimum(o.bitDiameter) - 0.01) p.problems.push('Gap Between must be at least ' + (Math.ceil(gapMinimum(o.bitDiameter) * 100) / 100).toFixed(2) + ' mm (the bit and a tenth), so the bit stays out of the other gear');
+      if (p.problems.length) return { problems: p.problems, notes: p.notes, gcode: null };
+      p.which = keys;
+      packRows(keys.map(function (k) { return { key: k, ra: p.info[k].basics.ra }; }), o.gap > 0 ? o.gap : gapMinimum(o.bitDiameter), o.sheetWidth).forEach(function (q) { placed.push({ key: q.key, x: q.x, y: q.y, turn: 0 }); });
+    }
     // Gear A at (0, 0), B beside it in +X, Gap Between apart where they
     // come closest (blank: the least, gapMinimum): two gears nested (B
     // turned to face A as they mesh), a rack or a ring beside it. A rack:
@@ -2054,20 +2096,21 @@ if (typeof module !== 'undefined' && module.exports) {
     var gap = o.gap > 0 ? o.gap : gapMin;
     // 0.01 mm short is let through, so the minimum as shown (to 0.01 mm,
     // or 0.0001 in) is accepted when typed.
-    if (p.which.length === 2 && o.gap > 0 && o.gap < gapMin - 0.01) {
+    if (!o.many && p.which.length === 2 && o.gap > 0 && o.gap < gapMin - 0.01) {
       return { problems: ['Gap Between must be at least ' + (Math.ceil(gapMin * 100) / 100).toFixed(2) + ' mm (the bit and a tenth), so the bit stays out of the other gear'], notes: p.notes, gcode: null };
     }
-    if (nested) {
+    if (o.many) nested = false;
+    else if (nested) {
       turnB = nestTurn(p.info.B.basics.z);
       xB = nestedDistance(p.info.A, p.info.B, turnB, gap);
     } else if (p.which.length === 2) xB = p.info.A.basics.ra + (p.rack ? 0 : p.info.B.basics.ra) + gap;
-    p.which.forEach(function (k) {
+    if (!o.many) p.which.forEach(function (k) {
       if (k === 'B' && p.rack) placed.push({ key: k, x: p.which.length === 2 ? xB : -rb.length / 2, y: -(rb.bottom + rb.top) / 2 });
       else placed.push({ key: k, x: k === 'B' && p.which.length === 2 ? xB : 0, y: 0, turn: k === 'B' ? turnB : 0 });
     });
     var holes = [];
     placed.forEach(function (pl) {
-      var gh = pl.key === 'B' && p.rack ? rackHoles(o.gears.B, p.info.B, o) : pl.key === 'B' && p.ring ? ringHoles(o.gears.B, p.info.B, o) : gearHoles(o.gears[pl.key], p.info[pl.key], o, 'Gear ' + pl.key);
+      var gh = pl.key === 'B' && p.rack ? rackHoles(o.gears.B, p.info.B, o) : pl.key === 'B' && p.ring ? ringHoles(o.gears.B, p.info.B, o) : gearHoles(o.gears[pl.key], p.info[pl.key], o, nameOf(pl.key));
       gh.problems.forEach(function (q) { p.problems.push(q); });
       pl.holes = gh.holes.map(function (h) { return Object.assign({}, h, { x: pl.x + h.dx, y: pl.y + h.dy, depth: o.depth }); });
     });
@@ -2099,16 +2142,18 @@ if (typeof module !== 'undefined' && module.exports) {
     var sx = 0, sy = 0;
     if (o.origin === 'front-left') { sx = -ext.x0; sy = -ext.y0; }
     var unitNote = o.imperial ? ' (the program is in mm; G20 at the end puts the machine back in inches)' : '';
-    L.push(comment('Gears: ' + (o.job === 'frame' ? 'frame holes' : p.which.map(function (k) { return (k === 'B' && p.rack ? 'a rack of ' : k === 'B' && p.ring ? 'a ring gear of ' : 'Gear ' + k + ' ') + o.gears[k].teeth + ' teeth'; }).join(', '))));
+    if (o.many) L.push(comment('Gears: a gear train, ' + o.many.length + ' gears: ' + o.many.map(function (g) { return g.body.teeth; }).join(', ') + ' teeth'));
+    else L.push(comment('Gears: ' + (o.job === 'frame' ? 'frame holes' : p.which.map(function (k) { return (k === 'B' && p.rack ? 'a rack of ' : k === 'B' && p.ring ? 'a ring gear of ' : 'Gear ' + k + ' ') + o.gears[k].teeth + ' teeth'; }).join(', '))));
     // A whole Diametral Pitch is named too: gears that mesh with these need
     // the same tooth size and pressure angle.
     var dp = 25.4 / o.module, dpName = Math.abs(dp - Math.round(dp)) < 1e-6 ? ' (Diametral Pitch ' + Math.round(dp) + ')' : '';
     L.push(comment('Module ' + (+o.module.toFixed(4)) + ' mm' + dpName + ', ' + o.pressureDeg + ' deg pressure angle, backlash ' + o.backlash + ' mm, tip clearance ' + (+p.info.A.basics.c.toFixed(3)) + ' mm' + (o.clearance == null ? ' (auto)' : '')));
-    if (o.axles && o.job === 'frame') L.push(comment('Gear train: ' + o.axles.length + ' axles at X ' + o.axles.map(function (ax) { return ax.x.toFixed(3); }).join(', ') + ' mm'));
+    if (o.many) L.push(comment('Train ' + o.many.map(function (g) { return g.label; }).join('; ')));
+    else if (o.axles && o.job === 'frame') L.push(comment('Gear train: ' + o.axles.length + ' axles at X ' + o.axles.map(function (ax) { return ax.x.toFixed(3); }).join(', ') + ' mm'));
     else L.push(comment(p.ring ? 'Ring and pinion: ' + o.gears.B.teeth + ':' + o.gears.A.teeth + ', the pinion’s axle ' + p.pair.centerDistance.toFixed(3) + ' mm from the ring’s center'
       : p.rack ? 'Rack and pinion: ' + o.gears.A.teeth + ' teeth on the pinion, the rack ' + p.pair.travel.toFixed(3) + ' mm a turn, its pitch line ' + p.pair.pitchRadius.toFixed(3) + ' mm from the pinion’s axle'
       : 'Pair ' + o.gears.A.teeth + ':' + o.gears.B.teeth + ', center distance ' + p.pair.centerDistance.toFixed(3) + ' mm'));
-    L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? (o.axles ? 'axle hole 1' : 'axle hole A') : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : 'Gear ' + p.which[0] + '’s center'))));
+    L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? (o.axles ? 'axle hole 1' : 'axle hole A') : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : (o.many ? 'the first gear cut, ' : '') + nameOf(p.which[0]) + '’s center'))));
     L.push(comment('Bit ' + o.bitDiameter + ' mm, feed ' + o.feedRate + ' mm/min, plunge ' + o.plungeFeedRate + ' mm/min, ' + o.spindleRpm + ' RPM' + unitNote));
     p.notes.forEach(function (n) { L.push(comment('Note: ' + n)); });
     L.push('');
@@ -2161,14 +2206,14 @@ if (typeof module !== 'undefined' && module.exports) {
       }
       tabs = mergeTabs(tabs, s0, sg.total);
       if (tabs.reduce(function (a, iv) { return a + iv[1] - iv[0]; }, 0) > 0.5 * sg.total) {
-        p.problems.push((isRack ? 'The rack' : 'Gear ' + pl.key) + '’s tabs would cover half its edge or more: fewer or narrower tabs');
+        p.problems.push((isRack ? 'The rack' : nameOf(pl.key)) + '’s tabs would cover half its edge or more: fewer or narrower tabs');
         return;
       }
       var tabTop = tabs.length ? o.depth - o.tabs.height : null;
       var levels = depthLevels(o.depth, o.depthOfCut, tabTop);
       var start = pointAt(sg, s0);
-      L.push(comment(isRack ? 'Rack teeth: ' + info.basics.z + ', ' + info.basics.length.toFixed(3) + ' mm long, ' + (info.basics.top - info.basics.bottom).toFixed(3) + ' mm tall' + (tabs.length ? ', ' + tabs.length + ' tabs ' + o.tabs.height + ' mm high on its bottom edge' : '')
-        : 'Gear ' + pl.key + ' teeth: ' + info.basics.z + ', outside diameter ' + (2 * info.basics.ra).toFixed(3) + ' mm' + (tabs.length ? ', ' + tabs.length + ' tabs ' + o.tabs.height + ' mm high on tooth tips' : '')));
+      L.push(comment(isRack ? 'Rack teeth: ' + info.basics.z + ', ' + info.basics.length.toFixed(3) + ' mm long, ' + (info.basics.top - info.basics.bottom).toFixed(3) + ' mm tall' + (tabs.length ? ', ' + tabs.length + ' tabs ' + (+o.tabs.height.toFixed(3)) + ' mm high on its bottom edge' : '')
+        : nameOf(pl.key) + ' teeth: ' + info.basics.z + ', outside diameter ' + (2 * info.basics.ra).toFixed(3) + ' mm' + (tabs.length ? ', ' + tabs.length + ' tabs ' + (+o.tabs.height.toFixed(3)) + ' mm high on tooth tips' : '')));
       L.push('G0 X' + f4(start.x) + ' Y' + f4(start.y));
       L.push('G0 Z' + f3(o.hop));
       var prev = 0;
@@ -2191,7 +2236,7 @@ if (typeof module !== 'undefined' && module.exports) {
   }
 
   return { generate: generate, gapMinimum: gapMinimum, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners,
-           boreOutline: boreOutline, boreReach: boreReach, bone: bone, rackHoles: rackHoles, ringHoles: ringHoles, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE };
+           packRows: packRows, boreOutline: boreOutline, boreReach: boreReach, bone: bone, rackHoles: rackHoles, ringHoles: ringHoles, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE };
 });
 /* END lib/gear-gcode.cjs */</script>
 
@@ -2978,6 +3023,20 @@ if (typeof module !== 'undefined' && module.exports) {
       o.axles = L.axles.map(function (x) { return { x: x, diameter: s['gt-axle'] }; });
       return o;
     }
+    if (job === 'all') {
+      // Every gear, packed in rows on the stock, biggest first.
+      var oa = opts(s, 'all'), many = [];
+      stages.forEach(function (st, k) {
+        var wd = st.driver > st.driven;
+        many.push({ label: trainGearName(k, 'driver', st.driver), body: trainBody(s, st.driver, wd) });
+        many.push({ label: trainGearName(k, 'driven gear', st.driven), body: trainBody(s, st.driven, !wd) });
+      });
+      oa.gears = { A: many[0].body, B: many[1].body };
+      oa.centerDistance = null;
+      oa.many = many;
+      oa.sheetWidth = state.travel ? state.travel.x : null;
+      return oa;
+    }
     var i = m ? Math.min(+m[1], stages.length - 1) : 0, st = stages[i], wheelDriver = st.driver > st.driven;
     var dr = trainBody(s, st.driver, wheelDriver), dn = trainBody(s, st.driven, !wheelDriver);
     var part = m ? m[2] : 'both', o2 = opts(s, part === 'both' ? 'both' : 'A');
@@ -3003,7 +3062,7 @@ if (typeof module !== 'undefined' && module.exports) {
         '<option value="s' + i + '-driver">Stage ' + (i + 1) + ': the driver' + (ok ? ' (' + st.driver + ' teeth)' : '') + '</option>' +
         '<option value="s' + i + '-driven">Stage ' + (i + 1) + ': the driven gear' + (ok ? ' (' + st.driven + ' teeth)' : '') + '</option>';
     });
-    html += '<option value="frame">Frame: the ' + (stages.length + 1) + ' axle holes</option>';
+    html = '<option value="all">All ' + stages.length * 2 + ' gears</option>' + html + '<option value="frame">Frame: the ' + (stages.length + 1) + ' axle holes</option>';
     if (sel.innerHTML !== html) sel.innerHTML = html;
     sel.value = was;
     if (sel.value !== was) sel.value = 's0-both';
@@ -3044,7 +3103,9 @@ if (typeof module !== 'undefined' && module.exports) {
     box.innerHTML = problems.map(function (t) { return '<div>' + esc(t) + '</div>'; }).join('');
     trainFacts();
     var job = $('gt-job').value, mj = /^s(\d+)-(\w+)$/.exec(job);
-    $('gt-origin-say').textContent = job === 'frame' ? 'Zero X and Y at axle 1’s hole; the others are along +X. Total Depth and Depth of Cut are the Frame Holes tab’s. Zero Z on the top of the frame.'
+    $('gt-origin-say').textContent = job === 'all' ? 'Every gear in one program, biggest first, packed in rows going +Y, Gap Between apart (the Gear Pair tab’s). Zero X and Y at ' +
+        ($('gr-origin').value === 'front-left' ? 'the front-left corner of what’s cut' : 'the biggest gear’s center') + '. Zero Z on the top of the stock.'
+      : job === 'frame' ? 'Zero X and Y at axle 1’s hole; the others are along +X. Total Depth and Depth of Cut are the Frame Holes tab’s. Zero Z on the top of the frame.'
       : 'Zero X and Y at ' + ($('gr-origin').value === 'front-left' ? 'the front-left corner of what’s cut' : 'the ' + (mj && mj[2] === 'driven' ? 'driven gear’s' : 'driver’s') + ' center') +
         (mj && mj[2] === 'both' ? '; the driven gear is cut to its right' : '') + ' (X0 Y0 is the Gear Pair tab’s). Zero Z on the top of the stock.';
     scheduleNote();
@@ -3087,7 +3148,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var pad = Math.max(s['gr-bit'] * 2 + 4, 0.05 * (x1 - x0)), fs = (x1 - x0 + 2 * pad) / 50, h = 2 * rmax + 2 * pad + 2 * fs;
     svg.setAttribute('viewBox', (x0 - pad) + ' ' + (-rmax - pad) + ' ' + (x1 - x0 + 2 * pad) + ' ' + h);
     var job = $('gt-job').value, mj = /^s(\d+)-(\w+)$/.exec(job), out = [];
-    var cutting = function (g) { return job === 'frame' ? false : mj && +mj[1] === g.stage && (mj[2] === 'both' || mj[2] === g.role); };
+    var cutting = function (g) { return job === 'all' || (job !== 'frame' && mj && +mj[1] === g.stage && (mj[2] === 'both' || mj[2] === g.role)); };
     var oBase = { module: s.module, pressureDeg: Number($('gr-pa').value), backlash: s['gr-backlash'], bitDiameter: s['gr-bit'] };
     L.gears.forEach(function (g, gi) {
       var info = trainGear(s, g.teeth), cx = L.axles[g.axle];
@@ -3276,7 +3337,8 @@ if (typeof module !== 'undefined' && module.exports) {
     if (p.res.problems.length) { alert(p.res.problems.join('\n')); return; }
     var o = view === 'train' ? p.o : opts(settings().s, view === 'frame' ? 'frame' : $('gr-job').value);
     var mode = $('gr-size-mode').value, size = { module: 'M', dp: 'DP', cp: 'CP' }[mode] + sizeText(o.module, mode), tj = view === 'train' && /^s(\d+)-(\w+)$/.exec(p.job);
-    var name = view === 'train' ? (p.job === 'frame' ? 'Gears-TrainFrame_' + p.stages.map(function (st) { return st.driver + '-' + st.driven; }).join('_') + '_' + size
+    var name = view === 'train' ? (p.job === 'all' ? 'Gears-Train-All_' + p.stages.map(function (st) { return st.driver + '-' + st.driven; }).join('_') + 'T_' + size + '_' + o.pressureDeg + 'deg'
+        : p.job === 'frame' ? 'Gears-TrainFrame_' + p.stages.map(function (st) { return st.driver + '-' + st.driven; }).join('_') + '_' + size
         : 'Gears-Train-S' + (+tj[1] + 1) + '_' + (tj[2] === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears.A.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg')
       : view === 'frame' ? 'Gears-FrameHoles_' + o.gears.A.teeth + '-' + o.gears.B.teeth + '_' + size
       : o.gears.B.kind === 'ring' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Ring' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Ring' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'

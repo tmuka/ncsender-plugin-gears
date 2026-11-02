@@ -101,10 +101,10 @@ Keep them all, but lead with what a builder knows:
   when they make the biggest gear smaller; else the nearest within 0.5%. Stage ratios of 1:1 are left out.
 - **Layout** (`trainLayout`): axles in a line, and a gear whose tips reach another axle's shaft (its mesh
   partner's excepted) is reported; the frame isn't drilled for such a train.
-- **Cut:** a stage's two gears nested (the pair's own program), one gear, or the frame's axle holes
+- **Cut:** all the gears in one program (`many`, packed in rows by `packRows`, biggest first), a stage's two gears nested (the pair's own program), one gear, or the frame's axle holes
   (`generate` with `axles`). Every gear bored to Axle Ø; Wheel Spokes in each stage's bigger gear.
 - Later: a folded layout (each next axle at an angle, for a compact clock frame), a different tooth size per
-  stage (bigger teeth where the torque is), a motor's D bore on the first driver, the train in one program.
+  stage (bigger teeth where the torque is), a motor's D bore on the first driver, pinions nested between the wheels when cutting all.
 
 ## How it's built
 
