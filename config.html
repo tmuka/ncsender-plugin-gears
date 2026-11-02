@@ -615,7 +615,7 @@
 
         <div class="gr-card">
           <div class="gr-card-head"><h4 class="gr-card-title">Stages</h4>
-            <div class="gr-right"><button type="button" class="gr-secondary" id="gt-fold" title="Fold the train as small as it goes with no gear reaching another axle&rsquo;s shaft: each stage turned in 30&deg; steps.">Fold Compact</button><button type="button" class="gr-secondary" id="gt-straight" title="All the axles in a line again.">Straighten</button><button type="button" class="gr-secondary" id="gt-add-stage" title="Add a stage at the end: its driver goes on the last axle.">Add a Stage</button></div>
+            <div class="gr-right"><button type="button" class="gr-secondary" id="gt-fold" title="Fold the train as small as it goes with no gear reaching another axle&rsquo;s shaft: each stage turned in 30&deg; steps (up to four stages; past that, drag them).">Fold Compact</button><button type="button" class="gr-secondary" id="gt-straight" title="All the axles in a line again.">Straighten</button><button type="button" class="gr-secondary" id="gt-add-stage" title="Add a stage at the end: its driver goes on the last axle.">Add a Stage</button></div>
           </div>
           <div id="gt-stage-list"></div>
           <div class="gr-hint">Each driven gear shares its axle with the next stage&rsquo;s driver: glue or pin the two together, or fix both to the shaft. Drag an axle in the picture to fold the train round, or type its Angle. Tooth size, pressure angle, backlash, bit, feeds and depth come from the Gear Pair tab.</div>
@@ -625,6 +625,7 @@
           <div class="gr-card-head"><h4 class="gr-card-title">Gear Bodies</h4></div>
           <div class="gr-row gr-row-4">
             <div class="gr-field"><label for="gt-axle">Axle Ø</label><input class="gr-input" id="gt-axle" data-unit="length" title="The shafts&rsquo; diameter: every gear&rsquo;s bore, and the frame&rsquo;s axle holes. A little over the shaft&rsquo;s for a slip fit."></div>
+            <div class="gr-field" id="gt-tube-field" hidden><label for="gt-tube">Tube Ø</label><input class="gr-input" id="gt-tube" data-unit="length" title="Same center: the gear on the axle that comes back onto axle 1 (a clock&rsquo;s hour wheel) turns on a tube over axle 1&rsquo;s shaft, so its bore is the tube&rsquo;s outside, a little over. More than the Axle &Oslash;: a tube with the shaft&rsquo;s size inside (8 mm shaft, 12 mm tube, say)."></div>
             <div class="gr-field"><label for="gt-spokes">Wheel Spokes</label><input class="gr-input" id="gt-spokes" title="Spokes in the bigger gear of each stage (the wheel), with windows between them; Spoke Width is the Gear Pair tab&rsquo;s. 0: solid."></div>
             <div class="gr-field" style="grid-column: span 2"><label for="gt-hole-cut">Windows</label><select class="gr-select gr-hole-cut" id="gt-hole-cut" title="Lightening holes and spoke windows. Cut Out: cut round the edge only, two small tabs holding the piece inside; knock it out and sand the tabs after. Much quicker on big gears. Needs Holding Tabs on (without them the holes are cleared). Clear Out: all the wood inside cut away from the middle, nothing to knock out. Bores are always cleared."><option value="out">Cut Out, Tabs Hold the Piece</option><option value="clear">Clear Out (Slower)</option></select></div>
           </div>
@@ -677,17 +678,17 @@
         <div class="gr-card"><h3>Gear trains, plainly</h3><ul>
           <li><b>Why a train:</b> one pair can only turn so slowly before the big gear gets huge: 60:1 in one pair needs a 480-tooth wheel on an 8-tooth pinion. Split it into stages and the ratios multiply: 7.5 &times; 8 = 60 with gears of 60 and 64 teeth.</li>
           <li><b>Stages and axles:</b> each stage is a <b>driver</b> turning a <b>driven</b> gear. The driven gear is fixed to the next stage&rsquo;s driver on the same axle (a compound gear: glue or pin them, or fix both to the shaft), so each stage sits in its own layer, one board&rsquo;s thickness over the last. The picture numbers the axles; axle 1 is the one you turn.</li>
-          <li><b>Folding:</b> the axles needn&rsquo;t be in a line. Drag an axle round the one before it (or type its <b>Angle</b>) and the rest follow; the distance between meshing axles can&rsquo;t change, only the direction. <b>Fold Compact</b> tries the turns in 30&deg; steps and keeps the smallest that fits. Gears in different layers can overlap; what they can&rsquo;t do is hit another axle&rsquo;s shaft, which runs through every layer: the facts say when one would.</li>
-          <li><b>Same center:</b> a clock&rsquo;s hour hand sits on the minute hand&rsquo;s shaft. Two stages with the same teeth all told (driver plus driven) have the same center distance, so the second can fold straight back and land the last axle on the first. Its gear then turns on a tube (a pipe or bushing) over the first shaft. <b>Last Axle on the First</b> finds such pairs; Frame Holes drills one hole for both.</li>
+          <li><b>Folding:</b> the axles needn&rsquo;t be in a line. Drag an axle round the one before it (or type its <b>Angle</b>) and the rest follow; the distance between meshing axles can&rsquo;t change, only the direction. <b>Fold Compact</b> tries the turns in 30&deg; steps (for up to four stages) and keeps the smallest box that fits, which may be the straight line. Gears in different layers can overlap; what they can&rsquo;t do is hit another axle&rsquo;s shaft, which runs through every layer: the facts say when one would.</li>
+          <li><b>Same center:</b> a clock&rsquo;s hour hand sits on the minute hand&rsquo;s shaft. Two stages with the same teeth all told (driver plus driven) have the same center distance, so the second can fold straight back and land the last axle on the first. Its gear then turns on a tube (a pipe or bushing) over the first shaft, so it&rsquo;s bored to the <b>Tube &Oslash;</b> (Gear Bodies) instead of the Axle &Oslash;. <b>Last Axle on the First</b> finds such pairs (the fewest teeth that make the ratio, exactly when they can, else within 0.5%); Frame Holes drills one hole for both.</li>
           <li><b>Presets</b> (Find a Train&rsquo;s menu) set the ratio, the teeth and the layout for you: a clock&rsquo;s seconds to minutes (60:1), its minutes to hours (12:1, same center), a slow crank (10:1), a spinner (1:5). Each says what the axles do. Change anything after.</li>
           <li><b>Which way they turn:</b> each stage turns the next axle the other way, so in a two-stage train the last axle turns the same way as the first; in one or three stages, the opposite way.</li>
         </ul></div>
         <div class="gr-card"><h3>What to make with them</h3><ul>
-          <li><b>Clocks and automata:</b> a wooden clock&rsquo;s going train (the 60:1 preset) and motion work (the 12:1); crank-driven automata and figures that nod, walk or wave; a marble machine&rsquo;s lift.</li>
-          <li><b>Replacement gears:</b> a stripped gear in a toy, a blind, a mixer&rsquo;s accessory or a garden tool, cut in HDPE, acrylic or hardwood. Count its teeth and measure across the tips: its <b>module</b> is that diameter in mm &divide; (teeth + 2), or its <b>Diametral Pitch</b> (teeth + 2) &divide; the diameter in inches. Most are 20&deg;; match its bore with the Gear Bodies card, and use Add a Gear to This Set for its mate.</li>
+          <li><b>Clocks and automata:</b> a wooden clock&rsquo;s going train (the 60:1 preset) and motion work (the 12:1); crank-driven automata and figures that nod, walk or wave; a marble machine.</li>
+          <li><b>Replacement gears:</b> a stripped gear in a hand-turned toy, game or model, or a knob-driven gadget, cut in HDPE, acrylic or hardwood (not in anything powered or holding weight up, such as a blind or a mixer). Count its teeth and measure across the tips: its <b>module</b> is that diameter in mm &divide; (teeth + 2), or its <b>Diametral Pitch</b> (teeth + 2) &divide; the diameter in inches. Most are 20&deg;; match its bore with the Gear Bodies card, and use Add a Gear to This Set for its mate.</li>
           <li><b>Workshop jigs:</b> a gear as an <b>indexing wheel</b> (a 24- or 36-tooth gear and a pin or pawl divides a circle into equal parts, for fluting on a lathe or drilling a bolt circle); a crank with a small pinion for a <b>fine adjuster</b> on a fence or stop; a rack and pinion for a camera slider or a sliding stop.</li>
           <li><b>Turning things slowly:</b> a turntable for a display or for finishing a bowl, a rotisserie, a rotating sign: a slow crank, or a small motor on axle 1.</li>
-          <li><b>Planetary and ring gears:</b> a ring and pinion for a compact reduction or a spinning display; three pinions round a sun inside a ring make a planetary demonstrator.</li>
+          <li><b>Planetary and ring gears:</b> a ring and pinion for a compact reduction or a spinning display. For a planetary demonstrator, the ring&rsquo;s teeth are the sun&rsquo;s plus two planets&rsquo; (a 60 ring: a 12 sun and 24-tooth planets), all one tooth size; for three planets evenly spaced, the ring&rsquo;s and the sun&rsquo;s teeth together must divide by 3 (60 + 12 = 72: yes). Cut the ring and a planet on the Gear Pair tab with Ring Teeth, and the sun as a plain gear of the same tooth size.</li>
           <li><b>Teaching and fun:</b> a pair on a board to show ratios (Animate shows it too), a gear wall, a spinner or top launcher (the 1:5 preset), a coin-sorter&rsquo;s drive, kinetic art.</li>
           <li>And see the fine print: gears cut from wood or plastic aren&rsquo;t for anything that could hurt someone if a tooth broke.</li>
         </ul></div>
@@ -1373,8 +1374,12 @@ if (typeof module !== 'undefined' && module.exports) {
   // first (else within 0.5%), then the fewest teeth; each stage the train's
   // way. The second stage folds back (angle 180).
   function sameCenterTrain(R, lo, hi) {
-    var dir = R > 1 ? 1 : -1, found = [];
+    if (Math.abs(R - 1) < 1e-9) return { problem: 'a ratio other than 1: two stages that each turn the train’s way can’t make 1:1' };
+    var dir = R > 1 ? 1 : -1, near = null, exact = null, t0 = Date.now();
+    // The fewest teeth all told first: sums from the smallest up; an exact
+    // ratio a little bigger (up to half as many teeth again) beats a near one.
     for (var sum = 2 * lo; sum <= 2 * hi; sum++) {
+      if (exact || (near && sum > near.sum * 1.5) || Date.now() - t0 > 300) break;
       for (var d1 = lo; d1 <= hi; d1++) {
         var w1 = sum - d1;
         if (w1 < lo || w1 > hi || (dir > 0 ? w1 <= d1 : w1 >= d1)) continue;
@@ -1382,15 +1387,18 @@ if (typeof module !== 'undefined' && module.exports) {
           var w2 = sum - d2;
           if (w2 < lo || w2 > hi || (dir > 0 ? w2 <= d2 : w2 >= d2)) continue;
           var q = (w1 * w2) / (d1 * d2), err = Math.abs(q - R) / R;
-          if (err <= 0.005) found.push({ stages: [{ driver: d1, driven: w1, angle: 0 }, { driver: d2, driven: w2, angle: 180 }], ratio: q, error: err < 1e-9 ? 0 : err, teeth: 2 * sum, spread: Math.abs(Math.log(w1 / d1) - Math.log(w2 / d2)), sameCenter: true });
+          if (err > 0.005) continue;
+          var o = { stages: [{ driver: d1, driven: w1, angle: 0 }, { driver: d2, driven: w2, angle: 180 }], ratio: q, error: err < 1e-9 ? 0 : err, teeth: 2 * sum, sum: sum,
+            spread: Math.abs(Math.log(w1 / d1) - Math.log(w2 / d2)), sameCenter: true };
+          if (o.error === 0) { if (!exact || o.spread < exact.spread) exact = o; }
+          else if (!near || (sum === near.sum && o.error < near.error)) near = near && sum > near.sum ? near : o;
         }
       }
-      if (found.some(function (o) { return o.error === 0; })) break;
     }
-    if (!found.length) return { problem: 'no two stages of ' + lo + ' to ' + hi + ' teeth bring the last axle back onto the first at this ratio: allow more teeth' };
-    var exact = found.filter(function (o) { return o.error === 0; }), list = exact.length ? exact : found;
-    list.sort(function (a, b) { return a.error - b.error || a.teeth - b.teeth || a.spread - b.spread; });
-    return { options: [list[0]] };
+    var pick = exact || near;
+    if (!pick) return { problem: 'no two stages of ' + lo + ' to ' + hi + ' teeth bring the last axle back onto the first within 0.5% of this ratio: allow more teeth' };
+    delete pick.sum;
+    return { options: [pick] };
   }
 
   // The train's axles: the first at (0, 0), each next one its stage's
@@ -1449,7 +1457,8 @@ if (typeof module !== 'undefined' && module.exports) {
     (function rec(i, angles) {
       if (i === n) { tryAngles(angles); return; }
       if (i === 0) { rec(1, [0]); return; }
-      if (n > 4) { rec(i + 1, angles.concat([0])); return; }
+      // Past four stages the search would be too slow: those stay as they are.
+      if (n > 4) { rec(i + 1, angles.concat([stages[i].angle || 0])); return; }
       steps.forEach(function (d) { rec(i + 1, angles.concat([angles[i - 1] + d])); });
     })(0, []);
     return best ? best.angles.map(function (x) { return ((x % 360) + 540) % 360 - 180; }) : null;
@@ -2476,7 +2485,7 @@ if (typeof module !== 'undefined' && module.exports) {
     'gr-frame-a': ['length', 0, 500, 'Axle Hole A', null], 'gr-frame-b': ['length', 0, 500, 'Axle Hole B', null],
     'gr-frame-depth': ['length', 0.05, 200, 'Total Depth', 19], 'gr-frame-step': ['length', 0.05, 50, 'Depth of Cut', null],
     'gt-ratio': ['count', 0.001, 100000, 'Ratio', 12], 'gt-min': ['whole', 6, 400, 'Fewest Teeth', 8], 'gt-max': ['whole', 6, 400, 'Most Teeth', 72],
-    'gt-axle': ['length', 0, 100, 'Axle Ø', 8], 'gt-spokes': ['whole', 0, 24, 'Wheel Spokes', 5]
+    'gt-axle': ['length', 0, 100, 'Axle Ø', 8], 'gt-spokes': ['whole', 0, 24, 'Wheel Spokes', 5], 'gt-tube': ['length', 0, 100, 'Tube Ø', 12]
   };
   var round = function (v) { return parseFloat((+v).toFixed(state.imperial ? 4 : 3)); };
   var show = function (mm) { return round(mm / K()); };
@@ -3286,7 +3295,9 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!r) { box.innerHTML = s['gt-ratio'] > 0 ? '' : '<span class="gr-hint">Type the Ratio to see trains that make it.</span>'; return false; }
     if (r.problem) { box.innerHTML = '<span class="gr-hint">' + esc(r.problem.charAt(0).toUpperCase() + r.problem.slice(1)) + '. Or type the stages below.</span>'; return false; }
     var more = r.partial ? ' Not every train was tried in the time allowed: a narrower range of teeth searches them all.' : '';
-    var same = function (o) { return o.stages.length === stages.length && o.stages.every(function (st, i) { return st.driver === stages[i].driver && st.driven === stages[i].driven; }); };
+    // The same train: the same teeth, and for a same-center one the same turns too.
+    var turn = function (a) { return ((Math.round(a || 0) % 360) + 360) % 360; };
+    var same = function (o) { return o.stages.length === stages.length && o.stages.every(function (st, i) { return st.driver === stages[i].driver && st.driven === stages[i].driven && (!o.sameCenter || turn(st.angle) === turn(stages[i].angle)); }); };
     var picked = false;
     var force = state.trainForcePick; state.trainForcePick = false;
     if (auto && (force ? !same(r.options[0]) : !r.options.some(same))) { renderStages(r.options[0].stages); stages = r.options[0].stages; picked = true; state.trainFold = !$('gt-same').checked && state.trainFold; }
@@ -3306,9 +3317,9 @@ if (typeof module !== 'undefined' && module.exports) {
   // it's for in a line; the train is then found (and folded) as if typed.
   var PRESETS = {
     clock60: { ratio: 60, min: 8, max: 64, same: false, fold: true,
-      say: 'A clock&rsquo;s going train: axle 1 carries the second hand (turned once a minute by the escapement), the last axle the minute hand, once an hour. Folded to fit a clock case.' },
+      say: 'Part of a clock&rsquo;s going train: 60 turns of the seconds arbor (axle 1) for one of the minute hand&rsquo;s (the last axle). In the clock the weight or spring drives the minute end and the escapement lets the seconds end turn once a minute; the teeth are the same either way. Fold Compact keeps it in a line when that&rsquo;s smallest.' },
     clock12: { ratio: 12, min: 8, max: 40, same: true, fold: false,
-      say: 'A clock&rsquo;s motion work: axle 1 is the minute hand&rsquo;s arbor; the hour wheel comes back round onto it and turns on a tube over it, once in 12 hours, so both hands share the center of the dial.' },
+      say: 'A clock&rsquo;s motion work: axle 1 is the minute hand&rsquo;s arbor; the hour wheel comes back round onto it and turns on a tube over it (its bore is the Tube &Oslash;), once in 12 hours, so both hands share the center of the dial.' },
     winch: { ratio: 10, min: 10, max: 60, same: false, fold: true,
       say: 'Ten turns of a crank on axle 1 for one slow, strong turn of the last axle: a turntable or display, a rotisserie, a fine adjuster. Not for anything holding weight overhead (see the fine print).' },
     spinner: { ratio: 0.2, min: 10, max: 60, same: false, fold: true,
@@ -3327,9 +3338,17 @@ if (typeof module !== 'undefined' && module.exports) {
     $('gt-preset').value = '';
     touch();
   }
-  // A train gear's settings: the axle's bore, spokes on each stage's bigger gear.
-  function trainBody(s, teeth, wheel) {
-    return { teeth: teeth, bore: s['gt-axle'], boreShape: 'round', holes: wheel ? s['gt-spokes'] : 0, holeStyle: 'spokes', spokeWidth: s['gr-spoke-w'] };
+  // A train gear's settings: the axle's bore (the tube's, for a gear whose
+  // axle is on another's, as a clock's hour wheel), spokes on each stage's
+  // bigger gear.
+  function trainBody(s, teeth, wheel, onTube) {
+    return { teeth: teeth, bore: onTube ? s['gt-tube'] : s['gt-axle'], boreShape: 'round', holes: wheel ? s['gt-spokes'] : 0, holeStyle: 'spokes', spokeWidth: s['gr-spoke-w'] };
+  }
+  // The axles that sit on another's (the later of each concentric pair): their gears turn on a tube.
+  function tubeAxles(s, stages) {
+    var L = G.trainLayout({ module: s.module }, stages, 0, 0), on = {};
+    L.concentric.forEach(function (c) { on[c[1]] = true; });
+    return on;
   }
   function trainGearName(i, role, teeth) { return 'Stage ' + (i + 1) + '’s ' + teeth + '-tooth ' + role; }
   // The program's settings for a Cut choice: s<i>-both, s<i>-driver, s<i>-driven or frame.
@@ -3342,13 +3361,14 @@ if (typeof module !== 'undefined' && module.exports) {
       o.axles = L.axles.map(function (q) { return { x: q.x, y: q.y, diameter: s['gt-axle'] }; });
       return o;
     }
+    var tube = tubeAxles(s, stages);
     if (job === 'all') {
       // Every gear, packed in rows on the stock, biggest first.
       var oa = opts(s, 'all'), many = [];
       stages.forEach(function (st, k) {
         var wd = st.driver > st.driven;
-        many.push({ label: trainGearName(k, 'driver', st.driver), body: trainBody(s, st.driver, wd) });
-        many.push({ label: trainGearName(k, 'driven gear', st.driven), body: trainBody(s, st.driven, !wd) });
+        many.push({ label: trainGearName(k, 'driver', st.driver), body: trainBody(s, st.driver, wd, tube[k]) });
+        many.push({ label: trainGearName(k, 'driven gear', st.driven), body: trainBody(s, st.driven, !wd, tube[k + 1]) });
       });
       oa.gears = { A: many[0].body, B: many[1].body };
       oa.centerDistance = null;
@@ -3357,7 +3377,7 @@ if (typeof module !== 'undefined' && module.exports) {
       return oa;
     }
     var i = m ? Math.min(+m[1], stages.length - 1) : 0, st = stages[i], wheelDriver = st.driver > st.driven;
-    var dr = trainBody(s, st.driver, wheelDriver), dn = trainBody(s, st.driven, !wheelDriver);
+    var dr = trainBody(s, st.driver, wheelDriver, tube[i]), dn = trainBody(s, st.driven, !wheelDriver, tube[i + 1]);
     var part = m ? m[2] : 'both', o2 = opts(s, part === 'both' ? 'both' : 'A');
     o2.gears = part === 'driven' ? { A: dn, B: dr } : { A: dr, B: dn };
     names.A = part === 'driven' ? trainGearName(i, 'driven gear', st.driven) : trainGearName(i, 'driver', st.driver);
@@ -3401,6 +3421,8 @@ if (typeof module !== 'undefined' && module.exports) {
       say.textContent = st.driver > 0 && st.driven > 0 && !rs.errs['gt-s' + i + '-driver'] && !rs.errs['gt-s' + i + '-driven'] ?
         ratioText(st.driven / st.driver) + ', axles ' + (i + 1) + ' and ' + (i + 2) + (s.module > 0 ? ', ' + show(s.module * (st.driver + st.driven) / 2) + u + ' apart' : '') : '';
     });
+    // A fold asked for while a field is wrong is dropped, not done later unasked.
+    if (blocking.length) state.trainFold = false;
     if (!blocking.length) {
       L = G.trainLayout({ module: s.module }, stages, s['gt-axle'] || 0, 0.5);
       // Fold Compact (or a preset): the smallest fold with no gear reaching a shaft.
@@ -3412,6 +3434,8 @@ if (typeof module !== 'undefined' && module.exports) {
           L = G.trainLayout({ module: s.module }, stages, s['gt-axle'] || 0, 0.5);
         } else problems.push('No fold keeps every gear off the other axles’ shafts: change the teeth (a stage whose axles are closer than the gear before it is wide can’t be folded clear)');
       }
+      $('gt-tube-field').hidden = !L.concentric.length;
+      if (L.concentric.length && !(s['gt-tube'] > (s['gt-axle'] || 0))) problems.push('Tube Ø must be more than the Axle Ø: the hour wheel’s tube goes over axle 1’s shaft');
       var seen = {};
       L.gears.forEach(function (g) {
         if (seen[g.teeth]) return;
@@ -3484,7 +3508,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (info.problem) out.push('<circle class="gr-pitch" r="' + info.basics.rp + '" style="stroke:#ff6b6b;opacity:1"/>');
       else {
         var wheel = g.teeth > (g.role === 'driver' ? t.stages[g.stage].driven : t.stages[g.stage].driver);
-        var gh = GC.gearHoles(trainBody(s, g.teeth, wheel), info, oBase, 'Gear').holes;
+        var gh = GC.gearHoles(trainBody(s, g.teeth, wheel, L.concentric.some(function (c) { return c[1] === g.axle; })), info, oBase, 'Gear').holes;
         out.push('<path class="gr-body' + (g.stage % 2 ? ' gr-b' : '') + (cutting(g) || job === 'frame' ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(info.draw) + holesPath(gh) + '"/>');
         out.push('<circle class="gr-mark" cx="' + info.basics.rp.toFixed(3) + '" cy="0" r="' + (s.module * 0.35).toFixed(3) + '"/>');
       }
@@ -3596,10 +3620,12 @@ if (typeof module !== 'undefined' && module.exports) {
     var r = settings(), s = r.s, rs = readStages(), job = $('gt-job').value || 's0-both', frame = job === 'frame';
     var errs = Object.assign({}, r.errs, rs.errs);
     var ids = ['gr-bit', 'gr-feed', 'gr-plunge', 'gr-rpm', 'gr-delay', 'gr-size', 'gr-backlash', 'gr-clearance', 'gt-axle']
-      .concat(frame ? ['gr-frame-depth', 'gr-frame-step'] : ['gr-depth', 'gr-step', 'gr-gap', 'gt-spokes', 'gr-spoke-w'].concat($('gr-tabs-on').checked ? ['gr-tabs', 'gr-tab-w', 'gr-tab-h'] : []))
+      .concat(frame ? ['gr-frame-depth', 'gr-frame-step'] : ['gr-depth', 'gr-step', 'gr-gap', 'gt-spokes', 'gr-spoke-w', 'gt-tube'].concat($('gr-tabs-on').checked ? ['gr-tabs', 'gr-tab-w', 'gr-tab-h'] : []))
       .concat(Object.keys(rs.errs));
     var bad = ids.filter(function (id) { return errs[id]; });
     if (bad.length) return { bad: bad, errs: errs };
+    var tubes = Object.keys(tubeAxles(s, rs.stages)).length;
+    if (tubes && !(s['gt-tube'] > (s['gt-axle'] || 0))) return { res: { problems: ['Tube Ø must be more than the Axle Ø: the hour wheel’s tube goes over axle 1’s shaft'], notes: [], gcode: null }, errs: errs, bad: [], stages: rs.stages, job: job };
     var o = trainOpts(s, rs.stages, job), res = GC.generate(o);
     if (res.problems.length) res = Object.assign({}, res, { problems: trainProblems(res.problems, o) });
     // A frame for a train whose gears would hit a shaft isn't drilled.
@@ -4070,7 +4096,9 @@ if (typeof module !== 'undefined' && module.exports) {
     // Settings saved before the Gear Train tab leave the train as it is.
     var now = collect();
     v = Object.assign({}, v);
-    ['gt-ratio', 'gt-min', 'gt-max', 'gt-axle', 'gt-spokes', 'gt-stages', 'gt-same', 'gt-job', 'trainStages'].forEach(function (k) { if (v[k] == null && now[k] != null) v[k] = now[k]; });
+    // A train saved before Same Center was a line: not same-center, whatever the form has.
+    if (Array.isArray(v.trainStages) && v['gt-same'] == null) v['gt-same'] = false;
+    ['gt-ratio', 'gt-min', 'gt-max', 'gt-axle', 'gt-spokes', 'gt-tube', 'gt-stages', 'gt-same', 'gt-job', 'trainStages'].forEach(function (k) { if (v[k] == null && now[k] != null) v[k] = now[k]; });
     initialConfig = { v: Object.assign({}, v, { saveFiles: keep }) };
     state.autoPick = false;
     state.cutTool = null;
@@ -4113,7 +4141,7 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   function restore() {
     var v = (initialConfig && initialConfig.v) || null;
-    var imperialDefaults = { 'gr-bit': 3.175, 'gr-backlash': 0.3048, 'gr-bore-a': 7.9375, 'gr-bore-b': 7.9375, 'gr-depth': 13.208, 'gr-tab-w': 3.96875, 'gr-tab-h': 1.5875, 'gr-frame-depth': 19.558, 'gt-axle': 7.9375 };
+    var imperialDefaults = { 'gr-bit': 3.175, 'gr-backlash': 0.3048, 'gr-bore-a': 7.9375, 'gr-bore-b': 7.9375, 'gr-depth': 13.208, 'gr-tab-w': 3.96875, 'gr-tab-h': 1.5875, 'gr-frame-depth': 19.558, 'gt-axle': 7.9375, 'gt-tube': 12.7 };
     // Saved before both gears were nested: the old default gap (6 mm, a
     // quarter inch) was room the nesting makes up; any other gap was chosen.
     if (v && !v.nested && v['gr-gap'] != null && (Math.abs(v['gr-gap'] - 6) < 1e-6 || Math.abs(v['gr-gap'] - 6.35) < 1e-6)) v['gr-gap'] = 0;
@@ -4433,7 +4461,7 @@ if (typeof module !== 'undefined' && module.exports) {
     $('gr-gen-train').addEventListener('click', function () { generate('train'); });
     wireTrainHandles();
     $('gt-fold').addEventListener('click', function () { state.trainFold = true; touch(); });
-    $('gt-straight').addEventListener('click', function () { ROOT.querySelectorAll('.gt-angle').forEach(function (el) { el.value = 0; }); touch(); });
+    $('gt-straight').addEventListener('click', function () { ROOT.querySelectorAll('.gt-angle').forEach(function (el) { el.value = 0; }); $('gt-same').checked = false; touch(); });
     $('gt-preset').addEventListener('change', function () { applyPreset($('gt-preset').value); });
     if (state.atc) wireToolMenu();
     else {

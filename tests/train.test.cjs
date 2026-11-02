@@ -151,3 +151,13 @@ test('same center: two stages that bring the last axle back onto the first, one 
   assert.match(g.holes[0].label, /Axle hole 1 and 3/);
   assert.ok(G.solveTrain({ ratio: 12, minTeeth: 8, maxTeeth: 12, sameCenter: true }).problem);
 });
+
+test('same center, not exact: the fewest teeth within 0.5%, quickly; 1:1 refused', () => {
+  for (const [R, most] of [[13.7, 94], [Math.PI, 58], [7.3, 74]]) {
+    const t = Date.now(), o = G.solveTrain({ ratio: R, minTeeth: 8, maxTeeth: 150, sameCenter: true }).options[0];
+    assert.ok(Date.now() - t < 300, `${R}: ${Date.now() - t} ms`);
+    assert.ok(o.error <= 0.005 && o.teeth <= most, `${R}: ${JSON.stringify(o.stages)} ${o.teeth} teeth`);
+    assert.equal(o.stages[0].driver + o.stages[0].driven, o.stages[1].driver + o.stages[1].driven);
+  }
+  assert.match(G.solveTrain({ ratio: 1, minTeeth: 8, maxTeeth: 72, sameCenter: true }).problem, /other than 1/);
+});

@@ -52,8 +52,8 @@ or a spinner. Help explains the ideas plainly.
 
 ## What to make
 
-Wooden clocks and automata; replacement gears for a toy, a blind or a mixer (count the teeth and measure across
-the tips: module = diameter in mm ÷ (teeth + 2)); indexing wheels for dividing a circle on the lathe or drill
+Wooden clocks and automata; replacement gears for a hand-turned toy, game or model (count the teeth and measure
+across the tips: module = diameter in mm ÷ (teeth + 2)); indexing wheels for dividing a circle on the lathe or drill
 press; fine adjusters and camera sliders (rack and pinion); turntables and displays; planetary demonstrators;
 marble machines and kinetic art. Not for anything that could hurt someone if a tooth broke: see the fine print.
 
@@ -137,8 +137,8 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   biggest gear, and it warns when a gear reaches another axle's shaft (the frame isn't drilled for such a
   train). Fold it by dragging the axles, typing each stage's angle, or **Fold Compact** (the smallest fold with no
   shaft hit); **Last Axle on the First** finds two stages whose last axle lands back on the first (same center,
-  one frame hole); **Presets** for clocks, a slow crank and a spinner. Cut all the gears in one program (packed in rows, biggest first), a stage's two gears nested, one
-  gear, or the frame's axle holes in a line. Tooth size, bit, feeds and depth are the Gear Pair tab's.
+  one frame hole; that gear is bored to a **Tube Ø** to turn on a tube over the shaft); **Presets** for clocks, a slow crank and a spinner. Cut all the gears in one program (packed in rows, biggest first), a stage's two gears nested, one
+  gear, or the frame's axle holes where the layout puts them. Tooth size, bit, feeds and depth are the Gear Pair tab's.
 - **Diagrams that follow the settings:** the Cut card shows the stock from above as the program cuts it (each
   cut the bit's width, the tabs, X0 Y0, the stock's size), read back from the G-code itself; the Depth card
   the cut from the side (each pass, the tab, Total Depth into the wasteboard); the Teeth card where the teeth

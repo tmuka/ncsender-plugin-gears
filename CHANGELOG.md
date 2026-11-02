@@ -6,7 +6,8 @@
   **Fold Compact** finds the smallest fold with no gear reaching another axle's shaft, **Straighten** undoes it.
   Frame Holes drills the axles where the picture shows them.
 - **Same center:** **Last Axle on the First** finds two stages that bring the last axle back onto the first, as a
-  clock's hour wheel on the minute hand's shaft (12:1 is 8:32 then 10:30); one frame hole for both.
+  clock's hour wheel on the minute hand's shaft (12:1 is 8:32 then 10:30); one frame hole for both, and that
+  gear bored to a **Tube Ø** to turn on a tube over the shaft.
 - **Presets** in Find a Train: a clock's seconds to minutes (60:1), its minutes to hours (12:1, same center), a
   slow crank (10:1), a spinner (1:5), each saying what its axles do.
 - **Help:** "Gear trains, plainly" (stages, compound gears, folding, same center, which way they turn) and "What
