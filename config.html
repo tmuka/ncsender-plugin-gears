@@ -370,7 +370,7 @@
               <select class="gr-select" id="gr-origin" title="Where X and Y are zeroed on the machine."><option value="center">Gear's Center</option><option value="front-left">Front-Left</option></select></div>
             <div class="gr-field"><label for="gr-direction">Direction</label>
               <select class="gr-select" id="gr-direction" title="Conventional is gentler on lighter machines; Climb can leave a cleaner edge on a rigid one."><option value="conventional">Conventional</option><option value="climb">Climb</option></select></div>
-            <div class="gr-field"><label for="gr-gap">Gap Between</label><input class="gr-input" id="gr-gap" data-unit="length" title="Both Gears: Gear B is turned so its teeth face Gear A&rsquo;s spaces, and set as close as the bit allows (one cut&rsquo;s width and 0.5 mm between them). Extra space between them: room for a screw or clamp between the gears, or a sturdier strip for their holding tabs. 0: as close as the bit allows."></div>
+            <div class="gr-field"><label for="gr-gap">Gap Between</label><input class="gr-input" id="gr-gap" data-unit="length" placeholder="auto" title="Both Gears: the space between the two gears where they come closest. Gear B is turned so its teeth face Gear A&rsquo;s spaces. At least the bit and a tenth, so the bit stays out of the other gear. Blank: that least gap. More: room for a screw or clamp between the gears, or a sturdier strip for their holding tabs."></div>
           </div>
           <div class="gr-hint" id="gr-origin-say"></div>
         </div>
@@ -425,7 +425,7 @@
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
-          <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces and as close as the bit allows: one cut&rsquo;s width and 0.5&nbsp;mm between them, which saves stock. <b>Gap Between</b> adds space when you want it: room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack or ring gear keeps two cuts&rsquo; width and the gap. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
+          <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces, <b>Gap Between</b> apart where they come closest, which saves stock. Blank, the gap is the least the bit allows: its diameter and a tenth, so the bit never cuts into the other gear. Make it more for room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack or ring gear sits the same gap from Gear A. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
         </ul></div>
       </div>
@@ -1621,6 +1621,9 @@ if (typeof module !== 'undefined' && module.exports) {
   // number of teeth (so a space of B faces a tooth of A along the line
   // between them, as when they mesh), and as close as keeps their outlines
   // `clear` apart everywhere: one kerf between them, less stock.
+  // The least Gap Between two gears cut together: a bit and a tenth, so the
+  // bit never cuts into the other gear and a strip is left between them.
+  function gapMinimum(bit) { return Math.max(1.1 * bit, bit + 0.2); }
   function nestTurn(zB) { return zB % 2 === 0 ? Math.PI / zB : 0; }
   function nestedDistance(A, B, turn, clear) {
     var c = Math.cos(turn), sn = Math.sin(turn), raA = A.basics.ra, raB = B.basics.ra;
@@ -1720,20 +1723,24 @@ if (typeof module !== 'undefined' && module.exports) {
   function generate(o) {
     var p = plan(o), r = o.bitDiameter / 2;
     if (p.problems.length) return { problems: p.problems, notes: p.notes, gcode: null };
-    var DEFAULTS = { hop: 5, stepoverPct: 40, gap: 0, direction: 'conventional' };
+    var DEFAULTS = { hop: 5, stepoverPct: 40, direction: 'conventional' };
     o = Object.assign({}, o);
     Object.keys(DEFAULTS).forEach(function (k) { if (o[k] == null) o[k] = DEFAULTS[k]; });
     var L = [], parts = [], placed = [];
-    // Gear A at (0, 0), B beside it in +X: two gears nested (B turned to
-    // face A as they mesh, one kerf and 0.5 mm between them), a rack or a
-    // ring two kerfs off; and the Gap Between more. A rack: its left end
-    // there, level with Gear A's middle; alone, centered on X0 Y0.
+    // Gear A at (0, 0), B beside it in +X, Gap Between apart where they
+    // come closest (blank: the least, gapMinimum): two gears nested (B
+    // turned to face A as they mesh), a rack or a ring beside it. A rack:
+    // its left end there, level with Gear A's middle; alone, centered on X0 Y0.
     var xB = 0, rb = p.rack && p.info.B.basics, turnB = 0;
-    var nested = p.which.length === 2 && !p.rack && !p.ring;
+    var nested = p.which.length === 2 && !p.rack && !p.ring, gapMin = gapMinimum(o.bitDiameter);
+    var gap = o.gap > 0 ? o.gap : gapMin;
+    if (p.which.length === 2 && o.gap > 0 && o.gap < gapMin - 1e-9) {
+      return { problems: ['Gap Between must be at least ' + gapMin.toFixed(2) + ' mm (the bit and a tenth), so the bit stays out of the other gear'], notes: p.notes, gcode: null };
+    }
     if (nested) {
       turnB = nestTurn(p.info.B.basics.z);
-      xB = nestedDistance(p.info.A, p.info.B, turnB, o.bitDiameter + 0.5) + o.gap;
-    } else if (p.which.length === 2) xB = p.info.A.basics.ra + (p.rack ? 0 : p.info.B.basics.ra) + 2 * o.bitDiameter + o.gap;
+      xB = nestedDistance(p.info.A, p.info.B, turnB, gap);
+    } else if (p.which.length === 2) xB = p.info.A.basics.ra + (p.rack ? 0 : p.info.B.basics.ra) + gap;
     p.which.forEach(function (k) {
       if (k === 'B' && p.rack) placed.push({ key: k, x: p.which.length === 2 ? xB : -rb.length / 2, y: -(rb.bottom + rb.top) / 2 });
       else placed.push({ key: k, x: k === 'B' && p.which.length === 2 ? xB : 0, y: 0, turn: k === 'B' ? turnB : 0 });
@@ -1852,7 +1859,7 @@ if (typeof module !== 'undefined' && module.exports) {
              extent: { x0: ext.x0 + sx, y0: ext.y0 + sy, x1: ext.x1 + sx, y1: ext.y1 + sy } };
   }
 
-  return { generate: generate, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners,
+  return { generate: generate, gapMinimum: gapMinimum, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners,
            boreOutline: boreOutline, boreReach: boreReach, bone: bone, rackHoles: rackHoles, ringHoles: ringHoles, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE };
 });
 /* END lib/gear-gcode.cjs */</script>
@@ -1886,7 +1893,7 @@ if (typeof module !== 'undefined' && module.exports) {
     'gr-holes-a': ['whole', 0, 24, 'Gear A Lightening Holes', 5], 'gr-holes-b': ['whole', 0, 24, 'Gear B Lightening Holes', 0],
     'gr-depth': ['length', 0.05, 200, 'Total Depth', 12.5], 'gr-step': ['length', 0.05, 50, 'Depth of Cut', null],
     'gr-tabs': ['whole', 1, 12, 'Tabs', 3], 'gr-tab-w': ['length', 0.5, 50, 'Tab Width', 4], 'gr-tab-h': ['length', 0.1, 50, 'Tab Height', 1.5],
-    'gr-gap': ['length', 0, 200, 'Gap Between', 0],
+    'gr-gap': ['length', 0, 200, 'Gap Between', null],
     'gr-frame-a': ['length', 0, 500, 'Axle Hole A', null], 'gr-frame-b': ['length', 0, 500, 'Axle Hole B', null],
     'gr-frame-depth': ['length', 0.05, 200, 'Total Depth', 19], 'gr-frame-step': ['length', 0.05, 50, 'Depth of Cut', null]
   };
@@ -1943,7 +1950,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Object.keys(FIELDS).forEach(function (id) {
       var f = FIELDS[id], v = read(id);
       s[id] = v;
-      var optional = /^gr-(clearance|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od)$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
+      var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od)$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
       // Named as the menus on their labels say: Gear A Spokes, Gear A D Bore...
       var nm = f[3], km = /^gr-(holes|bore)-([ab])$/.exec(id);
@@ -2070,6 +2077,7 @@ if (typeof module !== 'undefined' && module.exports) {
     applyRatio();
     var r = settings(), s = r.s, errs = r.errs;
     showSolutions(s, errs);
+    if (s['gr-bit'] > 0) $('gr-gap').placeholder = show(GC.gapMinimum(s['gr-bit'])) + ' (least)';
     var minM = s['gr-bit'] > 0 ? G.minModule({ pressureDeg: Number($('gr-pa').value), bitRadius: s['gr-bit'] / 2, backlash: s['gr-backlash'] || 0,
       clearance: s['gr-clearance'] != null && !errs['gr-clearance'] ? s['gr-clearance'] : null }) : NaN;
     var mode = $('gr-size-mode').value;
@@ -2475,6 +2483,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if ((m = /^Gear ([AB])’s tabs/.exec(t))) return 'gr-tab-w';
     if ((m = /^Axle Hole ([AB])/.exec(t))) return 'gr-frame-' + m[1].toLowerCase();
     if (/Tip Clearance must/.test(t)) return 'gr-clearance';
+    if (/^Gap Between/.test(t)) return 'gr-gap';
     if (/^Tab Height/.test(t)) return 'gr-tab-h';
     return null;
   }
@@ -2581,7 +2590,7 @@ if (typeof module !== 'undefined' && module.exports) {
       Object.keys(FIELDS).forEach(function (id) { var w = state.written[id], x = w && w.text === $(id).value ? w.v : read(id); if (x != null && !isNaN(x)) v[id] = x; });
       ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by'].forEach(function (id) { v[id] = $(id).value; });
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
-      v.module = moduleFromSize(); v.nested = true; v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
+      v.module = moduleFromSize(); v.nested = true; v.gapSpace = true; v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
       fetch(BASE_URL + '/api/plugins/' + PLUGIN + '/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v: v }) }).catch(function () {});
     };
     if (now) go(); else saveTimer = setTimeout(go, 800);
@@ -2592,6 +2601,9 @@ if (typeof module !== 'undefined' && module.exports) {
     // Saved before both gears were nested: the old default gap (6 mm, a
     // quarter inch) was room the nesting makes up; any other gap was chosen.
     if (v && !v.nested && v['gr-gap'] != null && (Math.abs(v['gr-gap'] - 6) < 1e-6 || Math.abs(v['gr-gap'] - 6.35) < 1e-6)) v['gr-gap'] = 0;
+    // Saved when Gap Between was extra space past one kerf and 0.5 mm: now
+    // it's the whole gap, so that's added; 0 becomes blank, the least.
+    if (v && !v.gapSpace && v['gr-gap'] != null) v['gr-gap'] = v['gr-gap'] > 0 ? v['gr-gap'] + (v['gr-bit'] || 3.175) + 0.5 : null;
     Object.keys(FIELDS).forEach(function (id) {
       var f = FIELDS[id], x = v && v[id] != null ? v[id] : (state.imperial && imperialDefaults[id] != null ? imperialDefaults[id] : f[4]);
       write(id, x);
