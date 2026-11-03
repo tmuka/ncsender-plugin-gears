@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **The Gear Pair picture is measured**, in QuickCut's style (accent dimension lines, open arrowheads, bold
+  values): each gear's outside diameter and the center distance, center to center. Hidden while a dot is dragged.
+
 ## 0.6.1: Help with pictures
 
 ### ✨ New
