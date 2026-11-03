@@ -116,6 +116,8 @@
   .gr-card-title .gr-label-select { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); letter-spacing: 0; background-position: right 1px center; }
   .gr-label-select option { background: var(--color-surface); color: var(--color-text-primary); font-size: 0.9rem; }
   .gr-error { color: #ff6b6b; font-size: 0.78rem; font-weight: 500; line-height: 1.3; }
+  .gr-card-errors { display: flex; flex-direction: column; gap: 2px; margin: 2px 0 10px; padding: 6px 10px; border-radius: 6px; border: 1px solid color-mix(in srgb, #ff6b6b 45%, transparent);
+    background: color-mix(in srgb, #ff6b6b 10%, transparent); color: #ff6b6b; font-size: 0.8rem; font-weight: 500; line-height: 1.35; }
   .gr-hint { font-size: 0.82rem; color: var(--color-text-secondary); }
   .gr-hint b { color: var(--color-text-primary); font-weight: 600; }
   .gr-link { color: var(--color-accent); cursor: pointer; text-decoration: underline; }
@@ -2967,21 +2969,36 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // Errors as a red line under the field; shown once a field is left or
   // on Generate, cleared as soon as it's right.
+  // Errors shown once a field is left or on Generate, cleared as soon as
+  // it's right: the field outlined red, and the words in one box under its
+  // card's title (not under the field, so nothing in the card's rows moves).
   function showErrors(errs, all) {
+    var byCard = new Map();
     ROOT.querySelectorAll('.gr-field').forEach(function (f) {
       var el = f.querySelector('input.gr-input:not([hidden]), select.gr-select');
       if (!el) return;
       // Ratio's errors are Gear B Teeth's, the field it stands in for.
-      var msg = errs[el.id] || (el.id === 'gr-ratio' ? errs['gr-teeth-b'] : null), line = f.querySelector('.gr-error');
+      var msg = errs[el.id] || (el.id === 'gr-ratio' ? errs['gr-teeth-b'] : null), old = f.querySelector('.gr-error');
+      if (old) old.remove();
       if (el.id === 'gr-ratio' && $('gr-teeth-b').dataset.touched) el.dataset.touched = '1';
-      if (msg && (all || el.dataset.touched)) {
-        el.classList.add('gr-bad');
-        if (!line) { line = document.createElement('div'); line.className = 'gr-error'; f.appendChild(line); }
-        line.textContent = msg;
-      } else {
-        el.classList.remove('gr-bad');
-        if (line) line.remove();
+      var show = msg && (all || el.dataset.touched);
+      el.classList.toggle('gr-bad', !!show);
+      var card = f.closest('.gr-card');
+      if (!card) return;
+      if (!byCard.has(card)) byCard.set(card, []);
+      if (show && byCard.get(card).indexOf(msg) < 0) byCard.get(card).push(msg);
+    });
+    byCard.forEach(function (msgs, card) {
+      var box = card.querySelector(':scope > .gr-card-errors');
+      if (!msgs.length) { if (box) box.remove(); return; }
+      if (!box) {
+        box = document.createElement('div');
+        box.className = 'gr-card-errors';
+        box.setAttribute('role', 'alert');
+        var head = card.querySelector(':scope > .gr-card-head');
+        if (head) head.after(box); else card.prepend(box);
       }
+      box.innerHTML = msgs.map(function (t) { return '<div>' + esc(t) + '</div>'; }).join('');
     });
   }
 
@@ -3254,7 +3271,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var why = noPairWhy(s, byRatio, ratio);
       state.designErr = { id: byRatio ? 'gr-design-ratio' : 'gr-design-od', field: why.field, say: why.say };
       $(state.designErr.id).dataset.touched = '1';
-      box.innerHTML = '<span class="gr-hint" style="color:#ff6b6b">' + esc(why.say) + '</span>';
+      box.innerHTML = '';
       return;
     }
     var u = ' ' + state.unit, mode = $('gr-size-mode').value, current = moduleFromSize();
@@ -3488,9 +3505,10 @@ if (typeof module !== 'undefined' && module.exports) {
     if (r.problem) {
       if (/^a /.test(r.problem)) { box.innerHTML = head + '<span class="gr-hint">Type ' + esc(r.problem) + ' to see the pairs.</span>'; return; }
       var said = r.problem.charAt(0).toUpperCase() + r.problem.slice(1).replace(/(\d+(?:\.\d+)?) mm/, function (_, v) { return show(+v) + u; });
-      state.designErr = { id: /distance/i.test(said) || !byRatio ? 'gr-cd' : 'gr-design-ratio', field: said, say: 'At your shop standard: ' + said + '. The Teeth card below still has the pair from before.' };
+      // Outlined on the field the reason is about: the ratio when it says so, else the distance.
+      state.designErr = { id: byRatio && /ratio/i.test(said) ? 'gr-design-ratio' : 'gr-cd', field: said, say: 'At your shop standard: ' + said + '. The Teeth card below still has the pair from before.' };
       $(state.designErr.id).dataset.touched = '1';
-      box.innerHTML = head + '<span class="gr-hint" style="color:#ff6b6b">' + esc(said) + '.</span>';
+      box.innerHTML = head;
       return;
     }
     var cdFor = function (o) { return o.spreadable ? s['gr-cd'] : o.ownDistance; };

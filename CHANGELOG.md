@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **Errors don't move the fields:** a field's error shows in a box under its card's title, the field outlined red,
+  instead of under the field (where a long one pushed the field beside it out of line). Center Distance's "no pair
+  fits" shows there once, not three times.
 - **The pictures are measured**, in QuickCut's style (accent dimension lines, open arrowheads, bold values): two
   gears' outside diameters and center distance; a rack's length, its pinion's diameter and the axle-to-rack-bottom
   mounting distance; a ring's diameter and its pinion's offset; a planetary set's ring and axle circle; each gear
