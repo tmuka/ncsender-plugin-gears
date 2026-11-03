@@ -8,6 +8,8 @@
   turning both hands on one center, a rack and pinion, the cut with its tabs read back from a real program, and the
   depth passes. Drawn from the plugin's own geometry; they move while Help is open, and stay still when the system
   asks for reduced motion.
+- **Help reads easier:** lines of about 70 characters with each card's figures beside them (stacked above in
+  portrait); cards without figures in two columns.
 - **Start from the Center Distance says when nothing fits:** a ratio (or Gear A's size) no pair can make at the
   distance with your bit is an error under the field and in the problems, saying the distance or bit that would
   work (rounded so typing it works) and that the Teeth card still has the pair from before. It was a grey hint, so

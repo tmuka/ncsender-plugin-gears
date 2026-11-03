@@ -358,6 +358,21 @@
   .gr-help ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; line-height: 1.45; }
   .gr-help a { color: var(--color-accent); }
   .gr-help-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 4px 0 12px; }
+  /* Readable lines (about 70 characters), the card's figures beside them; cards without figures in two columns. */
+  .gr-help .gr-card { max-width: none; font-size: 0.85rem; }
+  .gr-help .gr-card > ul { font-size: inherit; }
+  .gr-help ul { max-width: 60ch; }
+  .gr-help .gr-card:has(> .gr-help-figs) { display: grid; grid-template-columns: minmax(0, 60ch) minmax(300px, 1fr); column-gap: 32px; align-items: start; }
+  .gr-help .gr-card:has(> .gr-help-figs) > h3 { grid-column: 1 / -1; }
+  .gr-help .gr-card:has(> .gr-help-figs) > ul { grid-column: 1; grid-row: 2; }
+  .gr-help .gr-card:has(> .gr-help-figs) > .gr-help-figs { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; margin: 0; position: sticky; top: 8px; }
+  .gr-help .gr-card:not(:has(> .gr-help-figs)) > ul { display: block; max-width: 124ch; columns: 2 30ch; column-gap: 48px; }
+  .gr-help .gr-card:not(:has(> .gr-help-figs)) > ul > li { break-inside: avoid; margin-bottom: 6px; }
+  .gr-help .gr-card:not(:has(> .gr-help-figs)) > p { max-width: 60ch; }
+  @media (max-width: 1199px) {
+    .gr-help .gr-card:has(> .gr-help-figs) { display: block; }
+    .gr-help .gr-card:has(> .gr-help-figs) > .gr-help-figs { position: static; margin: 4px 0 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  }
   .gr-help-figs figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
   .gr-help-figs .gr-preview { height: 220px; }
   .gr-help-figs figcaption { font-size: 0.78rem; color: var(--color-text-secondary); line-height: 1.4; }
@@ -3142,7 +3157,7 @@ if (typeof module !== 'undefined' && module.exports) {
     out.push('<line class="gr-z0" x1="10" y1="' + top + '" x2="390" y2="' + top + '"/>');
     out.push('<text class="gr-z0-text" x="12" y="' + (top - 6) + '">Z0, the top of the stock</text>');
     out.push('<text x="388" y="' + (top - 6) + '" text-anchor="end">' + levels.length + ' passes of up to ' + show(s['gr-step']) + u + '</text>');
-    out.push('<text x="' + (cx1 + 6) + '" y="' + (y(D) + 3) + '">Total Depth ' + show(D) + u + '</text>');
+    out.push('<text x="396" y="' + Math.min(136, y(D) + 12) + '" text-anchor="end">Total Depth ' + show(D) + u + '</text>');
     out.push('<text x="12" y="' + Math.min(136, y(stock) + 12) + '">Wasteboard</text>');
     svg.innerHTML = out.join('');
   }
@@ -4286,7 +4301,8 @@ if (typeof module !== 'undefined' && module.exports) {
       var html = '<g data-g="A" data-at="translate(0 0)"><path class="gr-body" d="' + A.d + '"/></g><g data-g="B" data-at="translate(' + cd + ' 0)"><path class="gr-body gr-b" d="' + B.d + '"/></g>' +
         circ(0, 0, A.g.basics.rp, 'gr-pitch') + circ(cd, 0, B.g.basics.rp, 'gr-pitch') + '<line class="gr-ln" x1="0" y1="0" x2="' + cd + '" y2="0" stroke-dasharray="3 3"/>' +
         lbl(cd / 2, raA + pad * 1.05, 'center distance = module × (16 + 10) ÷ 2', fs, '', 'middle');
-      put('mesh', (-raA - pad) + ' ' + (-raA - pad) + ' ' + (cd + raB + raA + 2 * pad) + ' ' + (2 * raA + 2.6 * pad), html, function (deg, svg) { spinPair(svg, '', zA, zB, deg); });
+      var mw = Math.max(cd + raB + raA + 2 * pad, 25 * fs), mx = cd / 2 - mw / 2 + (raA - raB) / 2 * 0;
+      put('mesh', (cd / 2 - mw / 2) + ' ' + (-raA - pad) + ' ' + mw + ' ' + (2 * raA + 2.6 * pad), html, function (deg, svg) { spinPair(svg, '', zA, zB, deg); });
     })();
     // Same size meshes; a different size collides.
     (function () {
@@ -4306,7 +4322,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var dia = parseFloat((2 * ra).toFixed(1)), xt = ra + 3.2 * m;
       out += '<line class="gr-ln-acc" x1="' + (-ra) + '" y1="0" x2="' + ra + '" y2="0"/>' + circ(-ra, 0, 0.5, 'gr-tab-dot') + circ(ra, 0, 0.5, 'gr-tab-dot') +
         lbl(xt, -1.2 * fs, 'Count the teeth: ' + z, fs) + lbl(xt, 0.3 * fs, 'Across the tips: ' + dia + ' mm', fs, 'gr-lbl-acc') + lbl(xt, 1.8 * fs, dia + ' ÷ (' + z + ' + 2) = module ' + m, fs);
-      put('measure', (-ra - 2.5 * m) + ' ' + (-H / 2) + ' ' + (2 * ra + 2.5 * m + 3.2 * m + 9.5 * fs) + ' ' + H, out);
+      put('measure', (-ra - 2.5 * m) + ' ' + (-H / 2) + ' ' + (2 * ra + 2.5 * m + 3.2 * m + 15 * fs) + ' ' + H, out);
     })();
     // A planetary set turning, the ring held.
     (function () {
