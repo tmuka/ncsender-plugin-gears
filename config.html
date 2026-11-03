@@ -334,6 +334,7 @@
   .gt-axle-num { fill: var(--color-text-primary); font-weight: 600; paint-order: stroke; stroke: var(--color-surface); stroke-width: 3px; }
   .gt-preset-say { margin-bottom: 8px; }
   #gt-same + * , .gr-card > .gr-switch { margin: 8px 0; }
+  .gr-bit-line { margin: 0 0 8px; }
   .gr-std { font-size: 0.85rem; margin: 2px 0 10px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--color-border); color: var(--color-text-secondary); }
   .gr-std.gr-std-off { border-color: #e6b450; background: color-mix(in srgb, #e6b450 10%, transparent); color: var(--color-text-primary); }
   .gr-std b { color: var(--color-text-primary); }
@@ -415,34 +416,10 @@
           <div class="gr-problems" id="gr-problems" hidden></div>
         </div>
 
-        <div class="gr-card">
-          <div class="gr-card-head"><h4 class="gr-card-title">Tool</h4></div>
-          <div class="gr-row gr-row-5">
-            <div class="gr-field"><label for="gr-bit" id="gr-bit-label" class="gr-label-link" tabindex="0" role="button" title="Click to use the loaded tool's diameter from ncSender's tool table.">Bit Diameter</label><input class="gr-input" id="gr-bit" data-unit="length" title="The end mill's diameter. The tooth spaces are rounded at the bottom to fit it, so it sets the smallest teeth you can cut."></div>
-            <div class="gr-field"><label for="gr-feed">Feed Rate</label><input class="gr-input" id="gr-feed" data-unit="feed" title="For moves in X and Y."></div>
-            <div class="gr-field"><label for="gr-plunge">Plunge Rate</label><input class="gr-input" id="gr-plunge" data-unit="feed" title="For moves down in Z. Ramps and helixes slow down so Z never comes down faster than this."></div>
-            <div class="gr-field"><label for="gr-rpm">Spindle RPM</label><input class="gr-input" id="gr-rpm" title="0: the program doesn't start the spindle."></div>
-            <div class="gr-field"><label for="gr-delay">Delay (s)</label><input class="gr-input" id="gr-delay" title="Wait after starting the spindle, so it reaches speed."></div>
-          </div>
-          <div class="gr-tool-note" id="gr-tool-note"></div>
-          <div class="gr-row gr-row-5">
-            <div class="gr-field" style="grid-column: span 2"><label for="gr-material">Material</label>
-              <select class="gr-select" id="gr-material" title="Fills in Spindle RPM, Feed Rate, Plunge Rate and Depth of Cut for the Bit Diameter and Flutes: a start to adjust by ear and chip.">
-                <option value="">Pick for starting feeds</option>
-                <option value="mdf">MDF / Plywood</option><option value="softwood">Softwood</option><option value="hardwood">Hardwood</option>
-                <option value="hdpe">HDPE / UHMW</option><option value="acrylic">Acrylic</option><option value="polycarbonate">Polycarbonate</option>
-                <option value="aluminum">Aluminum</option><option value="foam">Foam</option>
-              </select></div>
-            <div class="gr-field"><label for="gr-flutes">Flutes</label>
-              <select class="gr-select" id="gr-flutes"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select></div>
-            <div class="gr-field"><label class="gr-switch"><input type="checkbox" id="gr-mist"> Mist (M7)</label></div>
-            <div class="gr-field"><label class="gr-switch"><input type="checkbox" id="gr-flood"> Flood (M8)</label></div>
-          </div>
-        </div>
-
         <div class="gr-card gr-planet-only" id="gr-planet-card">
           <div class="gr-card-head"><h4 class="gr-card-title"><select class="gr-label-select" id="gr-pl-by" aria-label="Find a planetary set by" title="Ratio: type the reduction and pick a set that makes it. Teeth: type the sun&rsquo;s and planets&rsquo; teeth in the Teeth card yourself.">
             <option value="ratio">Find a Planetary Set by Ratio</option><option value="teeth">Planetary Set by Teeth</option></select></h4></div>
+          <div class="gr-hint gr-bit-line"></div>
           <div class="gr-row gr-row-4" id="gr-pl-ratio-row">
             <div class="gr-field"><label for="gr-pl-ratio">Ratio</label><input class="gr-input" id="gr-pl-ratio" title="Turns of the sun for one turn of the carrier, with the ring held still: more than 2 (4 for 4:1)."></div>
           </div>
@@ -452,6 +429,7 @@
         <div class="gr-card gr-not-special" id="gr-design-card">
           <div class="gr-card-head"><h4 class="gr-card-title"><select class="gr-label-select" id="gr-design-mode" aria-label="Design" title="Start from the Center Distance: a new pair, its teeth and tooth size picked for where the axles go. Add a Gear to This Set: keep this pair&rsquo;s tooth size and pressure angle, so a new gear meshes with the ones you cut; Load the pair&rsquo;s program first if you&rsquo;ve changed it since.">
             <option value="new">Start from the Center Distance</option><option value="add">Add a Gear to This Set</option></select></h4></div>
+          <div class="gr-hint gr-bit-line"></div>
           <div class="gr-row gr-row-4">
             <div class="gr-field"><label for="gr-cd">Center Distance</label><input class="gr-input" id="gr-cd" data-unit="length" placeholder="auto" title="Where the axles go: the distance between them. With the Ratio or Gear A&rsquo;s size, the pairs that mesh there are listed below to pick from. Blank: the gears&rsquo; own (the two pitch radii). Typed a little wider than their own, the gears are spread to it: more backlash, which the facts show. The frame&rsquo;s holes are drilled at it."></div>
             <div class="gr-field" id="gr-design-with-field" hidden><label for="gr-design-with">Meshes With</label>
@@ -546,6 +524,31 @@
             <div class="gr-field" style="grid-column: span 2"><label for="gr-hole-cut">Holes and Windows</label><select class="gr-select gr-hole-cut" id="gr-hole-cut" title="Lightening holes and spoke windows. Cut Out: cut round the edge only, two small tabs holding the piece inside; knock it out and sand the tabs after. Much quicker on big gears. Needs Holding Tabs on (without them the holes are cleared). Clear Out: all the wood inside cut away from the middle, nothing to knock out. Bores are always cleared."><option value="out">Cut Out, Tabs Hold the Piece</option><option value="clear">Clear Out (Slower)</option></select></div>
           </div>
           <div class="gr-hint">Bores are cleared out from the middle, so nothing comes loose; lightening holes and spoke windows too with Clear Out, or cut round their edge with two tabs holding the piece with Cut Out. Hex, D and keyed bores get a small notch in each sharp corner, where a round bit can’t reach; spoke windows get rounded corners instead.</div>
+        </div>
+
+        <div class="gr-card" id="gr-tool-card">
+          <div class="gr-card-head"><h4 class="gr-card-title">Tool</h4></div>
+          <div class="gr-row gr-row-5">
+            <div class="gr-field"><label for="gr-bit" id="gr-bit-label" class="gr-label-link" tabindex="0" role="button" title="Click to use the loaded tool's diameter from ncSender's tool table.">Bit Diameter</label><input class="gr-input" id="gr-bit" data-unit="length" title="The end mill's diameter. The tooth spaces are rounded at the bottom to fit it, so it sets the smallest teeth you can cut."></div>
+            <div class="gr-field"><label for="gr-feed">Feed Rate</label><input class="gr-input" id="gr-feed" data-unit="feed" title="For moves in X and Y."></div>
+            <div class="gr-field"><label for="gr-plunge">Plunge Rate</label><input class="gr-input" id="gr-plunge" data-unit="feed" title="For moves down in Z. Ramps and helixes slow down so Z never comes down faster than this."></div>
+            <div class="gr-field"><label for="gr-rpm">Spindle RPM</label><input class="gr-input" id="gr-rpm" title="0: the program doesn't start the spindle."></div>
+            <div class="gr-field"><label for="gr-delay">Delay (s)</label><input class="gr-input" id="gr-delay" title="Wait after starting the spindle, so it reaches speed."></div>
+          </div>
+          <div class="gr-tool-note" id="gr-tool-note"></div>
+          <div class="gr-row gr-row-5">
+            <div class="gr-field" style="grid-column: span 2"><label for="gr-material">Material</label>
+              <select class="gr-select" id="gr-material" title="Fills in Spindle RPM, Feed Rate, Plunge Rate and Depth of Cut for the Bit Diameter and Flutes: a start to adjust by ear and chip.">
+                <option value="">Pick for starting feeds</option>
+                <option value="mdf">MDF / Plywood</option><option value="softwood">Softwood</option><option value="hardwood">Hardwood</option>
+                <option value="hdpe">HDPE / UHMW</option><option value="acrylic">Acrylic</option><option value="polycarbonate">Polycarbonate</option>
+                <option value="aluminum">Aluminum</option><option value="foam">Foam</option>
+              </select></div>
+            <div class="gr-field"><label for="gr-flutes">Flutes</label>
+              <select class="gr-select" id="gr-flutes"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select></div>
+            <div class="gr-field"><label class="gr-switch"><input type="checkbox" id="gr-mist"> Mist (M7)</label></div>
+            <div class="gr-field"><label class="gr-switch"><input type="checkbox" id="gr-flood"> Flood (M8)</label></div>
+          </div>
         </div>
 
         <div class="gr-card">
@@ -2965,6 +2968,13 @@ if (typeof module !== 'undefined' && module.exports) {
   function updatePair() {
     applyRatio();
     var r = settings(), s = r.s, errs = r.errs;
+    // The bit sets the smallest teeth: named where the design starts, the Tool card being further down.
+    ROOT.querySelectorAll('.gr-bit-line').forEach(function (el) {
+      el.innerHTML = s['gr-bit'] > 0 && !errs['gr-bit'] ? 'For a <b>' + show(s['gr-bit']) + ' ' + state.unit + '</b> bit' + (bitToolNumber() ? ' (T' + bitToolNumber() + ')' : '') + ': only teeth it can cut are offered. <span class="gr-link gr-to-tool">Change it in Tool</span>'
+        : '<span class="gr-link gr-to-tool">Set the bit in Tool</span> first: it sets the smallest teeth you can cut.';
+      var a2 = el.querySelector('.gr-to-tool');
+      if (a2) a2.onclick = function () { $('gr-tool-card').scrollIntoView({ block: 'start', behavior: 'smooth' }); var f = $('gr-bit'); setTimeout(function () { f.focus(); }, 300); };
+    });
     showSolutions(s, errs);
     showPlanetOptions(s, errs);
     showStandard();
@@ -3497,9 +3507,11 @@ if (typeof module !== 'undefined' && module.exports) {
     var pr = G.pair(o, o.gears.A.teeth, o.gears.B.teeth);
     var ratio = o.gears.A.teeth / o.gears.B.teeth;
     var parts = ['Ratio <b>' + (ratio >= 1 ? parseFloat(ratio.toFixed(3)) + ':1' : '1:' + parseFloat((1 / ratio).toFixed(3))) + '</b>',
-      'Center distance <b>' + show(pr.centerDistance) + u + '</b>' + (Math.abs(pr.spread) > 1e-6 ? ' (' + (pr.spread > 0 ? 'spread ' : 'closer by ') + show(Math.abs(pr.spread)) + u + ': backlash ' + show(pr.backlash) + u + ')' : ''),
-      'Outside Ø <b>A ' + show(2 * A.basics.ra) + ', B ' + show(2 * B.basics.ra) + u + '</b>',
-      'Contact ratio <b>' + pr.contactRatio.toFixed(2) + '</b>' + (pr.contactRatio < 1.2 ? ' (low: more teeth' + (o.pressureDeg > 20 ? ' or 20°' : '') + ')' : '')];
+      // Outside the range that works, what's past it means nothing: the range instead.
+      pr.problem ? 'Center distance <b>' + show(pr.centerDistance) + u + '</b>: ' + (pr.spread > 0 ? 'too far' : 'too close') + ' for these teeth (' + show(pr.minDistance) + ' to ' + show(pr.maxDistance) + u + ' works)'
+        : 'Center distance <b>' + show(pr.centerDistance) + u + '</b>' + (Math.abs(pr.spread) > 1e-6 ? ' (' + (pr.spread > 0 ? 'spread ' : 'closer by ') + show(Math.abs(pr.spread)) + u + ': backlash ' + show(pr.backlash) + u + ')' : ''),
+      'Outside Ø <b>A ' + show(2 * A.basics.ra) + ', B ' + show(2 * B.basics.ra) + u + '</b>'].concat(pr.problem ? [] : [
+      'Contact ratio <b>' + pr.contactRatio.toFixed(2) + '</b>' + (pr.contactRatio < 1.2 ? ' (low: more teeth' + (o.pressureDeg > 20 ? ' or 20°' : '') + ')' : '')]);
     ['A', 'B'].forEach(function (k) { var g = k === 'A' ? A : B; (g.notes || []).forEach(function (n) { parts.push('Gear ' + k + ': ' + esc(n)); }); });
     $('gr-facts').innerHTML = parts.map(function (t) { return '<span>' + t + '</span>'; }).join('');
   }
