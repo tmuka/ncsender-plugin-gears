@@ -424,3 +424,22 @@ test('Cut Out: windows and lightening holes cut round their edge a bit radius in
   const a = GC.generate({ ...base, holeCut: 'clear' }), b = GC.generate(base);
   assert.equal(a.gcode, b.gcode);
 });
+
+test('pinion and ring nested: the pinion cut first inside the ring on its center, neither cut reaching the other part', () => {
+  const o = { ...base, job: 'both', module: 3.5, gears: { A: { teeth: 14, bore: 8, holes: 0 }, B: { teeth: 40, kind: 'ring', rim: 12, bore: 0, holes: 0 } } };
+  const r = GC.generate(o);
+  assert.deepStrictEqual(r.problems, []);
+  assert.deepStrictEqual(r.parts.map((q) => [q.key, Math.round(q.x * 1000) / 1000, Math.round(q.y * 1000) / 1000]).slice(0, 1), [['A', 0, 0]]);
+  assert.ok(r.parts.every((q) => Math.abs(q.x) < 1e-9 && Math.abs(q.y) < 1e-9), 'same center');
+  const lines = r.gcode.split('\n'), iA = lines.findIndex((l) => /Gear A teeth/.test(l)), iR = lines.findIndex((l) => /Ring teeth/.test(l));
+  assert.ok(iA > 0 && iR > iA, 'the pinion first');
+  const R = r.info.B.basics, P = r.info.A.basics, rb = base.bitDiameter / 2;
+  const mv = run(r.gcode).filter((m) => m.g >= 1 && m.z < 0 && !/bore/.test(m.section));
+  for (const m of mv.filter((q) => /Gear A teeth/.test(q.section))) assert.ok(Math.hypot(m.x, m.y) <= P.ra + rb + 0.01, 'the pinion’s cut stays round the pinion');
+  for (const m of mv.filter((q) => /Ring teeth/.test(q.section))) assert.ok(Math.hypot(m.x, m.y) >= R.ri - rb - 0.01, 'the ring’s cut stays at its teeth');
+  assert.ok(R.ri - P.ra >= GC.gapMinimum(base.bitDiameter) - 1e-9);
+  // A Gap Between wider than the opening leaves: beside it, as before.
+  const wide = GC.generate({ ...o, gap: R.ri });
+  assert.deepStrictEqual(wide.problems, []);
+  assert.ok(wide.parts.some((q) => Math.abs(q.x) > 1), 'beside the ring');
+});

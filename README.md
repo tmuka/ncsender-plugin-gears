@@ -104,7 +104,7 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   collide. Its teeth are shaped as your bit cuts them from inside, a little short so they clear the
   pinion's root rounding; it has a **Rim Width** outside its teeth with screw holes (Gear B's Bore and
   Holes fields). It's cut from inside with tabs on its tooth tips, so the middle stays put until you
-  cut them, then round its outside.
+  cut them, then round its outside. Cut with its pinion, the pinion comes out of the ring's middle first, on the same center.
 - **Planetary sets:** the **Planetary** button makes a sun (Gear A), planets (Gear B, how many on the Teeth
   card) and a ring (sun + two planets' teeth, with a Rim Width). Find a set by ratio (ring held, sun in, carrier
   out) or type the teeth; it checks that the planets space evenly and clear each other, and gives all three

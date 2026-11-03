@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Pinion and Ring nest:** the pinion is cut inside the ring's opening, on the same center, then the ring, instead
+  of beside it (beside only when a wide Gap Between leaves no room).
 - **The Gear Pair tab starts with the design:** Center Distance (or Planetary), Teeth, Gear Bodies, then Tool, Depth and
   Cut. The design card names the bit it's for, with a link to change it.
 - The facts no longer show a backlash and a negative contact ratio for a Center Distance that can't work: they
