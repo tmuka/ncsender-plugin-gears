@@ -714,6 +714,7 @@
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
           <li><b>The diagrams</b> follow what you type. Under the Teeth card, where the teeth meet, close up: a tooth of Gear B in a space of Gear A, their pitch circles touching at the pitch point, the line of action at the pressure angle, the backlash beside the tooth, the tip clearance under it, and the bit in A&rsquo;s root. Under the Depth card, the cut from the side: Z0, the floor of each pass, a tab left standing, Total Depth into the wasteboard. Under the Cut card, the stock from above as the program will cut it, read back from the program itself: each cut through the stock the bit&rsquo;s width, the holding tabs as orange dots, X0 Y0 in red, and the stock&rsquo;s size.</li>
           <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces, <b>Gap Between</b> apart where they come closest, which saves stock. Blank, the gap is the least the bit allows: its diameter and a tenth, so the bit never cuts into the other gear. Make it more for room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack or ring gear sits the same gap from Gear A. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
+          <li><b>Up and Down arrows</b> step a number field, as in QuickCut: 1 a press, <b>Shift</b> 10, <b>Alt</b> (Option) 0.1, <b>Ctrl</b> (Command) 0.001, in the field&rsquo;s units (a typed 1/4&quot; is read first). Teeth and counts step in whole numbers, and a field never steps below its least.</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
         </ul></div>
         <div class="gr-card"><h3>Planetary sets, plainly</h3><ul>
@@ -2984,6 +2985,9 @@ if (typeof module !== 'undefined' && module.exports) {
     } else $('gr-min-size').textContent = '';
     distanceHint(s, errs, minM);
     var blocking = ['gr-size', 'gr-bit', 'gr-teeth-a', 'gr-teeth-b', 'gr-backlash', 'gr-clearance'].filter(function (id) { return errs[id]; });
+    // A field that keeps the gears from being drawn shows its error now, not only once it's been edited:
+    // switching to a ring or a rack can make a field wrong without touching it.
+    blocking.forEach(function (id) { $(id).dataset.touched = '1'; if (id === 'gr-teeth-b' && !$('gr-ratio').hidden) $('gr-ratio').dataset.touched = '1'; });
     var problems = [], o = null;
     if (!blocking.length) {
       o = opts(s, $('gr-job').value);
@@ -2996,7 +3000,7 @@ if (typeof module !== 'undefined' && module.exports) {
         if (Rg.problem && !/ring needs at least/.test(problems.join())) problems.push('The ring: ' + Rg.problem);
       }
     }
-    last = { s: s, errs: errs, o: o, problems: problems };
+    last = { s: s, errs: errs, o: o, problems: problems, blocking: blocking.map(function (id) { return errs[id]; }) };
     // A problem about one field shows under it too.
     var more = {};
     problems.forEach(function (t) { var id = problemField(t); if (id && !more[id]) { more[id] = t.charAt(0).toUpperCase() + t.slice(1); $(id).dataset.touched = '1'; } });
@@ -3500,7 +3504,7 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   function drawPair() {
     var svg = $('gr-preview');
-    if (!last || !last.o) { svg.innerHTML = '<text x="0" y="0" text-anchor="middle" font-size="6">Fix the fields below to see the gears</text>'; svg.setAttribute('viewBox', '-100 -60 200 120'); return; }
+    if (!last || !last.o) { svg.setAttribute('viewBox', '-100 -60 200 120'); svg.innerHTML = fixMessage(last && last.blocking, 'the gears'); return; }
     var o = last.o, A = gearInfo(o, 'A'), B = gearInfo(o, 'B');
     if (o.gears.B.kind === 'rack') { drawRack(o, A, B); return; }
     if (o.gears.B.kind === 'ring') { drawRing(o, A, B); return; }
@@ -3617,6 +3621,14 @@ if (typeof module !== 'undefined' && module.exports) {
     };
     svg.addEventListener('pointerup', end);
     svg.addEventListener('pointercancel', end);
+  }
+  // In the preview when it can't draw: what to fix, from the fields' own
+  // errors (each also shown under its field), up to three.
+  function fixMessage(list, what) {
+    var lines = (list || []).filter(Boolean).slice(0, 3), out = '<text x="0" y="' + (-6 * lines.length) + '" text-anchor="middle" font-size="6">To see ' + what + ':</text>';
+    if (!lines.length) return '<text x="0" y="0" text-anchor="middle" font-size="6">Fix the fields below to see ' + what + '</text>';
+    lines.forEach(function (t, i) { out += '<text class="gr-bad-text" x="0" y="' + (-6 * lines.length + 10 * (i + 1)) + '" text-anchor="middle" font-size="5.5">' + esc(t) + '</text>'; });
+    return out;
   }
   // Rack and pinion: the pinion (Gear A) at the middle, the rack's pitch
   // line touching its pitch circle underneath, a space of the rack under
@@ -3938,8 +3950,10 @@ if (typeof module !== 'undefined' && module.exports) {
     if (showTrainOptions(s, errs, rs.stages)) rs = readStages();
     var stages = rs.stages, allErrs = Object.assign({}, errs, rs.errs);
     trainJobs(stages);
-    showErrors(allErrs, false);
     var blocking = ['gr-size', 'gr-bit', 'gr-backlash', 'gr-clearance'].filter(function (id) { return errs[id]; }).concat(Object.keys(rs.errs));
+    blocking.forEach(function (id) { $(id).dataset.touched = '1'; });
+    showErrors(allErrs, false);
+    var blockingSay = blocking.map(function (id) { return allErrs[id] + (/^gr-/.test(id) ? ' (on the Gear Pair tab)' : ''); });
     var u = ' ' + state.unit, problems = [], L = null;
     stages.forEach(function (st, i) {
       var say = $('gt-s' + i + '-say');
@@ -3973,7 +3987,7 @@ if (typeof module !== 'undefined' && module.exports) {
           'more teeth in stage ' + (h.axle > h.gear.axle ? h.gear.axle + 1 : h.gear.axle) + ', or fewer on this gear');
       });
     }
-    lastTrain = { s: s, stages: stages, L: L, problems: problems, blocking: blocking };
+    lastTrain = { s: s, stages: stages, L: L, problems: problems, blocking: blocking, blockingSay: blockingSay };
     drawTrain();
     var box = $('gt-problems');
     box.hidden = !problems.length;
@@ -4020,7 +4034,7 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   function drawTrain() {
     var svg = $('gt-preview'), t = lastTrain;
-    if (!t || !t.L) { svg.setAttribute('viewBox', '-100 -60 200 120'); svg.innerHTML = '<text x="0" y="0" text-anchor="middle" font-size="6">Fix the fields to see the train</text>'; return; }
+    if (!t || !t.L) { svg.setAttribute('viewBox', '-100 -60 200 120'); svg.innerHTML = fixMessage(t && t.blockingSay, 'the train'); return; }
     var L = t.L, s = t.s, b = L.box, x0 = b.x0, x1 = b.x1;
     var pad = Math.max(s['gr-bit'] * 2 + 4, 0.05 * Math.max(x1 - x0, b.y1 - b.y0)), fs = Math.max(x1 - x0, b.y1 - b.y0) / 45;
     svg.setAttribute('viewBox', (x0 - pad) + ' ' + (-b.y1 - pad) + ' ' + (x1 - x0 + 2 * pad) + ' ' + (b.y1 - b.y0 + 2 * pad));
@@ -4193,7 +4207,12 @@ if (typeof module !== 'undefined' && module.exports) {
     var bad = p.bad.length || (p.res && p.res.problems.length);
     btn.classList.toggle('gr-blocked', !!bad);
     note.classList.toggle('gr-bad-note', !!bad);
-    if (p.bad.length) { note.textContent = 'Fix ' + (p.bad.length === 1 ? 'one field' : p.bad.length + ' fields') + ' to generate; Generate points ' + (p.bad.length === 1 ? 'it' : 'them') + ' out.'; return; }
+    if (p.bad.length) {
+      // The first one by name (where it is, when it's on another tab), and how many more.
+      var first = p.errs[p.bad[0]] || 'a field', sec = $(p.bad[0]) && $(p.bad[0]).closest('.gr-content'), there = sec && sec.dataset.view !== view ? ' (on the ' + { pair: 'Gear Pair', frame: 'Frame Holes', train: 'Gear Train' }[sec.dataset.view] + ' tab)' : '';
+      note.textContent = 'To generate, fix this: ' + first + there + (p.bad.length > 1 ? ', and ' + (p.bad.length - 1) + ' more' : '') + '. Generate points ' + (p.bad.length === 1 ? 'it' : 'them') + ' out.';
+      return;
+    }
     if (p.res.problems.length) {
       var more = {};
       p.res.problems.forEach(function (t) { var id = problemField(t); if (id && !more[id]) { more[id] = t; $(id).dataset.touched = '1'; } });
@@ -4948,7 +4967,42 @@ if (typeof module !== 'undefined' && module.exports) {
     clearTimeout(touchTimer);
     touchTimer = setTimeout(function () { if (state.dragging) { touch(); return; } if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, 120);
   }
+  // Up / Down arrows step a number field, as in QuickCut (and Chrome
+  // DevTools): plain 1, Shift 10, Alt (Option) 0.1, Ctrl (Command) 0.001,
+  // in the field's own units (1/4" and the like read first). Whole-number
+  // fields (teeth, counts) step at least 1. Never below the field's
+  // minimum: stopped at it when it's a whole number, else not moved (an odd
+  // minimum would knock the value off the step). Over the maximum is left
+  // to the field's own check.
+  function wireArrowKeySteps() {
+    ROOT.addEventListener('keydown', function (evt) {
+      if (evt.key !== 'ArrowUp' && evt.key !== 'ArrowDown') return;
+      var el = evt.target;
+      if (!el || el.tagName !== 'INPUT' || el.disabled || el.readOnly || !el.classList.contains('gr-input')) return;
+      var f = FIELDS[el.id], stage = el.classList.contains('gt-teeth'), angle = el.classList.contains('gt-angle'), size = el.id === 'gr-size';
+      if (!f && !stage && !angle && !size) return;
+      var unit = f && (f[0] === 'length' || f[0] === 'feed') ? f[0] : null, t = String(el.value).trim();
+      var current = unit ? parseUnitValue(t, state.imperial, unit) : parseFloat(t);
+      if (current == null || !isFinite(current)) current = 0;
+      var step = evt.ctrlKey || evt.metaKey ? 0.001 : evt.shiftKey ? 10 : evt.altKey ? 0.1 : 1;
+      if (stage || (f && f[0] === 'whole')) step = Math.max(1, Math.round(step));
+      var next = current + (evt.key === 'ArrowUp' ? step : -step);
+      var min = stage ? 6 : f ? (unit ? f[1] / K() : f[1]) : size ? 0.01 : -Infinity;
+      if (isFinite(min) && next < min - 1e-12) {
+        if (!Number.isInteger(min)) { evt.preventDefault(); return; }
+        next = min;
+      }
+      next = parseFloat(next.toFixed(state.imperial && unit ? 4 : 3));
+      evt.preventDefault();
+      if (String(next) === el.value) return;
+      el.value = next;
+      el.dataset.touched = '1';
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      if (f || size) el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  }
   function wire() {
+    wireArrowKeySteps();
     ROOT.querySelectorAll('.gr-nav-btn').forEach(function (b) { b.addEventListener('click', function () { showView(b.dataset.view); }); });
     $('gr-help-back').addEventListener('click', function () { showView(lastView); });
     $('gr-close').addEventListener('click', function () { save(true); window.postMessage({ type: 'close-plugin-dialog' }, '*'); });

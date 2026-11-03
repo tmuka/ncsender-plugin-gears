@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **Up and Down arrows** step number fields, as in QuickCut: 1, Shift 10, Alt (Option) 0.1, Ctrl (Command) 0.001.
+- **What to fix shows at once:** a field that keeps the preview from drawing shows its error straight away, and the
+  preview and the footer say what it is (switching to Ring and Pinion with 8 ring teeth said only "Fix the fields").
 - **Planetary sets:** a **Planetary** button on the Gear Pair tab: a sun, planets on a carrier and a ring. Find a
   set by ratio or type the teeth; the planets are checked for even spacing and clearance, with the nearest teeth
   that work; the preview turns it all; the facts give the ring-held, carrier-held and sun-held ratios. Cut
