@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.7.0: First cut without knowing gears
 
 - **Your First Cut:** on a first open, a card asks the board's thickness and sets up a small 2:1 test pair for your
-  bit (about four minutes with a 1/8" or 3 mm bit): round teeth it cuts, small bores, through the board, X0 Y0 at
-  its front-left corner, with its frame holes a link away.
+  bit (about five minutes with a 1/8" or 3 mm bit): round teeth it cuts, small bores, through the board (the frame's
+  too), X0 Y0 at its front-left corner, with its frame holes a link away.
 - **Starter standards from your bit:** the Teeth card suggests round sizes the bit cuts (DP 8 for 1/8", module 3
   for 3 mm, module 4 for 4 mm, DP 3 or module 7 for 1/4" and 6 mm), each said as the gears it makes and setting
   the backlash it needs; offered open after a first Generate, not before.
@@ -12,7 +12,8 @@
   sizes the bit cuts, no more odd ones (Fit Tooth Size still fits a distance exactly).
 - **New ways to start:** Start from the Ratio (no distance), Match a Gear I Have (its teeth and the diameter across
   its tips give its module and DP, then Add a Gear for its mate).
-- **Must Fit (W × H):** each option says whether the pair fits your board or space; the pick prefers one that does.
+- **Must Fit (W × H):** each option says whether the pair fits the board it's cut from, measured as Generate nests
+  it; the pick prefers one that does, Start from the Ratio tries pinions down to 6, and it says when none fits.
 - **Options say more:** whether the bores fit, how much a small gear is undercut (fine, or a little weaker).
 - **The tool menu** lists end mills first; V-bits, drills, surfacing and roundover bits behind Show All Tools; an
   end mill too big for the teeth is marked.
@@ -21,7 +22,8 @@
 - **Fixes:** "This bit cuts teeth down to …" (it read as the opposite), its link only when the teeth are too fine;
   a design off the standard says what it meshes with; the footer's problem is a link to its field; new installs
   zero X0 Y0 at the front-left corner and start a metric machine at a 3 mm bit; Help's standard advice matches
-  what common bits cut.
+  what common bits cut; Start from the Ratio keeps the shop standard and picks the smallest close pair; typing a
+  ratio keeps the distance you typed; every "a bit up to" agrees; Load keeps Your First Cut put away.
 - **Help: Getting started** (a test pair, one tooth size, start from what you know).
 
 ## 0.6.2: Measured previews
