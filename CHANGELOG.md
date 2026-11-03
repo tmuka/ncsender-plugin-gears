@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+- **Review fixes:** at a shop standard (and adding a gear), a typed Center Distance is picked when you leave the
+  field, not rewritten while you type; the arrow keys step it; a hidden Planetary ratio no longer blocks Generate;
+  X0 Y0 for a planetary set is the ring's center, said on the Cut card and in the program; the Carrier Plate says
+  it drills to the Frame Holes tab's depth; Ratio mode is kept across the Kind buttons; planetary fixes suggested
+  are checked to work.
 - **Pinion and Ring nest:** the pinion is cut inside the ring's opening, on the same center, then the ring, instead
-  of beside it (beside only when a wide Gap Between leaves no room).
+  of beside it (beside only when the pinion and the Gap Between don't fit inside the opening).
 - **The Gear Pair tab starts with the design:** Center Distance (or Planetary), Teeth, Gear Bodies, then Tool, Depth and
   Cut. The design card names the bit it's for, with a link to change it.
 - The facts no longer show a backlash and a negative contact ratio for a Center Distance that can't work: they

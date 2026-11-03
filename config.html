@@ -692,7 +692,7 @@
         <div class="gr-card"><h3>Designing gears: how it&rsquo;s usually done</h3><ul>
           <li><b>What makes gears mesh:</b> the same <b>tooth size</b> (module, Diametral Pitch or Circular Pitch: three ways to say one thing) and the same <b>pressure angle</b>. Nothing else: not the teeth, not the diameters. Two pairs cut at different tooth sizes will never mesh with each other, however close the sizes look.</li>
           <li><b>Keep a shop standard.</b> Pick one tooth size and pressure angle and use it for everything, and every gear you ever cut meshes with every other: spares, new axles and add-ons all fit. Set it on the Teeth card (<b>Make &hellip; my standard</b>); it&rsquo;s kept apart from your designs (Load and sets don&rsquo;t change it) and shown under the units in the sidebar. A design off it says so. Good standards are round sizes: a whole Diametral Pitch (4, 5, 6, 8, 10, 12) or a standard module (1, 1.25, 1.5, 2, 2.5, 3, 4, 5 mm), coarse enough for your bit (the Teeth card says the smallest it can cut). Small mechanisms and clocks often use DP 8 to 10 or module 2.5 to 3; toys and demonstrators DP 4 to 6; 20&deg; is the usual pressure angle, 25&deg; makes small pinions stronger. Write it on the shop wall.</li>
-          <li><b>The usual order:</b> a designer picks the <b>tooth size</b> first (from how big the mechanism should be and how strong its teeth must be), then the <b>tooth counts</b> for the ratio (pinions of 8 or more, 12 or more to avoid undercut at 20&deg;), and the <b>center distance follows</b>: module &times; (teeth A + teeth B) &divide; 2. With a shop standard, that&rsquo;s what Start from the Center Distance does: it keeps the standard and gives the whole-tooth pairs nearest the distance you typed.</li>
+          <li><b>The usual order:</b> a designer picks the <b>tooth size</b> first (from how big the mechanism should be and how strong its teeth must be), then the <b>tooth counts</b> for the ratio (pinions of 8 or more; 17 or more avoids undercut at 20&deg;, 12 at 25&deg;, and Gears shapes the undercut a smaller pinion needs), and the <b>center distance follows</b>: module &times; (teeth A + teeth B) &divide; 2. With a shop standard, that&rsquo;s what Start from the Center Distance does: it keeps the standard and gives the whole-tooth pairs nearest the distance you typed.</li>
           <li><b>When the distance is fixed</b> (holes already drilled, a spoilboard&rsquo;s inserts): keep the tooth size and choose the teeth whose own distance lands nearest, then take up the little that&rsquo;s left by spreading the gears apart (more backlash; the range that works is shown). Only if that won&rsquo;t do, change the tooth size to fit exactly (<b>Fit Tooth Size</b>), knowing that pair meshes only with itself. Without a standard, Start from the Center Distance works this way round: it sets the tooth size to make the distance exact, which is why each new design can come out at a different, odd size.</li>
           <li><b>How a clockmaker starts:</b> from time. The pendulum&rsquo;s length sets the beat (about 994 mm for one second), the escape wheel&rsquo;s teeth and the beat set how fast it turns (once a minute for a seconds hand), and the hands set the ratios: 60:1 from the seconds arbor to the minute hand, 12:1 from the minute hand to the hour hand (the motion work, on the same center). Tooth counts come from well-tried combinations (8:60 then 8:64; 8:32 then 10:30 for the motion work), one tooth size for the going train, sometimes a finer one for the motion work. Then the arbors are <b>planted</b> on the plate: the distances are fixed by the teeth, so only the directions are chosen, folding the train to fit the case, as the Gear Train tab&rsquo;s dragging does. The depth of each mesh is checked on the bench before the plate is drilled; Gears&rsquo; backlash and spread play that part. Traditional clocks use cycloidal teeth and wooden ones often lantern pinions; Gears makes involute teeth, which mesh just as well and don&rsquo;t mind a small error in the distance.</li>
           <li><b>Measuring a gear you have:</b> count its teeth and measure across the tips. Module = that diameter in mm &divide; (teeth + 2); Diametral Pitch = (teeth + 2) &divide; the diameter in inches. A round answer (3, 2.5, DP 8) is almost certainly right; most are 20&deg;. Load its program instead if Gears made it: the first lines name its tooth size and pressure angle.</li>
@@ -716,17 +716,17 @@
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
           <li><b>The diagrams</b> follow what you type. Under the Teeth card, where the teeth meet, close up: a tooth of Gear B in a space of Gear A, their pitch circles touching at the pitch point, the line of action at the pressure angle, the backlash beside the tooth, the tip clearance under it, and the bit in A&rsquo;s root. Under the Depth card, the cut from the side: Z0, the floor of each pass, a tab left standing, Total Depth into the wasteboard. Under the Cut card, the stock from above as the program will cut it, read back from the program itself: each cut through the stock the bit&rsquo;s width, the holding tabs as orange dots, X0 Y0 in red, and the stock&rsquo;s size.</li>
-          <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces, <b>Gap Between</b> apart where they come closest, which saves stock. Blank, the gap is the least the bit allows: its diameter and a tenth, so the bit never cuts into the other gear. Make it more for room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack sits the same gap from Gear A; with <b>Pinion and Ring</b> the pinion is cut inside the ring&rsquo;s opening, on the same center (the middle is waste otherwise), then the ring, unless a wide Gap Between doesn&rsquo;t leave room (then beside it). The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
+          <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces, <b>Gap Between</b> apart where they come closest, which saves stock. Blank, the gap is the least the bit allows: its diameter and a tenth, so the bit never cuts into the other gear. Make it more for room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack sits the same gap from Gear A; with Ring and Pinion, the Cut menu&rsquo;s <b>Pinion and Ring</b> cuts the pinion inside the ring&rsquo;s opening, on the same center (the middle is waste otherwise), then the ring; beside it only when the pinion and the Gap Between don&rsquo;t fit inside the opening. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
           <li><b>&Oslash;</b> means <b>diameter</b> (the drafting symbol, not a zero): Axle &Oslash; and Tube &Oslash; are the shaft&rsquo;s and the tube&rsquo;s, a gear&rsquo;s &ldquo;Outside &Oslash;&rdquo; is across its tooth tips, Screw Hole &Oslash; the holes&rsquo;. The number boxes draw a zero with a slash or dot through it, so it can&rsquo;t be taken for the letter O: that&rsquo;s just 0.</li>
-          <li><b>Up and Down arrows</b> step a number field, as in QuickCut: 1 a press, <b>Shift</b> 10, <b>Alt</b> (Option) 0.1, <b>Ctrl</b> (Command) 0.001, in the field&rsquo;s units (a typed 1/4&quot; is read first). Teeth and counts step in whole numbers, and a field never steps below its least.</li>
+          <li><b>Up and Down arrows</b> step a number field, as in QuickCut: 1 a press, <b>Shift</b> 10, <b>Alt</b> (Option) 0.1, <b>Ctrl</b> (Command) 0.001, in the field&rsquo;s units (a typed 1/4&quot; is read first). Teeth and counts step in whole numbers, and a field never steps below its least (it stops at it, or short of it when the least isn&rsquo;t a whole number).</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
         </ul></div>
         <div class="gr-card"><h3>Planetary sets, plainly</h3><ul>
           <li><b>The parts:</b> a <b>sun</b> gear in the middle, <b>planets</b> round it (3 is usual), each on an axle in a <b>carrier</b> plate, and a <b>ring</b> with its teeth inside round them all, meshing with every planet. The ring has the sun&rsquo;s teeth plus two planets&rsquo;.</li>
           <li><b>Three ways to use it:</b> hold one part still, turn another, and the third turns at a fixed ratio. The usual: the ring held, the sun turned, the carrier out, slower by 1 + ring &divide; sun (a 12 sun in a 36 ring: 4:1), the same way round. The carrier held: the ring turns backwards, ring &divide; sun slower. The sun held: the ring in, the carrier out, a little slower (1 + sun &divide; ring). The facts give all three.</li>
           <li><b>Why the teeth are fussy:</b> for the planets to sit evenly spaced and mesh with the sun and the ring at once, the sun&rsquo;s and ring&rsquo;s teeth together must divide by the number of planets; and the planets mustn&rsquo;t touch each other. Gears checks both and says the nearest teeth that work. With the ring held a set always makes more than 2:1; for less, use a plain pair.</li>
-          <li><b>Find a Planetary Set by Ratio</b> (the card&rsquo;s title menu) lists sets that make your ratio, the smallest ring first; <b>by Teeth</b> you type the sun&rsquo;s and planets&rsquo; teeth and the number of planets in the Teeth card. The sun is Gear A (its bore and holes), the planets Gear B, the ring gets the <b>Rim Width</b>.</li>
-          <li><b>Cutting:</b> <b>Everything, Nested</b> cuts the sun and planets first, inside the ring&rsquo;s opening where they fit (that wood is waste otherwise), the rest beside it, then the ring. Or the sun, one planet (cut it as many times as you have planets) or the ring alone; and <b>The Carrier Plate</b>: a board drilled for the sun&rsquo;s axle in the middle and each planet&rsquo;s at the exact radius (Frame Holes&rsquo; depths; the holes are the bores, or Frame Holes&rsquo; Axle Hole A and B). Mount the planets to turn freely on their axles.</li>
+          <li><b>Find a Planetary Set by Ratio</b> (the card&rsquo;s title menu) lists sets that make your ratio (exactly, or within 0.5%), the closest first, then the smallest ring; <b>by Teeth</b> you type the sun&rsquo;s and planets&rsquo; teeth and the number of planets in the Teeth card. The sun is Gear A (its bore and holes), the planets Gear B, the ring gets the <b>Rim Width</b>.</li>
+          <li><b>Cutting:</b> <b>Everything, Nested</b> cuts the sun and planets first, inside the ring&rsquo;s opening where they fit (that wood is waste otherwise), the rest beside it, then the ring. Or the sun, one planet (cut it as many times as you have planets) or the ring alone; and <b>The Carrier Plate</b>: a board drilled for the sun&rsquo;s axle in the middle and each planet&rsquo;s at the exact radius (drilled to Frame Holes&rsquo; Total Depth and Depth of Cut, as a frame is; the sun&rsquo;s hole is Frame Holes&rsquo; Axle Hole A, the planets&rsquo; Axle Hole B, and blank, each is that gear&rsquo;s bore, a hex bore&rsquo;s corners). Mount the planets to turn freely on their axles.</li>
         </ul></div>
         <div class="gr-card"><h3>Gear trains, plainly</h3><ul>
           <li><b>Why a train:</b> one pair can only turn so slowly before the big gear gets huge: 60:1 in one pair needs a 480-tooth wheel on an 8-tooth pinion. Split it into stages and the ratios multiply: 7.5 &times; 8 = 60 with gears of 60 and 64 teeth.</li>
@@ -1330,7 +1330,12 @@ if (typeof module !== 'undefined' && module.exports) {
       o.contactRatio = pair(Object.assign({ centerDistance: o.spreadable ? C : null }, p), zA, zB).contactRatio;
       out.push(o);
     }
-    if (!out.length) return { problem: 'too close for gears of 6 teeth or more at this tooth size: at least ' + (m * 6).toFixed(3) + ' mm' };
+    if (!out.length) {
+      // Why: too close for 6-tooth gears, so far it needs more than 400, or the ratio (or size) asks for a gear under 6.
+      if (S0 + 2 < 12) return { problem: 'too close for gears of 6 teeth or more at this tooth size: at least ' + (m * 6).toFixed(3) + ' mm' };
+      if (S0 - 2 > 800) return { problem: 'too far for gears of 400 teeth or fewer at this tooth size: at most ' + (m * 400).toFixed(3) + ' mm' };
+      return { problem: t.ratio > 0 ? 'that ratio needs a gear of fewer than 6 (or more than 400) teeth at this distance: a longer distance, or a ratio nearer 1:1' : 'Gear A’s outside diameter is too small for 6 teeth at this tooth size (at least ' + (8 * m).toFixed(3) + ' mm)' };
+    }
     out.sort(function (a, b) { return Math.abs(a.ownDistance - C) - Math.abs(b.ownDistance - C); });
     var list = out.slice(0, 3);
     // And when none of those makes the ratio exactly, the nearest distance that does.
@@ -1367,7 +1372,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var m = p.module, zr = zs + 2 * zp, a = m * (zs + zp) / 2, problems = [];
     if (!(n >= 2) || Math.round(n) !== n) problems.push('a planetary set needs 2 or more planets');
     else {
-      if ((zs + zr) % n !== 0) problems.push('for ' + n + ' planets evenly spaced, the sun’s and ring’s teeth together (' + (zs + zr) + ') must divide by ' + n + ': ' + planetFixes(zs, zp, n));
+      if ((zs + zr) % n !== 0) problems.push('for ' + n + ' planets evenly spaced, the sun’s and ring’s teeth together (' + (zs + zr) + ') must divide by ' + n + (p.noFixes ? '' : ': ' + planetFixes(zs, zp, n)));
       var apart = 2 * a * Math.sin(Math.PI / n), need = m * (zp + 2) + 0.5 * m;
       if (apart < need - 1e-9) problems.push(n + ' planets of ' + zp + ' teeth touch each other: fewer planets, smaller planets or a bigger sun');
     }
@@ -1379,10 +1384,10 @@ if (typeof module !== 'undefined' && module.exports) {
   // The nearest teeth that space n planets evenly: the sun a tooth or two
   // either way, or the planets.
   function planetFixes(zs, zp, n) {
-    var opts = [];
-    for (var d = 1; d <= n && opts.length < 2; d++) [zs + d, zs - d].forEach(function (s2) { if (s2 >= 6 && (2 * s2 + 2 * zp) % n === 0 && opts.length < 2) opts.push('a sun of ' + s2); });
-    for (var e = 1; e <= n && opts.length < 3; e++) [zp + e, zp - e].forEach(function (p2) { if (p2 >= 6 && (2 * zs + 2 * p2) % n === 0 && opts.length < 3) opts.push('planets of ' + p2); });
-    return opts.length ? opts.join(', or ') : 'other teeth';
+    var opts = [], ok = function (s2, p2) { return s2 >= 6 && p2 >= 6 && s2 + 2 * p2 <= 400 && !planetary({ module: 1, pressureDeg: 20, noFixes: true }, s2, p2, n).problems.length; };
+    for (var d = 1; d <= 2 * n && opts.length < 2; d++) [zs + d, zs - d].forEach(function (s2) { if (opts.length < 2 && ok(s2, zp)) opts.push('a sun of ' + s2); });
+    for (var e = 1; e <= 2 * n && opts.length < 3; e++) [zp - e, zp + e].forEach(function (p2) { if (opts.length < 3 && ok(zs, p2)) opts.push('planets of ' + p2); });
+    return opts.length ? opts.join(', or ') : 'other teeth, or another number of planets';
   }
   // Where everything is with the ring held and the sun turned sunDeg (math
   // angles, degrees, counter-clockwise): the carrier turns sun / (sun +
@@ -1403,7 +1408,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // The smallest ring first, then one with a bigger sun (stronger, finer).
   function solvePlanetary(t) {
     var R = t.ratio, n = Math.round(t.planets || 3), lo = Math.max(6, Math.round(t.minTeeth || 8)), hi = Math.min(400, Math.round(t.maxTeeth || 72));
-    if (!(R > 2)) return { problem: 'a ratio of more than 2: with the ring held, a planetary set always makes 2 + 2 × planet ÷ sun (2:1 or less wants a plain pair)' };
+    if (!(R > 2)) return { problem: 'a ratio of more than 2:1. With the ring held, a planetary set’s ratio is 1 + ring ÷ sun, always over 2:1; for 2:1 or less, use a plain pair' };
     var p = { module: 1, pressureDeg: t.pressureDeg || 20 }, found = [];
     for (var zs = lo; zs <= hi; zs++) for (var zp = lo; zp <= hi; zp++) {
       var zr = zs + 2 * zp;
@@ -2663,7 +2668,7 @@ if (typeof module !== 'undefined' && module.exports) {
     else L.push(comment(p.ring ? 'Ring and pinion: ' + o.gears.B.teeth + ':' + o.gears.A.teeth + ', the pinion’s axle ' + p.pair.centerDistance.toFixed(3) + ' mm from the ring’s center'
       : p.rack ? 'Rack and pinion: ' + o.gears.A.teeth + ' teeth on the pinion, the rack ' + p.pair.travel.toFixed(3) + ' mm a turn, its pitch line ' + p.pair.pitchRadius.toFixed(3) + ' mm from the pinion’s axle'
       : 'Pair ' + o.gears.A.teeth + ':' + o.gears.B.teeth + ', center distance ' + p.pair.centerDistance.toFixed(3) + ' mm'));
-    L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? (o.axles ? 'axle hole 1' : 'axle hole A') : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : (o.many ? 'the first gear cut, ' + nameOf(placed[0].key) : nameOf(p.which[0])) + '’s center'))));
+    L.push(comment('Z0: the top of the stock. X0 Y0: ' + (o.origin === 'front-left' ? 'the front-left corner of the cuts' : (o.job === 'frame' ? (o.axles ? 'axle hole 1' : 'axle hole A') : p.which[0] === 'B' && p.rack ? 'the rack’s middle' : (o.many ? (function () { var at0 = placed.filter(function (q) { return Math.abs(q.x) < 1e-6 && Math.abs(q.y) < 1e-6; }).pop() || placed[0]; return nameOf(at0.key); })() : nameOf(p.which[0])) + '’s center'))));
     L.push(comment('Bit ' + o.bitDiameter + ' mm, feed ' + o.feedRate + ' mm/min, plunge ' + o.plungeFeedRate + ' mm/min, ' + o.spindleRpm + ' RPM' + unitNote));
     p.notes.forEach(function (n) { L.push(comment('Note: ' + n)); });
     L.push('');
@@ -2892,6 +2897,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!isRack()) delete errs['gr-rack-h'];
     if (!isRing() && !isPlanet()) delete errs['gr-ring-w'];
     if (!isPlanet()) delete errs['gr-planets'];
+    if (!isPlanet() || $('gr-pl-by').value !== 'ratio') delete errs['gr-pl-ratio'];
     if (isPlanet()) delete errs['gr-cd'];
     s.module = m;
     return { s: s, errs: errs };
@@ -3028,6 +3034,12 @@ if (typeof module !== 'undefined' && module.exports) {
     box.hidden = !problems.length;
     box.innerHTML = problems.map(function (t) { return '<div>' + esc(t.charAt(0).toUpperCase() + t.slice(1)) + '</div>'; }).join('');
     facts();
+    if (isPlanet()) {
+      var pj = $('gr-job').value, fl = $('gr-origin').value === 'front-left';
+      $('gr-origin-say').textContent = pj === 'carrier' ? 'Zero X and Y at the sun’s axle hole, the planets’ round it; drilled to the Frame Holes tab’s Total Depth (' + show(s['gr-frame-depth']) + ' ' + state.unit + ') and Depth of Cut. Zero Z on the top of the board.'
+        : 'Zero X and Y at ' + (fl ? 'the front-left corner of what’s cut' : pj === 'both' || pj === 'ring' ? 'the ring’s center' : pj === 'A' ? 'the sun’s center' : 'the planet’s center') +
+          (pj === 'both' ? '; the sun and planets are cut inside the ring where they fit (the layout below shows where), the rest beside it, then the ring' : '') + '. Zero Z on the top of the stock.';
+    } else
     $('gr-origin-say').textContent = 'Zero X and Y at ' + ($('gr-origin').value === 'front-left' ? 'the front-left corner of what’s cut (a bit’s width outside the teeth)' :
       ($('gr-job').value === 'B' ? (isRack() ? 'the rack’s middle' : isRing() ? 'the ring’s center' : 'Gear B’s center') : 'Gear A’s center') + ($('gr-job').value === 'both' ? (isRack() ? '; the rack is cut to its right' : isRing() ? (o && ringNests(o, s) ? '; the pinion is cut inside the ring, on the same center, then the ring' : '; the ring is cut to its right') : '; Gear B is cut to its right') : '')) + '. Zero Z on the top of the stock.';
     drawDepth(s, errs);
@@ -3219,7 +3231,7 @@ if (typeof module !== 'undefined' && module.exports) {
     state.autoPick = false;
     var other = kept === 'A' ? 'b' : 'a';
     if (auto && !(s['gr-teeth-' + other] === best.teeth && kept === 'A' && Math.abs(cd - best.distance) < 1e-6)) { applyAdd(best, kept); return; }
-    var undercutBelow = 2 / Math.pow(Math.sin(pa * Math.PI / 180), 2);
+    var undercutBelow = Math.floor(2 / Math.pow(Math.sin(pa * Math.PI / 180), 2));
     var turn = function (q) { return q >= 1 ? parseFloat(q.toFixed(3)) + ':1' : '1:' + parseFloat((1 / q).toFixed(3)); };
     box.innerHTML = head + opts.map(function (o) {
       var picked = kept === 'A' && s['gr-teeth-b'] === o.teeth && Math.abs((s['gr-cd'] || 0) - o.distance) < 1e-6;
@@ -3317,7 +3329,7 @@ if (typeof module !== 'undefined' && module.exports) {
       out.push('<g class="gr-gear gr-planet" data-planet="' + k + '"><line class="gr-dim gr-arm" x1="0" y1="0" x2="0" y2="0"/><g class="gr-spin"><path class="gr-body' + (cutting('B') && (job !== 'B' || k === 0) ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(P.draw) + ph.map(holeD).join('') + '"/>' +
         '<circle class="gr-mark" cx="' + P.basics.rp.toFixed(3) + '" cy="0" r="' + (o.module * 0.35).toFixed(3) + '"/></g></g>');
     }
-    out.push('<text x="0" y="' + (b.rOut + pad * 0.7).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">Sun ' + pl.sun + ' · ' + pl.planets + ' planets of ' + pl.planet + ' · ring ' + pl.ring + '</text>');
+    out.push('<text x="0" y="' + (b.rOut + pad * 0.7).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">Sun ' + pl.sun + ' · ' + (pl.planets > 0 ? pl.planets : '?') + ' planets of ' + pl.planet + ' · ring ' + pl.ring + '</text>');
     svg.innerHTML = out.join('');
     spin();
   }
@@ -3349,7 +3361,8 @@ if (typeof module !== 'undefined' && module.exports) {
   // change it); Start from the Center Distance picks whole teeth at it.
   // The nearest round size: a whole Diametral Pitch in inches, a standard module in mm.
   function roundSize(m) {
-    if (state.imperial) return 25.4 / Math.max(1, Math.round(25.4 / m));
+    var mode = $('gr-size-mode').value;
+    if (mode === 'dp' || (mode === 'cp' && state.imperial)) return 25.4 / Math.max(1, Math.round(25.4 / m));
     return G.MODULES.reduce(function (a, b) { return Math.abs(b - m) < Math.abs(a - m) ? b : a; });
   }
   function standardOn() { return !!(state.standard && state.standard.on && state.standard.module > 0); }
@@ -4175,10 +4188,14 @@ if (typeof module !== 'undefined' && module.exports) {
   function programFor(view) {
     if (view === 'train') return trainProgram();
     var r = settings(), s = r.s, job = view === 'frame' ? 'frame' : $('gr-job').value;
+    // Nothing on Frame Holes applies to a planetary set: said first, before its fields.
+    if (isPlanet() && view === 'frame') return { res: { problems: ['Frame Holes is for two gears: for a planetary set, the Gear Pair tab’s Cut › The Carrier Plate drills the sun’s axle and each planet’s'], notes: [], gcode: null }, errs: r.errs, bad: [] };
     var ids = view === 'frame' ? ['gr-bit', 'gr-feed', 'gr-plunge', 'gr-rpm', 'gr-delay', 'gr-frame-a', 'gr-frame-b', 'gr-frame-depth', 'gr-frame-step', 'gr-size', 'gr-teeth-a', 'gr-teeth-b', 'gr-bore-a', 'gr-bore-b', 'gr-cd', 'gr-ratio']
       : Object.keys(FIELDS).filter(function (id) { return !/frame|^gt-/.test(id) && ($('gr-tabs-on').checked || !/tab/.test(id)); }).concat(['gr-size']);
     var bad = ids.filter(function (id) { return r.errs[id]; });
     if (bad.length) return { bad: bad, errs: r.errs };
+    // The carrier plate is a board: its depth fields are the Frame Holes tab's, checked here too.
+    if (isPlanet() && job === 'carrier') { var fb = ['gr-frame-depth', 'gr-frame-step', 'gr-frame-a', 'gr-frame-b'].filter(function (id) { return r.errs[id]; }); if (fb.length) return { bad: fb, errs: r.errs }; }
     var o = isPlanet() && view !== 'frame' ? planetOpts(s, job) : opts(s, job), res = GC.generate(o);
     if (res.problems.length) res = Object.assign({}, res, { problems: friendlyProblems(res.problems, o) });
     if (o.planetary && !res.problems.length) {
@@ -4739,6 +4756,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode', 'gr-hole-cut', 'gr-pl-by'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
     $('gt-hole-cut').value = $('gr-hole-cut').value;
     ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { if (v && v[id] != null) $(id).checked = !!v[id]; });
+    state.pairMode = /^(teeth|ratio)$/.test($('gr-b-mode').value) ? $('gr-b-mode').value : state.pairMode || 'teeth';
     $('gt-stages').value = v && v['gt-stages'] != null ? v['gt-stages'] : '0';
     $('gt-same').checked = !!(v && v['gt-same']);
     renderStages(v && Array.isArray(v.trainStages) && v.trainStages.length ? v.trainStages : DEFAULT_STAGES);
@@ -5008,8 +5026,10 @@ if (typeof module !== 'undefined' && module.exports) {
       var unit = f && (f[0] === 'length' || f[0] === 'feed') ? f[0] : null, t = String(el.value).trim();
       var current = unit ? parseUnitValue(t, state.imperial, unit) : parseFloat(t);
       if (current == null || !isFinite(current)) current = 0;
+      var whole = stage || (f && f[0] === 'whole');
+      if (whole) current = Math.round(current);
       var step = evt.ctrlKey || evt.metaKey ? 0.001 : evt.shiftKey ? 10 : evt.altKey ? 0.1 : 1;
-      if (stage || (f && f[0] === 'whole')) step = Math.max(1, Math.round(step));
+      if (whole) step = Math.max(1, Math.round(step));
       var next = current + (evt.key === 'ArrowUp' ? step : -step);
       var min = stage ? 6 : f ? (unit ? f[1] / K() : f[1]) : size ? 0.01 : -Infinity;
       if (isFinite(min) && next < min - 1e-12) {
@@ -5022,7 +5042,6 @@ if (typeof module !== 'undefined' && module.exports) {
       el.value = next;
       el.dataset.touched = '1';
       el.dispatchEvent(new Event('input', { bubbles: true }));
-      if (f || size) el.dispatchEvent(new Event('change', { bubbles: true }));
     });
   }
   function wire() {
@@ -5035,7 +5054,9 @@ if (typeof module !== 'undefined' && module.exports) {
       if (/^gt-(ratio|min|max)$/.test(e.target.id)) state.trainAutoPick = true;
       if (e.target.id === 'gr-pl-ratio' || e.target.id === 'gr-planets') state.plAutoPick = true;
       // Add a Gear: typing lists the distances; the nearest is picked when the edit is done (change).
-      if (/^gr-(cd|design-ratio|design-od)$/.test(e.target.id) && !(e.target.id === 'gr-cd' && $('gr-design-mode').value === 'add')) state.autoPick = true;
+      // Picked while typing only where the pick keeps what's typed; at a shop standard or adding a gear the
+      // distance is snapped to whole teeth, so it's picked when the edit is done (change), not under the fingers.
+      if (/^gr-(cd|design-ratio|design-od)$/.test(e.target.id) && !(e.target.id === 'gr-cd' && ($('gr-design-mode').value === 'add' || standardOn()))) state.autoPick = true;
       if (/^gr-(rpm|feed|plunge|step|frame-step)$/.test(e.target.id) && e.isTrusted) state.feedsAuto = false;
       touch();
     });
@@ -5059,7 +5080,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (e.target.classList.contains('gr-hole-cut')) ROOT.querySelectorAll('.gr-hole-cut').forEach(function (x) { x.value = e.target.value; });
       if (id === 'gr-design-by' || id === 'gr-design-mode') state.autoPick = id === 'gr-design-by' || $('gr-design-mode').value === 'new';
       if (id === 'gr-design-mode') fitLabelSelects();
-      if (id === 'gr-cd' && $('gr-design-mode').value === 'add') state.autoPick = true;
+      if (id === 'gr-cd' && ($('gr-design-mode').value === 'add' || standardOn())) state.autoPick = true;
       if (e.target.classList.contains('gr-label-select')) fitLabelSelects();
       if (/^gr-bore-(shape-)?[ab]$|^gr-holes-(style-)?[ab]$/.test(id)) boreExtras(/^gr-bore-/.test(id));
       if (id === 'gr-b-mode' && /^(teeth|ratio)$/.test($('gr-b-mode').value)) state.pairMode = $('gr-b-mode').value;
