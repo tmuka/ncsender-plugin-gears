@@ -107,6 +107,46 @@ Keep them all, but lead with what a builder knows:
 - Later: a folded layout (each next axle at an angle, for a compact clock frame), a different tooth size per
   stage (bigger teeth where the torque is), a motor's D bore on the first driver, teeth nested into each other's spaces when cutting all.
 
+## Getting started without knowing gears (planned 2026-11-03, after three independent reviews)
+
+Why: a first-time user doesn't know module, DP or pressure angle; picks a shop standard they regret; types a
+"3 inch space" into Center Distance and gets a 7 in wide pair; and values a fast first test over anything. The
+reviews (a novice walkthrough, a small-gear study, a UX critique) agreed on what follows.
+
+Facts from the study (1/8" bit, MDF, 1/2" deep, a 2:1 pair under 3"): the bit sets the time (1/8" or 3 mm about
+4-5 min, 1/16" 15-17 min and often can't reach 1/2" deep, 1/32" an hour); tooth size barely does. A 1/8" bit
+just misses DP 8 at 20° with 0.3 mm backlash (it takes DP 8 from 0.35 mm). Common bits: imperial 1/8" and 1/4";
+metric 3 mm and 6 mm (4 mm less so).
+
+1. Quick fixes:
+   - Center Distance options a default bore can't fit are marked, and the pick prefers ones that fit.
+   - Duplicate options (Coarse = Balanced) are left out.
+   - "Smallest teeth this bit can cut" is worded as the finest it can cut, and the link shows only when it changes something.
+   - Help's standard advice fixed (DP 8 needs a bit under 3.15 mm at 20°; 25° needs much bigger teeth for a bit).
+   - An older design off the standard says what it meshes with, not "won't mesh with your other gears".
+   - Undercut graded: fine / weaker teeth.
+   - The footer's problem is a link to its field.
+   - New installs: X0 Y0 at the front-left corner; a metric machine's first bit 3 mm.
+2. **Your First Cut** card, on a first open until dismissed: the board's thickness (Total Depth from it), the bit
+   (from the tool table, else 1/8" or 3 mm), and **Set Up a Test Pair**: a small, coarse 2:1 pair with small
+   bores, about 4 minutes; with a link to its frame holes, and the air-cut reminder.
+3. **Suggested standards:** a short list of round sizes (imperial DP 5, 6, 8, 10; metric module 2, 2.5, 3, 4,
+   5), each said as the gears it makes ("pinions from 1.5 in, under 3 in for 2:1") and the bits that cut it,
+   greyed when the bit can't; offered after the first Generate rather than on first open; "changing it later is
+   fine" said plainly. Without a standard, Start from the Center Distance still offers round sizes (Coarse,
+   Balanced, Fine across the round sizes the bit can cut), so no more odd sizes; Fit Tooth Size stays for an
+   exact odd fit.
+4. **Must fit in W × H** on the design card: each option says whether its pair (cut nested) fits, and the pick
+   prefers one that does.
+5. **Less at once:** expert fields in "More" folds (Backlash, Tip Clearance; Delay, Mist, Flood; tab sizes;
+   Direction, Gap); a tapped (i) shows a field's explanation (no hover on a touchscreen); the bit shown in the
+   sidebar under the standard.
+6. **More ways to start** (Two Gears): **Start from the Ratio** (no distance: pairs at round sizes, exact) and
+   **Match a Gear I Have** (count its teeth and measure across the tips: its module and DP, the bit it needs,
+   then Add a Gear for its mate).
+7. **The tool menu** lists flat end mills first (no probes, V-bits, drills, chamfers, surfacing, thread mills,
+   keyhole or roundover bits; those behind "Show all"), and marks an end mill too big for the teeth.
+
 ## How it's built
 
 Same pattern as QuickCut and Spoilboard Toolbox, so it's familiar and testable:
