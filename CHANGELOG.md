@@ -1,15 +1,18 @@
 # Changelog
 
-## Unreleased
+## 0.6.2: Measured previews
 
-- **Errors don't move the fields:** a field's error shows in a box under its card's title, the field outlined red,
-  instead of under the field (where a long one pushed the field beside it out of line). Center Distance's "no pair
-  fits" shows there once, not three times.
+### ✨ New
 - **The pictures are measured**, in QuickCut's style (accent dimension lines, open arrowheads, bold values): two
   gears' outside diameters and center distance; a rack's length, its pinion's diameter and the axle-to-rack-bottom
   mounting distance; a ring's diameter and its pinion's offset; a planetary set's ring and axle circle; each gear
   train stage's distance along its link; the Frame Holes' spacing and sizes; the cut layout's stock width and
   height. Hidden while a dot or an axle is dragged.
+
+### 🔧 Changed
+- **Errors don't move the fields:** a field's error shows in a box under its card's title, the field outlined red,
+  instead of under the field (where a long one pushed the field beside it out of line). Center Distance's "no pair
+  fits" shows there once, not three times.
 
 ## 0.6.1: Help with pictures
 
