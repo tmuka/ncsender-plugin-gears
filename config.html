@@ -4364,12 +4364,14 @@ if (typeof module !== 'undefined' && module.exports) {
       g.forEach(function (o, i) { html += '<g data-c="' + i + '" data-x="' + (o.q[1] ? cd : 0) + '"><path class="gr-body' + (o.q[2] ? ' gr-b' : '') + (o.q[3] && o.q[0] === 30 ? ' gr-off' : '') + '" d="' + o.d + '"/></g>'; });
       html += '<line class="gr-hand" data-hand="m" x1="0" y1="0" x2="0" y2="-34"/><line class="gr-hand-h" data-hand="h" x1="0" y1="0" x2="0" y2="-22"/>' + circ(0, 0, 1.6, 'gr-hole') +
         lbl(cd / 2 - 5, 49, 'minute hand · hour hand (gold) on one center', 7, '', 'middle');
+      // Clockwise, as a clock's hands go: the train run backwards, both hands starting at 12.
+      var angles = function (deg0) { var an = [deg0]; st.forEach(function (s0, i) { var phi = s0.angle; an.push(phi + 180 + 180 / s0.driven - (an[i] - phi) * s0.driver / s0.driven); }); return an; }, an0 = angles(0);
       put('clock', '-50 -46 ' + (cd + 90) + ' 102', html, function (deg, svg) {
-        var an = [deg]; st.forEach(function (s0, i) { var phi = s0.angle; an.push(phi + 180 + 180 / s0.driven - (an[i] - phi) * s0.driver / s0.driven); });
+        var an = angles(-deg);
         var axleAngle = [an[0], an[1], an[2]];
         g.forEach(function (o, i) { var el = svg.querySelector('[data-c="' + i + '"]'), axle = o.q[2] === 0 ? (o.q[1] === 0 ? 0 : 1) : (o.q[1] === 1 ? 1 : 2); el.setAttribute('transform', 'translate(' + el.dataset.x + ' 0) rotate(' + (-axleAngle[axle]).toFixed(2) + ')'); });
-        svg.querySelector('[data-hand="m"]').setAttribute('transform', 'rotate(' + (-an[0] + 90).toFixed(2) + ')');
-        svg.querySelector('[data-hand="h"]').setAttribute('transform', 'rotate(' + (-an[2] + 90).toFixed(2) + ')');
+        svg.querySelector('[data-hand="m"]').setAttribute('transform', 'rotate(' + (-(an[0] - an0[0])).toFixed(2) + ')');
+        svg.querySelector('[data-hand="h"]').setAttribute('transform', 'rotate(' + (-(an[2] - an0[2])).toFixed(2) + ')');
       });
     })();
     // A rack and pinion, back and forth.
