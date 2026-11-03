@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Two Gears | Rack and Pinion | Ring and Pinion** buttons at the top of the Gear Pair tab, whose title follows them;
+  the rack and ring were hidden in Gear B's label menu.
 - **Shop standard:** keep one tooth size and pressure angle for everything, so every gear you cut meshes with every
   other. Set it on the Teeth card (or the round size nearest); it's shown in the sidebar and kept apart from
   designs, Load and sets. Start from the Center Distance then lists the whole-tooth pairs at it nearest your

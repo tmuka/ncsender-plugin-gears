@@ -24,8 +24,8 @@ HDPE, acrylic or aluminum.
 
 ## Racks and ring gears too
 
-Switch Gear B to a **rack** for straight-line motion, or to a **ring** for planetary gears and
-compact reductions.
+Pick **Rack and Pinion** at the top of the Gear Pair tab for straight-line motion, or **Ring and Pinion**
+for planetary gears and compact reductions.
 
 <p align="center">
   <img src="docs/rack.png" width="380" alt="A pinion on a rack">
@@ -90,13 +90,13 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
 - **Both gears in one program**, nested to save stock: Gear B turned so its teeth face Gear A's spaces, **Gap Between**
   apart where they come closest: at least the bit's diameter and a tenth (blank), or more for a screw or clamp, or
   sturdier tabs. Or either one alone; X0 Y0 at the gear's center or the front-left corner of the cuts.
-- **Rack and pinion:** Gear B's menu can make it a straight **rack** with that many teeth, Gear A
+- **Rack and pinion:** the **Rack and Pinion** button at the top of the Gear Pair tab makes Gear B a straight **rack** with that many teeth, Gear A
   its pinion: the same tooth size, pressure angle, backlash and bit-rounded roots, on a bar **Rack
   Height** deep under the teeth, with screw holes along it (Gear B's Bore and Holes fields become
   the screw holes' size and count). It's cut from outside with tabs on its flat bottom edge. The
   preview rolls the pinion along it, and the facts give the rack's travel a turn and where to mount
   it: its pitch line and bottom edge from the pinion's axle.
-- **Ring gears:** Gear B's menu can make it a **ring** (an internal gear) with its teeth inside and
+- **Ring gears:** the **Ring and Pinion** button makes Gear B a **ring** (an internal gear) with its teeth inside and
   Gear A its pinion turning inside it, the same way: for planetary gears and compact reductions. The
   ring needs at least 12 more teeth than the pinion at 20° (10 at 25°, 16 at 14.5°), or their tips
   collide. Its teeth are shaped as your bit cuts them from inside, a little short so they clear the
