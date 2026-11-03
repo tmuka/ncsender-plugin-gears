@@ -24,14 +24,53 @@ HDPE, acrylic or aluminum.
 
 ## Racks and ring gears too
 
-Pick **Rack and Pinion** at the top of the Gear Pair tab for straight-line motion, **Ring and Pinion** for a
-compact reduction, or **Planetary** for a whole planetary set: a sun, planets on a carrier and a ring, found for
-your ratio, turning in the preview, and cut nested (the sun and planets inside the ring's opening) with the
-carrier plate drilled to match.
+Pick **Rack and Pinion** at the top of the Gear Pair tab for straight-line motion, or **Ring and Pinion** for a
+compact reduction: the pinion is cut from the ring's middle, which would be waste otherwise.
 
 <p align="center">
   <img src="docs/rack.png" width="380" alt="A pinion on a rack">
   <img src="docs/ring.png" width="380" alt="A pinion inside a ring gear">
+</p>
+
+## Planetary sets
+
+A **sun** gear in the middle, **planets** round it on a **carrier**, and a **ring** with its teeth inside round them
+all: a big reduction in a small, round space. Pick **Planetary** at the top of the Gear Pair tab, then either type
+the **Ratio** you want (with the ring held, the sun turning and the carrier out: 5 for 5:1) and tap one of the sets
+that make it, or type the sun's and planets' teeth yourself. The ring always has the sun's teeth plus two
+planets'.
+
+![A planetary set: a 12-tooth sun, three 18-tooth planets and a 48-tooth ring, 5:1](docs/planetary.png)
+
+- **It checks what makes a set work:** the planets must sit evenly spaced and mesh with the sun and the ring at
+  once (the sun's and ring's teeth together divide by the number of planets) and must not touch each other. When
+  they don't, it says the nearest teeth that do ("a sun of 11, or planets of 12").
+- **Three ways to use it:** the facts give the ratio with the ring held (1 + ring ÷ sun), with the carrier held
+  (the ring turns backwards), and with the sun held. The preview turns it all, the planets orbiting on the
+  carrier's arms.
+- **Cut it nested:** **Everything, Nested** cuts the sun and planets from inside the ring's opening where they fit,
+  the rest beside it, then the ring. Or cut the sun, one planet (as many times as you have planets) or the ring
+  alone, and **The Carrier Plate**: a board drilled for the sun's axle and each planet's at the exact radius.
+
+<p align="center"><img src="docs/planetary-cut.png" width="560" alt="The cut from above: three of the four pieces nested inside the ring, one beside it"></p>
+<p align="center"><em>The cut from above, as the program makes it: three pieces inside the ring, one beside it, the tabs in orange.</em></p>
+
+## A shop standard: gears that always mesh
+
+Two gears mesh only when they have the **same tooth size and pressure angle**; nothing else matters, not the teeth
+or the diameters. Cut a second pair at a slightly different size and it will never mesh with the first, however
+alike they look. So pick one tooth size and pressure angle for your shop (a round one: Module 3.5, Diametral Pitch
+6...) and keep it for everything.
+
+On the Teeth card, **Make … my standard** saves it, apart from any design (loading a program or a set never
+changes it), and the sidebar shows it under the units. **Start from the Center Distance** then keeps it: you type
+where the axles go and the ratio, and it lists the whole-tooth pairs at your standard nearest that distance,
+spread a little to your exact distance when they can. A design off the standard says it won't mesh with your other
+gears, with **Use the Standard** to put it back.
+
+<p align="center">
+  <img src="docs/shop-standard.png" width="460" alt="Start from the Center Distance at a shop standard of module 3.5 mm, 20°: 24 and 12 teeth spread 0.5 mm to 63.5 mm">
+  <img src="docs/shop-standard-badge.png" width="200" alt="The sidebar showing the shop standard, M 3.5 · 20°">
 </p>
 
 Inspired by Matthias Wandel's gear work at [woodgears.ca](https://woodgears.ca); for paper templates
