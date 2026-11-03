@@ -150,6 +150,9 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   shaft hit); **Last Axle on the First** finds two stages whose last axle lands back on the first (same center,
   one frame hole; that gear is bored to a **Tube Ø** to turn on a tube over the shaft); **Presets** for clocks, a slow crank and a spinner. Cut all the gears in one program (packed to use the least stock, within the machine's travel), a stage's
   two gears nested, one gear, or the frame's axle holes where the layout puts them. Tooth size, bit, feeds and depth are the Gear Pair tab's.
+- **Help with pictures:** the ideas drawn from the plugin's own geometry, most of them moving: a tooth close up,
+  gears meshing (and not, at different sizes), measuring a gear, a planetary set, a gear train, a clock's motion
+  work, a rack and pinion, the cut with its tabs, the depth passes.
 - **Diagrams that follow the settings:** the Cut card shows the stock from above as the program cuts it (each
   cut the bit's width, the tabs, X0 Y0, the stock's size), read back from the G-code itself; the Depth card
   the cut from the side (each pass, the tab, Total Depth into the wasteboard); the Teeth card where the teeth

@@ -357,6 +357,22 @@
   .gr-help h3 { font-size: 0.95rem; margin: 0 0 6px; color: var(--color-text-primary); }
   .gr-help ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; line-height: 1.45; }
   .gr-help a { color: var(--color-accent); }
+  .gr-help-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 4px 0 12px; }
+  .gr-help-figs figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+  .gr-help-figs .gr-preview { height: 220px; }
+  .gr-help-figs figcaption { font-size: 0.78rem; color: var(--color-text-secondary); line-height: 1.4; }
+  .gr-help-figs .gr-depth-view { height: 220px; margin-top: 0; }
+  .gr-preview .gr-lbl { fill: var(--color-text-primary); paint-order: stroke; stroke: var(--color-surface); stroke-width: 3px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .gr-preview .gr-lbl-acc { fill: var(--color-accent); }
+  .gr-preview .gr-lbl-red { fill: #ff6b6b; }
+  .gr-preview .gr-ln { stroke: var(--color-text-secondary); stroke-width: 1; vector-effect: non-scaling-stroke; fill: none; }
+  .gr-preview .gr-ln-acc { stroke: var(--color-accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; fill: none; }
+  .gr-preview .gr-hand { stroke: var(--color-text-primary); stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .gr-preview .gr-hand-h { stroke: #e6b450; stroke-width: 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .gr-preview .gr-hit { fill: #ff6b6b; opacity: 0.85; }
+  .gr-preview .gr-bit-dot { fill: color-mix(in srgb, var(--color-accent) 45%, transparent); stroke: var(--color-accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .gr-preview .gr-kerf-help { fill: none; stroke: color-mix(in srgb, var(--color-accent) 70%, transparent); stroke-linecap: round; stroke-linejoin: round; }
+  .gr-preview .gr-tab-dot { fill: #e6b450; stroke: var(--color-surface); stroke-width: 1; vector-effect: non-scaling-stroke; }
 </style>
 
 <div class="gr-wrapper">
@@ -683,13 +699,13 @@
     <section class="gr-content" data-view="help">
       <div class="gr-header"><h2>Help</h2><div class="gr-sub">How Gears works. Inspired by Matthias Wandel's gear work at <b>woodgears.ca</b>; for paper templates, his gear template generator at <b>woodgears.ca/gear</b>.</div></div>
       <div class="gr-panel gr-help">
-        <div class="gr-card"><h3>The teeth</h3><ul>
+        <div class="gr-card"><h3>The teeth</h3><div class="gr-help-figs"><figure><svg class="gr-preview gr-help-fig" data-fig="anatomy" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A tooth close up"></svg><figcaption>A tooth close up: the <b>pitch circle</b> is where the teeth roll; the tip is one module above it, the root a module and the tip clearance below. The bit (green) fits the bottom of each space.</figcaption></figure><figure><svg class="gr-preview gr-help-fig" data-fig="mesh" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Two gears meshing at the same tooth size"></svg><figcaption>Two gears meshing at the same tooth size: the pitch circles (dashed) just touch, and the center distance is module &times; (teeth A + teeth B) &divide; 2.</figcaption></figure></div><ul>
           <li><b>Module</b> is the tooth size: the pitch diameter is module × teeth, and the outside diameter two modules more. <b>Diametral Pitch</b> is the inch way (teeth per inch of pitch diameter); <b>Circular Pitch</b> is tooth to tooth.</li>
           <li>The teeth are true involutes, cut as a rack would cut them, so any two gears of the same tooth size and pressure angle mesh. Small gears get the undercut the mating tooth needs.</li>
           <li>The bottom of each tooth space is rounded to the bit, so a round end mill reaches all of it. That sets the smallest tooth a bit can cut; the Teeth card says what it is, and a bigger bit needs bigger teeth.</li>
           <li><b>Backlash</b> leaves play between the teeth; wood and plastic swell and shrink, so give them some. <b>Tip Clearance</b> is room at the root: blank is a quarter module, or more when the rounding the bit leaves at the root needs it, so the other gear’s tips clear it.</li>
         </ul></div>
-        <div class="gr-card"><h3>Designing gears: how it&rsquo;s usually done</h3><ul>
+        <div class="gr-card"><h3>Designing gears: how it&rsquo;s usually done</h3><div class="gr-help-figs"><figure><svg class="gr-preview gr-help-fig" data-fig="nomesh" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Left"></svg><figcaption>Left: the same tooth size, so they mesh. Right: a bigger tooth size on one gear: its teeth run into the other&rsquo;s (red), whatever the distance.</figcaption></figure><figure><svg class="gr-preview gr-help-fig" data-fig="measure" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Measuring a gear"></svg><figcaption>Measuring a gear: count the teeth (24) and measure across the tips; module = that diameter &divide; (teeth + 2).</figcaption></figure></div><ul>
           <li><b>What makes gears mesh:</b> the same <b>tooth size</b> (module, Diametral Pitch or Circular Pitch: three ways to say one thing) and the same <b>pressure angle</b>. Nothing else: not the teeth, not the diameters. Two pairs cut at different tooth sizes will never mesh with each other, however close the sizes look.</li>
           <li><b>Keep a shop standard.</b> Pick one tooth size and pressure angle and use it for everything, and every gear you ever cut meshes with every other: spares, new axles and add-ons all fit. Set it on the Teeth card (<b>Make &hellip; my standard</b>); it&rsquo;s kept apart from your designs (Load and sets don&rsquo;t change it) and shown under the units in the sidebar. A design off it says so. Good standards are round sizes: a whole Diametral Pitch (4, 5, 6, 8, 10, 12) or a standard module (1, 1.25, 1.5, 2, 2.5, 3, 4, 5 mm), coarse enough for your bit (the Teeth card says the smallest it can cut). Small mechanisms and clocks often use DP 8 to 10 or module 2.5 to 3; toys and demonstrators DP 4 to 6; 20&deg; is the usual pressure angle, 25&deg; makes small pinions stronger. Write it on the shop wall.</li>
           <li><b>The usual order:</b> a designer picks the <b>tooth size</b> first (from how big the mechanism should be and how strong its teeth must be), then the <b>tooth counts</b> for the ratio (pinions of 8 or more; 17 or more avoids undercut at 20&deg;, 12 at 25&deg;, and Gears shapes the undercut a smaller pinion needs), and the <b>center distance follows</b>: module &times; (teeth A + teeth B) &divide; 2. With a shop standard, that&rsquo;s what Start from the Center Distance does: it keeps the standard and gives the whole-tooth pairs nearest the distance you typed.</li>
@@ -697,7 +713,7 @@
           <li><b>How a clockmaker starts:</b> from time. The pendulum&rsquo;s length sets the beat (about 994 mm for one second), the escape wheel&rsquo;s teeth and the beat set how fast it turns (once a minute for a seconds hand), and the hands set the ratios: 60:1 from the seconds arbor to the minute hand, 12:1 from the minute hand to the hour hand (the motion work, on the same center). Tooth counts come from well-tried combinations (8:60 then 8:64; 8:32 then 10:30 for the motion work), one tooth size for the going train, sometimes a finer one for the motion work. Then the arbors are <b>planted</b> on the plate: the distances are fixed by the teeth, so only the directions are chosen, folding the train to fit the case, as the Gear Train tab&rsquo;s dragging does. The depth of each mesh is checked on the bench before the plate is drilled; Gears&rsquo; backlash and spread play that part. Traditional clocks use cycloidal teeth and wooden ones often lantern pinions; Gears makes involute teeth, which mesh just as well and don&rsquo;t mind a small error in the distance.</li>
           <li><b>Measuring a gear you have:</b> count its teeth and measure across the tips. Module = that diameter in mm &divide; (teeth + 2); Diametral Pitch = (teeth + 2) &divide; the diameter in inches. A round answer (3, 2.5, DP 8) is almost certainly right; most are 20&deg;. Load its program instead if Gears made it: the first lines name its tooth size and pressure angle.</li>
         </ul></div>
-        <div class="gr-card"><h3>Cutting</h3><ul>
+        <div class="gr-card"><h3>Cutting</h3><div class="gr-help-figs"><figure><svg class="gr-preview gr-help-fig" data-fig="rack" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A rack and pinion"></svg><figcaption>A rack and pinion: the pinion turns, the rack slides; one turn moves it the pinion&rsquo;s pitch circumference.</figcaption></figure><figure><svg class="gr-preview gr-help-fig" data-fig="tabs" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The cut as Gears makes it (from a real program)"></svg><figcaption>The cut as Gears makes it (from a real program): the bit&rsquo;s path all round, the gaps its holding tabs (orange); spoke windows cut round their edge, two tabs each.</figcaption></figure><figure><svg class="gr-preview gr-help-fig" data-fig="depth" preserveAspectRatio="xMidYMid meet" role="img" aria-label="From the side"></svg><figcaption>From the side: the cut goes down a pass at a time; on the last passes the tabs are left standing; Total Depth goes a little into the wasteboard.</figcaption></figure></div><ul>
           <li>Zero Z on the top of the stock; <b>Total Depth</b> goes a little past its thickness to cut through. Each gear's holes are cut first (bores cleared from the middle, so nothing comes loose), then its teeth from the outside.</li>
           <li>Each pass ramps down along the path instead of plunging; Z never comes down faster than the <b>Plunge Rate</b>.</li>
           <li>A bore is <b>Round</b>, <b>Hex</b> (sized across the flats: 12.7 mm for a 1/2" hex shaft), <b>D</b> (round with one flat, for a D shaft such as a motor's: <b>Across the Flat</b> is from the flat to the far side) or <b>Keyed</b> (a keyway <b>Key Width</b> wide, at least the bit's, <b>Key Depth</b> past the bore). Pick with the menu on its label; type a little over the shaft's size for a slip fit. A round bit can't cut a sharp corner, so each sharp corner gets a small notch for the shaft's or key's corner to sit in.</li>
@@ -721,14 +737,14 @@
           <li><b>Up and Down arrows</b> step a number field, as in QuickCut: 1 a press, <b>Shift</b> 10, <b>Alt</b> (Option) 0.1, <b>Ctrl</b> (Command) 0.001, in the field&rsquo;s units (a typed 1/4&quot; is read first). Teeth and counts step in whole numbers, and a field never steps below its least (it stops at it, or short of it when the least isn&rsquo;t a whole number).</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
         </ul></div>
-        <div class="gr-card"><h3>Planetary sets, plainly</h3><ul>
+        <div class="gr-card"><h3>Planetary sets, plainly</h3><div class="gr-help-figs"><figure><svg class="gr-preview gr-help-fig" data-fig="planet" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The ring held still"></svg><figcaption>The ring held still: the sun (green, middle) turns the planets, which roll round inside the ring and carry the carrier (the arms) round, slower than the sun by 1 + ring &divide; sun.</figcaption></figure></div><ul>
           <li><b>The parts:</b> a <b>sun</b> gear in the middle, <b>planets</b> round it (3 is usual), each on an axle in a <b>carrier</b> plate, and a <b>ring</b> with its teeth inside round them all, meshing with every planet. The ring has the sun&rsquo;s teeth plus two planets&rsquo;.</li>
           <li><b>Three ways to use it:</b> hold one part still, turn another, and the third turns at a fixed ratio. The usual: the ring held, the sun turned, the carrier out, slower by 1 + ring &divide; sun (a 12 sun in a 36 ring: 4:1), the same way round. The carrier held: the ring turns backwards, ring &divide; sun slower. The sun held: the ring in, the carrier out, a little slower (1 + sun &divide; ring). The facts give all three.</li>
           <li><b>Why the teeth are fussy:</b> for the planets to sit evenly spaced and mesh with the sun and the ring at once, the sun&rsquo;s and ring&rsquo;s teeth together must divide by the number of planets; and the planets mustn&rsquo;t touch each other. Gears checks both and says the nearest teeth that work. With the ring held a set always makes more than 2:1; for less, use a plain pair.</li>
           <li><b>Find a Planetary Set by Ratio</b> (the card&rsquo;s title menu) lists sets that make your ratio (exactly, or within 0.5%), the closest first, then the smallest ring; <b>by Teeth</b> you type the sun&rsquo;s and planets&rsquo; teeth and the number of planets in the Teeth card. The sun is Gear A (its bore and holes), the planets Gear B, the ring gets the <b>Rim Width</b>.</li>
           <li><b>Cutting:</b> <b>Everything, Nested</b> cuts the sun and planets first, inside the ring&rsquo;s opening where they fit (that wood is waste otherwise), the rest beside it, then the ring. Or the sun, one planet (cut it as many times as you have planets) or the ring alone; and <b>The Carrier Plate</b>: a board drilled for the sun&rsquo;s axle in the middle and each planet&rsquo;s at the exact radius (drilled to Frame Holes&rsquo; Total Depth and Depth of Cut, as a frame is; the sun&rsquo;s hole is Frame Holes&rsquo; Axle Hole A, the planets&rsquo; Axle Hole B, and blank, each is that gear&rsquo;s bore, a hex bore&rsquo;s corners). Mount the planets to turn freely on their axles.</li>
         </ul></div>
-        <div class="gr-card"><h3>Gear trains, plainly</h3><ul>
+        <div class="gr-card"><h3>Gear trains, plainly</h3><div class="gr-help-figs"><figure><svg class="gr-preview gr-help-fig" data-fig="train" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Two stages"></svg><figcaption>Two stages: axle 1 turns axle 2 through its pair, and the small gear fixed on axle 2 turns axle 3. The ratios multiply.</figcaption></figure><figure><svg class="gr-preview gr-help-fig" data-fig="clock" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Same center"></svg><figcaption>Same center: 12:1 motion work. The minute hand&rsquo;s gear turns a pair that comes back round, so the hour hand (gold) turns on the same center, 12 times slower.</figcaption></figure></div><ul>
           <li><b>Why a train:</b> one pair can only turn so slowly before the big gear gets huge: 60:1 in one pair needs a 480-tooth wheel on an 8-tooth pinion. Split it into stages and the ratios multiply: 7.5 &times; 8 = 60 with gears of 60 and 64 teeth.</li>
           <li><b>Stages and axles:</b> each stage is a <b>driver</b> turning a <b>driven</b> gear. The driven gear is fixed to the next stage&rsquo;s driver on the same axle (a compound gear: glue or pin them, or fix both to the shaft), so each stage sits in its own layer, one board&rsquo;s thickness over the last. The picture numbers the axles; axle 1 is the one you turn.</li>
           <li><b>Folding:</b> the axles needn&rsquo;t be in a line. Drag an axle round the one before it (it moves a degree at a time and locks onto each 30&deg;), or type its <b>Angle</b>, and the rest follow; the distance between meshing axles can&rsquo;t change, only the direction. <b>Fold Compact</b> tries the turns in 30&deg; steps (for up to four stages) and keeps the smallest box that fits, which may be the straight line. Gears in different layers can overlap; what they can&rsquo;t do is hit another axle&rsquo;s shaft, which runs through every layer: the facts say when one would.</li>
@@ -3097,10 +3113,10 @@ if (typeof module !== 'undefined' && module.exports) {
   // The Depth card's side view, along the cut: the stock from Z0 down, the
   // channel the bit cuts, a line at each pass's floor, a holding tab left
   // standing in it, and the cut's last bit into the wasteboard.
-  function drawDepth(s, errs) {
-    var svg = $('gr-depth-view');
+  function drawDepth(s, errs, svg, withTabs) {
+    svg = svg || $('gr-depth-view');
     if (errs['gr-depth'] || errs['gr-step'] || !(s['gr-depth'] > 0) || !(s['gr-step'] > 0)) { svg.innerHTML = ''; return; }
-    var D = s['gr-depth'], tabsOn = $('gr-tabs-on').checked && !errs['gr-tab-h'] && s['gr-tab-h'] > 0 && s['gr-tab-h'] < D;
+    var D = s['gr-depth'], tabsOn = (withTabs != null ? withTabs : $('gr-tabs-on').checked) && !errs['gr-tab-h'] && s['gr-tab-h'] > 0 && s['gr-tab-h'] < D;
     var tabTop = tabsOn ? D - s['gr-tab-h'] : null, levels = GC.depthLevels(D, s['gr-step'], tabTop);
     var top = 22, k = 92 / D, y = function (z) { return top + z * k; }, u = ' ' + state.unit;
     var cx0 = 120, cx1 = 330, out = [];
@@ -4216,6 +4232,180 @@ if (typeof module !== 'undefined' && module.exports) {
     });
   }
 
+  // ---------- Help's figures ----------
+  // Drawn once from the plugin's own geometry (real involute teeth), the
+  // moving ones turned by one clock while Help is shown, and still when the
+  // system asks for reduced motion.
+  var helpFigs = null, helpRaf = null;
+  var HELP = { module: 3.5, pressureDeg: 20, backlash: 0.3, bitRadius: 1.5875 };
+  function helpGear(z, m) { var g = G.gear(Object.assign({}, HELP, { teeth: z, module: m || HELP.module })); return { g: g, d: d(G.simplifyClosed(g.outline, 0.02)) }; }
+  function lbl(x, y, t, size, cls, anchor) { return '<text class="gr-lbl' + (cls ? ' ' + cls : '') + '" x="' + x.toFixed(2) + '" y="' + y.toFixed(2) + '" font-size="' + size.toFixed(2) + '"' + (anchor ? ' text-anchor="' + anchor + '"' : '') + '>' + t + '</text>'; }
+  function circ(cx, cy, r, cls) { return '<circle class="' + cls + '" cx="' + cx.toFixed(2) + '" cy="' + cy.toFixed(2) + '" r="' + r.toFixed(2) + '"/>'; }
+  function renderHelpFigs() {
+    if (helpFigs) return;
+    helpFigs = [];
+    var m = HELP.module, put = function (name, viewBox, html, tick) {
+      var svg = ROOT.querySelector('[data-fig="' + name + '"]');
+      if (!svg) return;
+      svg.setAttribute('viewBox', viewBox);
+      svg.innerHTML = html;
+      if (tick) helpFigs.push({ svg: svg, tick: tick });
+    };
+    var spinPair = function (svg, sel, zA, zB, deg) {
+      var a = svg.querySelector(sel + ' [data-g="A"]'), b = svg.querySelector(sel + ' [data-g="B"]');
+      if (a) a.setAttribute('transform', a.dataset.at + ' rotate(' + (-deg).toFixed(2) + ')');
+      if (b) b.setAttribute('transform', b.dataset.at + ' rotate(' + (-(180 + 180 / zB - deg * zA / zB)).toFixed(2) + ')');
+    };
+    // The teeth, close up: a gear's top on the left, its circles carried by
+    // leader lines into a clear column of labels at the right.
+    (function () {
+      var z = 30, G1 = helpGear(z), b = G1.g.basics, path = G.toolPath(G1.g, HELP.bitRadius, 0.003), deep = null;
+      var turn = 90 - 180 / z, rad = turn * Math.PI / 180;
+      path.forEach(function (q) { var x = q.x * Math.cos(rad) - q.y * Math.sin(rad), y = q.x * Math.sin(rad) + q.y * Math.cos(rad); if (Math.abs(x) < 0.4 * m && y > 0 && (!deep || y < deep.y)) deep = { x: x, y: y }; });
+      var yTop = -(b.ra + 1.0 * m), yBot = -(b.rf - 1.0 * m), H = yBot - yTop, W = 3.4 * H, x0 = -0.36 * W, xc = x0 + 0.62 * W, fs = H / 12, xl = xc + 1.2 * fs;
+      var arcAt = function (r, cls) { return '<circle class="' + cls + '" cx="0" cy="0" r="' + r.toFixed(2) + '"/>'; };
+      var html = '<defs><clipPath id="gr-anat-clip"><rect x="' + x0 + '" y="' + yTop + '" width="' + (xc - x0) + '" height="' + H + '"/></clipPath></defs>' +
+        '<g clip-path="url(#gr-anat-clip)"><g transform="rotate(' + (-turn) + ')"><path class="gr-body" d="' + G1.d + '"/></g>' + arcAt(b.ra, 'gr-pitch') + arcAt(b.rp, 'gr-ln-acc') + arcAt(b.rf, 'gr-pitch') +
+        (deep ? circ(deep.x, -deep.y, HELP.bitRadius, 'gr-bit-dot') : '') + '</g>';
+      // Where each circle crosses the clip's edge, a leader to its label.
+      var edgeY = function (r) { return -Math.sqrt(Math.max(0, r * r - xc * xc)); };
+      [[b.ra, 'tip circle', ''], [b.rp, 'pitch circle', 'gr-lbl-acc'], [b.rf, 'root circle', '']].forEach(function (q, i) {
+        var y = edgeY(q[0]), ly = yTop + (i + 1) * H / 4;
+        html += '<polyline class="gr-ln" points="' + xc + ',' + y.toFixed(2) + ' ' + (xl - 0.3 * fs) + ',' + ly.toFixed(2) + '"/>' + lbl(xl, ly + 0.35 * fs, q[1], fs, q[2]);
+      });
+      // One module each side of the pitch circle, dimensioned at the left.
+      var xd = x0 + 0.04 * W;
+      html += '<line class="gr-ln" x1="' + xd + '" y1="' + edgeY(b.ra) + '" x2="' + xd + '" y2="' + edgeY(b.rf) + '"/>';
+      html += lbl(xd + 0.4 * fs, (edgeY(b.ra) + edgeY(b.rp)) / 2 + 0.35 * fs, '1 module', fs * 0.85) + lbl(xd + 0.4 * fs, (edgeY(b.rp) + edgeY(b.rf)) / 2 + 0.35 * fs, '1 module + clearance', fs * 0.85);
+      if (deep) html += '<polyline class="gr-ln-acc" points="' + (deep.x + HELP.bitRadius) + ',' + (-deep.y) + ' ' + (xl - 0.3 * fs) + ',' + (yTop + H * 0.92) + '"/>' + lbl(xl, yTop + H * 0.92 + 0.35 * fs, 'the bit, in the root', fs, 'gr-lbl-acc');
+      put('anatomy', x0 + ' ' + yTop + ' ' + W + ' ' + H, html);
+    })();
+    // Two meshing, turning.
+    (function () {
+      var zA = 16, zB = 10, A = helpGear(zA), B = helpGear(zB), cd = m * (zA + zB) / 2, raA = A.g.basics.ra, raB = B.g.basics.ra, pad = 2 * m, fs = (2 * raA + 2.6 * pad) / 13;
+      var html = '<g data-g="A" data-at="translate(0 0)"><path class="gr-body" d="' + A.d + '"/></g><g data-g="B" data-at="translate(' + cd + ' 0)"><path class="gr-body gr-b" d="' + B.d + '"/></g>' +
+        circ(0, 0, A.g.basics.rp, 'gr-pitch') + circ(cd, 0, B.g.basics.rp, 'gr-pitch') + '<line class="gr-ln" x1="0" y1="0" x2="' + cd + '" y2="0" stroke-dasharray="3 3"/>' +
+        lbl(cd / 2, raA + pad * 1.05, 'center distance = module × (16 + 10) ÷ 2', fs, '', 'middle');
+      put('mesh', (-raA - pad) + ' ' + (-raA - pad) + ' ' + (cd + raB + raA + 2 * pad) + ' ' + (2 * raA + 2.6 * pad), html, function (deg, svg) { spinPair(svg, '', zA, zB, deg); });
+    })();
+    // Same size meshes; a different size collides.
+    (function () {
+      var zA = 14, zB = 10, A = helpGear(zA), B = helpGear(zB), B2 = helpGear(zB, m * 1.4), cd = m * (zA + zB) / 2, cd2 = A.g.basics.rp + B2.g.basics.rp, gapX = cd + B.g.basics.ra + A.g.basics.ra + 3 * m;
+      var h = 2 * Math.max(A.g.basics.ra, B2.g.basics.ra) + 5 * m, fs = h / 12;
+      var at = function (x, deg) { return 'translate(' + x.toFixed(2) + ' 0) rotate(' + (-deg).toFixed(2) + ')'; };
+      var html = '<g transform="' + at(0, 0) + '"><path class="gr-body" d="' + A.d + '"/></g><g transform="' + at(cd, 180 + 180 / zB) + '"><path class="gr-body gr-b" d="' + B.d + '"/></g>' +
+        lbl(cd / 2, h / 2 - 0.4 * fs, '✓ same tooth size', fs, 'gr-lbl-acc', 'middle') +
+        '<g transform="' + at(gapX, 0) + '"><path class="gr-body" d="' + A.d + '"/></g><g transform="' + at(gapX + cd2, 180 + 180 / zB) + '"><path class="gr-body gr-b" d="' + B2.d + '"/></g>' +
+        circ(gapX + A.g.basics.rp, 0, 0.8 * m, 'gr-hit') + lbl(gapX + cd2 / 2, h / 2 - 0.4 * fs, '✗ different sizes', fs, 'gr-lbl-red', 'middle');
+      put('nomesh', (-A.g.basics.ra - m) + ' ' + (-h / 2) + ' ' + (gapX + cd2 + B2.g.basics.ra + 2 * m) + ' ' + h, html);
+    })();
+    // Measuring: count the teeth, measure across the tips (the sums at the side).
+    (function () {
+      var z = 24, A = helpGear(z), ra = A.g.basics.ra, H = 2 * ra + 5 * m, fs = H / 13, out = '<path class="gr-body" d="' + A.d + '"/>';
+      for (var k = 0; k < z; k++) { var an = Math.PI / 2 - k * 2 * Math.PI / z; out += lbl((ra + 1.3 * m) * Math.cos(an), -(ra + 1.3 * m) * Math.sin(an) + 0.35 * fs * 0.7, String(k + 1), fs * 0.7, k ? '' : 'gr-lbl-acc', 'middle'); }
+      var dia = parseFloat((2 * ra).toFixed(1)), xt = ra + 3.2 * m;
+      out += '<line class="gr-ln-acc" x1="' + (-ra) + '" y1="0" x2="' + ra + '" y2="0"/>' + circ(-ra, 0, 0.5, 'gr-tab-dot') + circ(ra, 0, 0.5, 'gr-tab-dot') +
+        lbl(xt, -1.2 * fs, 'Count the teeth: ' + z, fs) + lbl(xt, 0.3 * fs, 'Across the tips: ' + dia + ' mm', fs, 'gr-lbl-acc') + lbl(xt, 1.8 * fs, dia + ' ÷ (' + z + ' + 2) = module ' + m, fs);
+      put('measure', (-ra - 2.5 * m) + ' ' + (-H / 2) + ' ' + (2 * ra + 2.5 * m + 3.2 * m + 9.5 * fs) + ' ' + H, out);
+    })();
+    // A planetary set turning, the ring held.
+    (function () {
+      var zs = 12, zp = 12, n = 3, zr = zs + 2 * zp, S = helpGear(zs), P = helpGear(zp), R = G.makeRing(Object.assign({}, HELP, { teeth: zr, rim: 2.5 * m })), a = m * (zs + zp) / 2;
+      if (R.problem) return;
+      var rb = R.basics, w = rb.rOut + 1.5 * m, fs = 2 * w / 13;
+      var html = '<path class="gr-body gr-b" fill-rule="evenodd" d="' + d(G.simplifyClosed(R.outline, 0.05)) + ' ' + d(G.simplifyClosed(R.opening, 0.02)) + '"/>' + circ(0, 0, a, 'gr-pitch') +
+        '<g data-p="S"><path class="gr-body" d="' + S.d + '"/></g>';
+      for (var k = 0; k < n; k++) html += '<line class="gr-ln-acc" data-arm="' + k + '" x1="0" y1="0" x2="0" y2="0"/><g data-p="' + k + '"><path class="gr-body gr-off" d="' + P.d + '"/></g>';
+      // A legend at the right: what each part does with the ring held.
+      var xL = w + 0.8 * fs, legend = [['Sun', 'turned (the input)', 'gr-lbl-acc'], ['Planets', 'roll round inside the ring', ''], ['Carrier (the arms)', 'out, ' + (1 + zr / zs) + ' times slower', 'gr-lbl-acc'], ['Ring', 'held still', '']];
+      legend.forEach(function (q, i) { var y = -w + (i + 0.9) * 2 * w / 4.4; html += lbl(xL, y, q[0], fs, q[2]) + lbl(xL, y + 1.1 * fs, q[1], fs * 0.8); });
+      put('planet', (-w) + ' ' + (-w) + ' ' + (2 * w + 13 * fs) + ' ' + 2 * w, html, function (deg, svg) {
+        var ph = G.planetPhase(zs, zp, n, deg), sg = svg.querySelector('[data-p="S"]');
+        sg.setAttribute('transform', 'rotate(' + (-deg).toFixed(2) + ')');
+        ph.planets.forEach(function (q, k) {
+          var x = a * Math.cos(q.at * Math.PI / 180), y = a * Math.sin(q.at * Math.PI / 180);
+          svg.querySelector('[data-p="' + k + '"]').setAttribute('transform', 'translate(' + x.toFixed(2) + ' ' + (-y).toFixed(2) + ') rotate(' + (-q.angle).toFixed(2) + ')');
+          var arm = svg.querySelector('[data-arm="' + k + '"]'); arm.setAttribute('x2', x.toFixed(2)); arm.setAttribute('y2', (-y).toFixed(2));
+        });
+      });
+    })();
+    // A two-stage train: axle 1, then a compound gear on axle 2, then axle 3.
+    (function () {
+      var st = [{ driver: 10, driven: 24 }, { driver: 10, driven: 20 }], gs = [[10, 0, 0], [24, 1, 0], [10, 1, 1], [20, 2, 1]], ax = [0, m * 17, m * 32], html = '', fs = 32 * m / 13;
+      var Gs = gs.map(function (q) { return helpGear(q[0]); });
+      gs.forEach(function (q, i) { html += '<g data-t="' + i + '" data-x="' + ax[q[1]] + '"><path class="gr-body' + (q[2] ? ' gr-b' : '') + '" d="' + Gs[i].d + '"/></g>'; });
+      ax.forEach(function (x, i) { html += circ(x, 0, 0.35 * m, 'gr-hole') + lbl(x, 14.6 * m, 'axle ' + (i + 1), fs * 0.8, '', 'middle'); });
+      html += lbl(ax[1], -13.6 * m, 'compound: 24 and 10 on one axle', fs * 0.9, 'gr-lbl-acc', 'middle');
+      put('train', (-6.5 * m) + ' ' + (-16.5 * m) + ' ' + (ax[2] + 13 * m) + ' ' + 33 * m, html, function (deg, svg) {
+        var an = [deg]; st.forEach(function (s0, i) { an.push(180 + 180 / s0.driven - an[i] * s0.driver / s0.driven); });
+        gs.forEach(function (q, i) { var el = svg.querySelector('[data-t="' + i + '"]'); el.setAttribute('transform', 'translate(' + el.dataset.x + ' 0) rotate(' + (-an[q[1]]).toFixed(2) + ')'); });
+      });
+    })();
+    // 12:1 motion work on one center: the minute hand on axle 1, the hour hand on the gear that comes back.
+    (function () {
+      var st = [{ driver: 8, driven: 32, angle: 0 }, { driver: 10, driven: 30, angle: 180 }], mm = 2.5, cd = mm * 20, html = '', fs = 2.4;
+      var g = [[8, 0, 0, 0], [32, 1, 0, 1], [10, 1, 1, 0], [30, 0, 1, 1]].map(function (q) { var gg = G.gear(Object.assign({}, HELP, { module: mm, teeth: q[0], bitRadius: 1 })); return { q: q, d: d(G.simplifyClosed(gg.outline, 0.02)) }; });
+      g.forEach(function (o, i) { html += '<g data-c="' + i + '" data-x="' + (o.q[1] ? cd : 0) + '"><path class="gr-body' + (o.q[2] ? ' gr-b' : '') + (o.q[3] && o.q[0] === 30 ? ' gr-off' : '') + '" d="' + o.d + '"/></g>'; });
+      html += '<line class="gr-hand" data-hand="m" x1="0" y1="0" x2="0" y2="-34"/><line class="gr-hand-h" data-hand="h" x1="0" y1="0" x2="0" y2="-22"/>' + circ(0, 0, 1.6, 'gr-hole') +
+        lbl(cd / 2 - 5, 49, 'minute hand · hour hand (gold) on one center', 7, '', 'middle');
+      put('clock', '-50 -46 ' + (cd + 90) + ' 102', html, function (deg, svg) {
+        var an = [deg]; st.forEach(function (s0, i) { var phi = s0.angle; an.push(phi + 180 + 180 / s0.driven - (an[i] - phi) * s0.driver / s0.driven); });
+        var axleAngle = [an[0], an[1], an[2]];
+        g.forEach(function (o, i) { var el = svg.querySelector('[data-c="' + i + '"]'), axle = o.q[2] === 0 ? (o.q[1] === 0 ? 0 : 1) : (o.q[1] === 1 ? 1 : 2); el.setAttribute('transform', 'translate(' + el.dataset.x + ' 0) rotate(' + (-axleAngle[axle]).toFixed(2) + ')'); });
+        svg.querySelector('[data-hand="m"]').setAttribute('transform', 'rotate(' + (-an[0] + 90).toFixed(2) + ')');
+        svg.querySelector('[data-hand="h"]').setAttribute('transform', 'rotate(' + (-an[2] + 90).toFixed(2) + ')');
+      });
+    })();
+    // A rack and pinion, back and forth.
+    (function () {
+      var z = 12, A = helpGear(z), rp = A.g.basics.rp, R = G.makeRack(Object.assign({}, HELP, { teeth: 14, height: 2.5 * m }));
+      if (R.problem) return;
+      var rb = R.basics, xoff = -Math.round(rb.z / 2) * rb.pitch, sMax = Math.max(0, rb.length / 2 - 2 * rb.pitch), fs = (A.g.basics.ra + rp - rb.bottom + 5 * m) / 12;
+      var html = '<g data-r="A"><path class="gr-body" d="' + A.d + '"/></g><g transform="translate(' + xoff.toFixed(2) + ' ' + rp.toFixed(2) + ')"><g data-r="B"><path class="gr-body gr-b" d="' + d(R.outline) + '"/></g></g>' +
+        lbl(0, -A.g.basics.ra - 0.5 * fs, 'pinion turns', fs, '', 'middle') + lbl(0, rp - rb.bottom + 1.2 * fs, 'rack slides', fs, '', 'middle');
+      var x0 = Math.min(-A.g.basics.ra, xoff - sMax) - m, x1 = Math.max(A.g.basics.ra, xoff + rb.length + sMax) + m;
+      put('rack', x0 + ' ' + (-A.g.basics.ra - 2.5 * m) + ' ' + (x1 - x0) + ' ' + (A.g.basics.ra + rp - rb.bottom + 5 * m), html, function (deg, svg) {
+        var u = ((deg / 360) % 1 + 1) % 1, tri = u < 0.25 ? 4 * u : u < 0.75 ? 2 - 4 * u : 4 * u - 4, th = tri * sMax / rp;
+        svg.querySelector('[data-r="A"]').setAttribute('transform', 'rotate(' + (90 - th * 180 / Math.PI).toFixed(2) + ')');
+        svg.querySelector('[data-r="B"]').setAttribute('transform', 'translate(' + (rp * th).toFixed(2) + ' 0)');
+      });
+    })();
+    // The cut with its tabs, read back from a real program.
+    (function () {
+      var o = { job: 'A', module: m, pressureDeg: 20, backlash: 0.3, bitDiameter: 3.175, feedRate: 1000, plungeFeedRate: 300, spindleRpm: 18000, depth: 6, depthOfCut: 3,
+        tabs: { count: 3, width: 4, height: 1.5 }, gears: { A: { teeth: 30, bore: 8, holes: 5, holeStyle: 'spokes' }, B: { teeth: 12, bore: 8, holes: 0 } }, origin: 'center', holeCut: 'out' };
+      var r = GC.generate(o);
+      if (!r.gcode) return;
+      var cuts = cutThrough(r.gcode, o.depth), e = r.extent, w = e.x1 - e.x0, pad = 6, html = '';
+      html += '<path class="gr-kerf-help" stroke-width="3.175" d="' + cuts.map(function (l) { return 'M' + l.map(function (q) { return q.x.toFixed(2) + ' ' + (-q.y).toFixed(2); }).join('L'); }).join('') + '"/>';
+      cuts.tabs.forEach(function (t) { html += circ(t.x, -t.y, 2.6, 'gr-tab-dot'); });
+      put('tabs', (e.x0 - pad) + ' ' + (-e.y1 - pad) + ' ' + (w + 2 * pad) + ' ' + (e.y1 - e.y0 + 2 * pad), html);
+    })();
+    // The depth passes from the side (the Depth card's view, at its usual settings).
+    (function () {
+      var svg = ROOT.querySelector('[data-fig="depth"]');
+      if (!svg) return;
+      svg.setAttribute('class', 'gr-depth-view gr-help-fig'); svg.setAttribute('viewBox', '0 0 400 140');
+      drawDepth({ 'gr-depth': 12.5, 'gr-step': 3, 'gr-tab-h': 1.5, 'gr-tab-w': 4 }, {}, svg, true);
+    })();
+    helpFigs.forEach(function (f) { f.tick(0, f.svg); });
+  }
+  // Turned while Help is shown (about 20° a second), unless motion is reduced.
+  function helpAnimate(on) {
+    if (helpRaf) { cancelAnimationFrame(helpRaf); helpRaf = null; }
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!on || still || !helpFigs || !helpFigs.length) return;
+    var t0 = null;
+    var step = function (t) {
+      if (state.view !== 'help' || !document.body.contains(ROOT)) { helpRaf = null; return; }
+      if (t0 == null) t0 = t;
+      var deg = (t - t0) * 0.02;
+      helpFigs.forEach(function (f) { f.tick(deg, f.svg); });
+      helpRaf = requestAnimationFrame(step);
+    };
+    helpRaf = requestAnimationFrame(step);
+  }
+
   // ---------- Run note ----------
   var noteTimer = null;
   function scheduleNote() { clearTimeout(noteTimer); noteTimer = setTimeout(updateNote, 300); }
@@ -5037,6 +5227,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if (view === 'pair') updatePair();
     if (view === 'frame') drawFrame();
     if (view === 'train') updateTrain();
+    if (view === 'help') { renderHelpFigs(); helpAnimate(true); } else helpAnimate(false);
   }
   var touchTimer = null;
   function touch() {
