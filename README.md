@@ -158,6 +158,8 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
   the machine's max feed and spindle range.
+- **Ø means diameter** (Axle Ø, Outside Ø across the tooth tips); a zero with a slash or dot in the number boxes
+  is just 0.
 - **Units:** follows ncSender's (mm or inches); module is in mm either way. Programs are written in mm,
   and an inch machine gets G20 back at the end.
 
