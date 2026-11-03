@@ -1,35 +1,37 @@
 # Changelog
 
-## Unreleased
+## 0.6.0: Shop standard and planetary sets
 
-- **Review fixes:** at a shop standard (and adding a gear), a typed Center Distance is picked when you leave the
-  field, not rewritten while you type; the arrow keys step it; a hidden Planetary ratio no longer blocks Generate;
-  X0 Y0 for a planetary set is the ring's center, said on the Cut card and in the program; the Carrier Plate says
-  it drills to the Frame Holes tab's depth; Ratio mode is kept across the Kind buttons; planetary fixes suggested
-  are checked to work.
-- **Pinion and Ring nest:** the pinion is cut inside the ring's opening, on the same center, then the ring, instead
-  of beside it (beside only when the pinion and the Gap Between don't fit inside the opening).
-- **The Gear Pair tab starts with the design:** Center Distance (or Planetary), Teeth, Gear Bodies, then Tool, Depth and
-  Cut. The design card names the bit it's for, with a link to change it.
-- The facts no longer show a backlash and a negative contact ratio for a Center Distance that can't work: they
-  give the range that does.
-- **Up and Down arrows** step number fields, as in QuickCut: 1, Shift 10, Alt (Option) 0.1, Ctrl (Command) 0.001.
-- **What to fix shows at once:** a field that keeps the preview from drawing shows its error straight away, and the
-  preview and the footer say what it is (switching to Ring and Pinion with 8 ring teeth said only "Fix the fields").
-- **Planetary sets:** a **Planetary** button on the Gear Pair tab: a sun, planets on a carrier and a ring. Find a
-  set by ratio or type the teeth; the planets are checked for even spacing and clearance, with the nearest teeth
-  that work; the preview turns it all; the facts give the ring-held, carrier-held and sun-held ratios. Cut
-  everything nested (the sun and planets inside the ring's opening where they fit, the ring last), one part, or
-  the carrier plate. Help: "Planetary sets, plainly".
-- **Two Gears | Rack and Pinion | Ring and Pinion** buttons at the top of the Gear Pair tab, whose title follows them;
-  the rack and ring were hidden in Gear B's label menu.
+### ✨ New
 - **Shop standard:** keep one tooth size and pressure angle for everything, so every gear you cut meshes with every
   other. Set it on the Teeth card (or the round size nearest); it's shown in the sidebar and kept apart from
   designs, Load and sets. Start from the Center Distance then lists the whole-tooth pairs at it nearest your
-  distance (spread to it when they can; the nearest within 2% of the ratio is picked); a design off it says it
-  won't mesh with your other gears, with Use the Standard.
-- **Help: "Designing gears: how it's usually done":** what makes gears mesh, keeping a shop standard, the usual
-  order (tooth size, then teeth, then distance), fixed distances, how a clockmaker starts, measuring a gear.
+  distance (spread to it when they can; the nearest within 2% of the ratio is picked), picked when you leave the
+  field; a design off it says it won't mesh with your other gears, with Use the Standard.
+- **Planetary sets:** a **Planetary** button on the Gear Pair tab: a sun, planets on a carrier and a ring. Find a
+  set by ratio or type the teeth; the planets are checked for even spacing and clearance, with the nearest teeth
+  that work; the preview turns it all; the facts give the ring-held, carrier-held and sun-held ratios. Cut
+  everything nested (the sun and planets inside the ring's opening where they fit, the ring last, X0 Y0 at its
+  center), one part, or the carrier plate (drilled to the Frame Holes tab's depth).
+- **Two Gears | Rack and Pinion | Ring and Pinion | Planetary** buttons at the top of the Gear Pair tab, whose title
+  follows them; the rack and ring were hidden in Gear B's label menu.
+- **Pinion and Ring nest:** the pinion is cut inside the ring's opening, on the same center, then the ring, instead
+  of beside it (beside only when the pinion and the Gap Between don't fit inside the opening).
+- **Up and Down arrows** step number fields, as in QuickCut: 1, Shift 10, Alt (Option) 0.1, Ctrl (Command) 0.001.
+- **Help:** "Designing gears: how it's usually done" (what makes gears mesh, a shop standard, the usual order,
+  fixed distances, how a clockmaker starts, measuring a gear), "Planetary sets, plainly", and what Ø means.
+
+### 🔧 Changed
+- **The Gear Pair tab starts with the design:** Center Distance (or Planetary), Teeth, Gear Bodies, then Tool,
+  Depth and Cut. The design card names the bit it's for, with a link to change it.
+- **What to fix shows at once:** a field that keeps the preview from drawing shows its error straight away, and
+  the preview and the footer say what it is (switching to Ring and Pinion with 8 ring teeth said only "Fix the
+  fields").
+
+### 🐛 Fixes
+- The facts no longer show a backlash and a negative contact ratio for a Center Distance that can't work: they give
+  the range that does.
+- Help said 12 teeth avoids undercut at 20°; it's 17 (12 is the 25° figure).
 
 ## 0.5.0: Clock trains and diagrams
 
