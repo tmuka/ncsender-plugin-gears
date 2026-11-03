@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- **Shop standard:** keep one tooth size and pressure angle for everything, so every gear you cut meshes with every
+  other. Set it on the Teeth card (or the round size nearest); it's shown in the sidebar and kept apart from
+  designs, Load and sets. Start from the Center Distance then lists the whole-tooth pairs at it nearest your
+  distance (spread to it when they can; the nearest within 2% of the ratio is picked); a design off it says it
+  won't mesh with your other gears, with Use the Standard.
+- **Help: "Designing gears: how it's usually done":** what makes gears mesh, keeping a shop standard, the usual
+  order (tooth size, then teeth, then distance), fixed distances, how a clockmaker starts, measuring a gear.
+
 ## 0.5.0: Clock trains and diagrams
 
 ### ✨ New

@@ -119,6 +119,10 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   The menu lists the tool in the spindle first, with a filter on top (T number, name, notes or
   size). Picking a tool, or taking the loaded one, sets **Flutes** from its name or notes
   (O flute, 0flute, single flute, 2 flute, 3FL...), or to 2 when they don't say.
+- **A shop standard:** gears only mesh at the same tooth size and pressure angle, so keep one for everything. Set
+  it on the Teeth card; it's shown in the sidebar, kept apart from your designs, and Start from the Center
+  Distance then gives the whole-tooth pairs at it nearest your distance (spread to it when they can). A design
+  off it says so. Help's "Designing gears" explains the usual workflow, and how a clockmaker starts a set.
 - **Start from the Center Distance:** type where the axles go, then the ratio (or Gear A's outside diameter), and pick one of the pairs that mesh there, coarse to fine: tooth counts, tooth size and pressure angle worked out for the bit you're cutting with. A tap fills in the Teeth card, where it can still be changed.
 - **Add a Gear to This Set:** the same card keeps your pair's tooth size and pressure angle, so a new gear meshes with
   the ones you've cut. Pick the gear you have and type where the new axle goes; it lists the nearest distances whole

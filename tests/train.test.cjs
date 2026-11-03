@@ -179,3 +179,22 @@ test('packing all the gears: never closer than the gap, inside the stock, never 
     assert.ok((b.x1 - b.x0) * (b.y1 - b.y0) <= (rows.x1 - rows.x0) * (rows.y1 - rows.y0) + 1e-6, `${teeth}: more stock than the rows`);
   }
 });
+
+test('at a shop standard: whole teeth nearest the distance, spread when it can, the exact ratio offered', () => {
+  const m = 25.4 / 4, base = { module: m, pressureDeg: 25, backlash: 0.3, bitRadius: 1.5875 };
+  const r = G.solveStandard({ ...base, centerDistance: 76.2, ratio: 2 });
+  assert.deepStrictEqual([r.options[0].teethA, r.options[0].teethB, r.options[0].spreadable], [16, 8, true]);
+  for (const o of r.options) { assert.equal(o.module, m); assert.equal(o.pressureDeg, 25); assert.equal(o.ownDistance, m * (o.teethA + o.teethB) / 2); }
+  // 3.2 in: the nearest whole-tooth distances miss 2:1, so the nearest exact one is offered too.
+  const r2 = G.solveStandard({ ...base, centerDistance: 81.28, ratio: 2 });
+  assert.ok(r2.options.some((o) => o.teethA === 2 * o.teethB), JSON.stringify(r2.options.map((o) => [o.teethA, o.teethB])));
+  // The one to pick: the nearest within 2% of the ratio (18:9 at 3.375 in), not 17:9 (1.89:1) at 3.25.
+  assert.deepStrictEqual([r2.pick.teethA, r2.pick.teethB], [18, 9]);
+  // At 4.2 in none of the three nearest makes 2:1: the nearest exact one is added.
+  const r3 = G.solveStandard({ ...base, centerDistance: 4.2 * 25.4, ratio: 2 });
+  assert.ok(r3.options.some((o) => o.exactRatio || o.ratioError < 1e-9));
+  // A distance a little over a pair's own can be spread to; too far can't.
+  assert.ok(G.solveStandard({ ...base, centerDistance: 76.2 + 0.5, ratio: 2 }).options[0].spreadable);
+  assert.ok(G.solveStandard({ ...base, centerDistance: 20, ratio: 2 }).problem);
+  assert.ok(G.solveStandard({ ...base, module: 1, centerDistance: 50, ratio: 2 }).tooSmall, 'a 1 mm module is too fine for a 1/8" bit');
+});
