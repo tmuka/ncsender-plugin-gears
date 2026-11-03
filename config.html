@@ -302,10 +302,10 @@
   .gr-preview .gr-path { fill: none; stroke: var(--color-accent); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
   .gr-preview .gr-dim { stroke: var(--color-text-secondary); stroke-width: 1; vector-effect: non-scaling-stroke; }
   .gr-preview .gr-mark { fill: #ff6b6b; }
-  .gr-preview .gr-dim-line { stroke: var(--color-accent); stroke-width: 1; stroke-dasharray: 1.5 1.5; vector-effect: non-scaling-stroke; fill: none; }
-  .gr-preview .gr-dim-ext { stroke: var(--color-accent); stroke-width: 1; vector-effect: non-scaling-stroke; fill: none; }
-  .gr-preview .gr-dim-label { fill: var(--color-text-primary); font-weight: 600; font-family: 'JetBrains Mono', ui-monospace, monospace; paint-order: stroke; stroke: var(--color-surface); stroke-width: 3px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-  .gr-preview .gr-dims.gr-hidden { display: none; }
+  .gr-wrapper svg .gr-dim-line { stroke: var(--color-accent); stroke-width: 1; stroke-dasharray: 1.5 1.5; vector-effect: non-scaling-stroke; fill: none; }
+  .gr-wrapper svg .gr-dim-ext { stroke: var(--color-accent); stroke-width: 1; vector-effect: non-scaling-stroke; fill: none; }
+  .gr-wrapper svg .gr-dim-label { fill: var(--color-text-primary); font-weight: 600; font-family: 'JetBrains Mono', ui-monospace, monospace; paint-order: stroke; stroke: var(--color-surface); stroke-width: 3px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .gr-wrapper svg .gr-dims.gr-hidden { display: none; }
   .gr-layout { width: 100%; height: 220px; display: block; background: var(--color-surface); border-radius: 8px; border: 1px solid var(--color-border); margin-top: 10px; }
   .gr-layout .gr-stock { fill: color-mix(in srgb, #e6b450 10%, var(--color-surface)); stroke: var(--color-border); stroke-width: 1; vector-effect: non-scaling-stroke; }
   .gr-layout .gr-kerf { fill: none; stroke: color-mix(in srgb, var(--color-accent) 70%, transparent); stroke-linecap: round; stroke-linejoin: round; }
@@ -750,7 +750,7 @@
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
           <li>Click the <b>Bit Diameter</b> label to fill in the loaded tool's diameter from ncSender's tool table. With a tool changer, the label is a menu of the tool table instead: pick the tool to cut with, and the program starts with a tool change to it (M6 T). Typing another diameter, or <b>No tool change</b>, leaves it out. As in QuickCut.</li>
           <li><b>Holding Tabs</b> sit on tooth tips, where they're easy to sand off.</li>
-          <li><b>The Gear Pair picture is measured</b>, as QuickCut&rsquo;s shape previews are: each gear&rsquo;s outside diameter (Gear A&rsquo;s across the top, Gear B&rsquo;s up its side) and the center distance, center to center, underneath. They hide while you drag a dot (it shows its own value) and come back when you let go.</li>
+          <li><b>The pictures are measured</b>, as QuickCut&rsquo;s shape previews are. Two gears: each one&rsquo;s outside diameter (across its tips) and the center distance. Rack and pinion: the pinion&rsquo;s diameter, the rack&rsquo;s length, and from the pinion&rsquo;s axle to the rack&rsquo;s bottom edge (where to mount it). Ring and pinion: the ring&rsquo;s diameter and the pinion axle&rsquo;s offset from its center. Planetary: the ring&rsquo;s diameter and the circle the planets&rsquo; axles sit on. A gear train: each stage&rsquo;s center distance along its link. Frame Holes: the holes&rsquo; spacing and sizes. The Cut card&rsquo;s layout: the stock&rsquo;s width and height. They hide while you drag a dot or an axle and come back when you let go.</li>
           <li><b>The diagrams</b> follow what you type. Under the Teeth card, where the teeth meet, close up: a tooth of Gear B in a space of Gear A, their pitch circles touching at the pitch point, the line of action at the pressure angle, the backlash beside the tooth, the tip clearance under it, and the bit in A&rsquo;s root. Under the Depth card, the cut from the side: Z0, the floor of each pass, a tab left standing, Total Depth into the wasteboard. Under the Cut card, the stock from above as the program will cut it, read back from the program itself: each cut through the stock the bit&rsquo;s width, the holding tabs as orange dots, X0 Y0 in red, and the stock&rsquo;s size.</li>
           <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces, <b>Gap Between</b> apart where they come closest, which saves stock. Blank, the gap is the least the bit allows: its diameter and a tenth, so the bit never cuts into the other gear. Make it more for room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack sits the same gap from Gear A; with Ring and Pinion, the Cut menu&rsquo;s <b>Pinion and Ring</b> cuts the pinion inside the ring&rsquo;s opening, on the same center (the middle is waste otherwise), then the ring; beside it only when the pinion and the Gap Between don&rsquo;t fit inside the opening. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
           <li><b>&Oslash;</b> means <b>diameter</b> (the drafting symbol, not a zero): Axle &Oslash; and Tube &Oslash; are the shaft&rsquo;s and the tube&rsquo;s, a gear&rsquo;s &ldquo;Outside &Oslash;&rdquo; is across its tooth tips, Screw Hole &Oslash; the holes&rsquo;. The number boxes draw a zero with a slash or dot through it, so it can&rsquo;t be taken for the letter O: that&rsquo;s just 0.</li>
@@ -3379,7 +3379,7 @@ if (typeof module !== 'undefined' && module.exports) {
       return;
     }
     var b = R.basics, a = o.module * (pl.sun + pl.planet) / 2, pad = Math.max(o.bitDiameter * 2 + 4, 0.06 * b.rOut), w = b.rOut + pad, fs = 2 * w / 45, out = [];
-    svg.setAttribute('viewBox', (-w) + ' ' + (-w) + ' ' + 2 * w + ' ' + 2 * w);
+    svg.setAttribute('viewBox', (-w) + ' ' + (-w - 2.2 * fs) + ' ' + (2 * w + 3 * fs) + ' ' + (2 * w + 2.2 * fs));
     var cutting = function (k) { return job === 'both' || job === k; };
     var holeD = function (q) { var r = q.diameter / 2; return q.shape && q.shape !== 'round' ? ' M' + GC.boreOutline(q).map(function (c) { return (q.dx + c.x).toFixed(3) + ' ' + (-q.dy - c.y).toFixed(3); }).join(' L') + ' Z' : ' M' + (q.dx + r).toFixed(3) + ' ' + (-q.dy).toFixed(3) + ' a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0'; };
     out.push('<path class="gr-body gr-b' + (cutting('ring') ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(R.draw) + ' ' + d(R.drawOpening) + '"/>');
@@ -3392,6 +3392,11 @@ if (typeof module !== 'undefined' && module.exports) {
         '<circle class="gr-mark" cx="' + P.basics.rp.toFixed(3) + '" cy="0" r="' + (o.module * 0.35).toFixed(3) + '"/></g></g>');
     }
     out.push('<text x="0" y="' + (b.rOut + pad * 0.7).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">Sun ' + pl.sun + ' · ' + (pl.planets > 0 ? pl.planets : '?') + ' planets of ' + pl.planet + ' · ring ' + pl.ring + '</text>');
+    // The ring's outside diameter above; the circle the planets' axles sit on (the carrier's holes) at the right.
+    var kq = dimKit(fs, 'grq'), uq = ' ' + state.unit;
+    kq.h(-b.rOut, b.rOut, -b.rOut - 1.3 * fs, 'Ø ' + show(2 * b.rOut) + uq, 0, 0);
+    kq.v(b.rOut + 1.2 * fs, -a, a, 'axles Ø ' + show(2 * a) + uq, 0, 0);
+    out.push(kq.done());
     svg.innerHTML = out.join('');
     spin();
   }
@@ -3732,29 +3737,52 @@ if (typeof module !== 'undefined' && module.exports) {
     var gap = s['gr-gap'] > 0 ? s['gr-gap'] : GC.gapMinimum(s['gr-bit']);
     return GC.ringNests(gearInfo(o, 'A'), gearInfo(o, 'B'), gap);
   }
-  // Measurements on the Gear Pair preview, as QuickCut's shape previews
-  // draw them: accent dimension lines finely dashed, solid extension lines,
-  // open arrowheads, the value in bold mono with a halo. Each gear's
-  // outside diameter (across its tips) above it; the center distance,
-  // center to center, below. Hidden while a handle is dragged.
-  function pairDims(o, A, B, cd, fs, pad, rMax) {
-    var u = ' ' + state.unit, aw = fs * 0.55, out = ['<g class="gr-dims" id="gr-dims"><defs><marker id="gr-dim-arr" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="' + aw.toFixed(3) + '" markerHeight="' + aw.toFixed(3) + '" orient="auto-start-reverse">' +
+  // Dimensions in QuickCut's style, in SVG coordinates (y down): h across,
+  // v up and down, al along any two points; each with extension lines from
+  // the measured points and a label. fs sets the size; id keeps the arrow's
+  // marker apart from another SVG's.
+  function dimKit(fs, id) {
+    var aw = fs * 0.55, mid = 'gr-dim-arr-' + id, out = ['<g class="gr-dims" id="' + id + '-dims"><defs><marker id="' + mid + '" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="' + aw.toFixed(3) + '" markerHeight="' + aw.toFixed(3) + '" orient="auto-start-reverse">' +
       '<path d="M0,0 L8,5 L0,10" fill="none" stroke="var(--color-accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>'];
-    var line = function (cls, x1, y1, x2, y2, arrows) { return '<line class="' + cls + '" x1="' + x1.toFixed(3) + '" y1="' + y1.toFixed(3) + '" x2="' + x2.toFixed(3) + '" y2="' + y2.toFixed(3) + '"' + (arrows ? ' marker-start="url(#gr-dim-arr)" marker-end="url(#gr-dim-arr)"' : '') + '/>'; };
-    var text = function (x, y, t) { return '<text class="gr-dim-label" x="' + x.toFixed(3) + '" y="' + y.toFixed(3) + '" font-size="' + fs.toFixed(3) + '" text-anchor="middle">' + t + '</text>'; };
-    // Gear A's across the top; Gear B's up its right side (their widths overlap where they mesh).
-    var raA = A.basics.ra, raB = B.basics.ra, ya = -rMax - pad * 0.55;
-    out.push(line('gr-dim-ext', -raA, -0.15 * raA, -raA, ya - 0.5 * fs), line('gr-dim-ext', raA, -0.15 * raA, raA, ya - 0.5 * fs), line('gr-dim-line', -raA, ya, raA, ya, true),
-      text(0, ya - 0.45 * fs, 'Ø ' + show(2 * raA) + u));
-    var xb = cd + raB + pad * 0.55;
-    out.push(line('gr-dim-ext', cd + 0.15 * raB, -raB, xb + 0.5 * fs, -raB), line('gr-dim-ext', cd + 0.15 * raB, raB, xb + 0.5 * fs, raB), line('gr-dim-line', xb, -raB, xb, raB, true),
-      '<text class="gr-dim-label" font-size="' + fs.toFixed(3) + '" text-anchor="middle" transform="translate(' + (xb + 1.15 * fs).toFixed(3) + ' 0) rotate(90)">Ø ' + show(2 * raB) + u + '</text>');
-    // The center distance below, its extension lines from just under each gear's name.
-    var yc = rMax + pad * 0.75 + 1.9 * fs;
-    out.push(line('gr-dim-ext', 0, raA + pad * 0.75 + 0.5 * fs, 0, yc + 0.5 * fs), line('gr-dim-ext', cd, raB + pad * 0.75 + 0.5 * fs, cd, yc + 0.5 * fs), line('gr-dim-line', 0, yc, cd, yc, true),
-      text(cd / 2, yc + 1.25 * fs, show(cd) + u + ' center to center'));
-    out.push('</g>');
-    return out.join('');
+    var f = function (v) { return (+v).toFixed(3); };
+    var line = function (cls, x1, y1, x2, y2, arrows) { return '<line class="' + cls + '" x1="' + f(x1) + '" y1="' + f(y1) + '" x2="' + f(x2) + '" y2="' + f(y2) + '"' + (arrows ? ' marker-start="url(#' + mid + ')" marker-end="url(#' + mid + ')"' : '') + '/>'; };
+    var label = function (x, y, t, rot) { return '<text class="gr-dim-label" font-size="' + f(fs) + '" text-anchor="middle" transform="translate(' + f(x) + ' ' + f(y) + ')' + (rot ? ' rotate(' + f(rot) + ')' : '') + '">' + t + '</text>'; };
+    return {
+      // Across from xa to xb at y; extension lines from (xa, ya) and (xb, yb); the label on the side away from them.
+      h: function (xa, xb, y, t, ya, yb) {
+        var up = y < ((ya != null ? ya : y) + (yb != null ? yb : y)) / 2, k = up ? -1 : 1;
+        if (ya != null) out.push(line('gr-dim-ext', xa, ya, xa, y + k * 0.5 * fs));
+        if (yb != null) out.push(line('gr-dim-ext', xb, yb, xb, y + k * 0.5 * fs));
+        out.push(line('gr-dim-line', xa, y, xb, y, true), label((xa + xb) / 2, up ? y - 0.45 * fs : y + 1.25 * fs, t));
+      },
+      // Up and down at x from ya to yb; extension lines from (xa, ya) and (xb, yb); the label turned along it, outside.
+      v: function (x, ya, yb, t, xa, xb) {
+        var right = x > ((xa != null ? xa : x) + (xb != null ? xb : x)) / 2, k = right ? 1 : -1;
+        if (xa != null) out.push(line('gr-dim-ext', xa, ya, x + k * 0.5 * fs, ya));
+        if (xb != null) out.push(line('gr-dim-ext', xb, yb, x + k * 0.5 * fs, yb));
+        out.push(line('gr-dim-line', x, ya, x, yb, true), label(x + k * 1.15 * fs, (ya + yb) / 2, t, right ? 90 : -90));
+      },
+      // Along p to q, off to one side by off (+ to the left of p→q); its label turned to read upright.
+      al: function (p, q, off, t) {
+        var dx = q.x - p.x, dy = q.y - p.y, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+        var a = { x: p.x + nx * off, y: p.y + ny * off }, b = { x: q.x + nx * off, y: q.y + ny * off }, ang = Math.atan2(dy, dx) * 180 / Math.PI, side = off >= 0 ? 1 : -1;
+        if (ang > 90 || ang < -90) ang += 180;
+        out.push(line('gr-dim-ext', p.x + nx * 0.35 * off, p.y + ny * 0.35 * off, a.x + nx * side * 0.4 * fs, a.y + ny * side * 0.4 * fs),
+          line('gr-dim-ext', q.x + nx * 0.35 * off, q.y + ny * 0.35 * off, b.x + nx * side * 0.4 * fs, b.y + ny * side * 0.4 * fs),
+          line('gr-dim-line', a.x, a.y, b.x, b.y, true), label((a.x + b.x) / 2 + nx * side * 0.8 * fs, (a.y + b.y) / 2 + ny * side * 0.8 * fs + 0.35 * fs, t, ang));
+      },
+      done: function () { out.push('</g>'); return out.join(''); }
+    };
+  }
+  // The Gear Pair's: each gear's outside diameter (Gear A's across the top,
+  // Gear B's up its right side, as their widths overlap where they mesh) and
+  // the center distance below, from just under the gears' names.
+  function pairDims(o, A, B, cd, fs, pad, rMax) {
+    var u = ' ' + state.unit, k = dimKit(fs, 'gr'), raA = A.basics.ra, raB = B.basics.ra;
+    k.h(-raA, raA, -rMax - pad * 0.55, 'Ø ' + show(2 * raA) + u, -0.15 * raA, -0.15 * raA);
+    k.v(cd + raB + pad * 0.55, -raB, raB, 'Ø ' + show(2 * raB) + u, cd + 0.15 * raB, cd + 0.15 * raB);
+    k.h(0, cd, rMax + pad * 0.75 + 1.9 * fs, show(cd) + u + ' center to center', raA + pad * 0.75 + 0.5 * fs, raB + pad * 0.75 + 0.5 * fs);
+    return k.done();
   }
   // In the preview when it can't draw: what to fix, from the fields' own
   // errors (each also shown under its field), up to three.
@@ -3775,9 +3803,11 @@ if (typeof module !== 'undefined' && module.exports) {
       return;
     }
     var L = rb.length, xoff = -Math.round(rb.z / 2) * rb.pitch, pad = Math.max(o.bitDiameter * 2 + 4, 0.05 * Math.max(L, 2 * raA));
-    var x0 = Math.min(-raA, xoff) - pad, x1 = Math.max(raA, xoff + L) + pad, yTop = raA + pad, yBot = -rp + rb.bottom - pad;
+    var fs = (Math.max(raA, xoff + L) - Math.min(-raA, xoff) + 2 * pad) / 45;
+    // Room for the measurements: the pinion's above, the rack's length below, the mounting distance at the left.
+    var x0 = Math.min(-raA, xoff) - pad - 3 * fs, x1 = Math.max(raA, xoff + L) + pad, yTop = raA + pad + 2.4 * fs, yBot = -rp + rb.bottom - pad - 3.4 * fs;
     svg.setAttribute('viewBox', x0 + ' ' + (-yTop) + ' ' + (x1 - x0) + ' ' + (yTop - yBot));
-    var fs = (x1 - x0) / 45, out = [];
+    var out = [];
     var gh = GC.gearHoles(o.gears.A, A, o, 'Gear A').holes, rh = GC.rackHoles(o.gears.B, R, o).holes;
     var holePath = function (hs) {
       return hs.map(function (q) {
@@ -3795,7 +3825,14 @@ if (typeof module !== 'undefined' && module.exports) {
     out.push('<path class="gr-body gr-b' + (job === 'A' ? ' gr-off' : '') + '" fill-rule="evenodd" d="' + d(R.draw) + holePath(rh) + '"/>');
     if (showPath && job !== 'A') out.push('<path class="gr-path" d="' + d(R.path) + '"/>');
     out.push('<line class="gr-pitch" x1="0" y1="0" x2="' + L.toFixed(3) + '" y2="0"/>');
+    // The rack's length slides with it.
+    var kr = dimKit(fs, 'grr'); kr.h(0, L, -rb.bottom + pad * 0.7 + 1.9 * fs, 'rack ' + show(L) + ' ' + state.unit + ' long', -rb.bottom, -rb.bottom); out.push(kr.done());
     out.push('</g><text x="' + (L / 2).toFixed(3) + '" y="' + (-rb.bottom + pad * 0.7).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">Rack · ' + rb.z + ' teeth</text></g>');
+    // The pinion's outside diameter, and from its axle to the rack's bottom edge (where to mount it).
+    var kp = dimKit(fs, 'grp'), u0 = ' ' + state.unit, xm = Math.min(-raA, xoff) - pad * 0.5 - 0.6 * fs;
+    kp.h(-raA, raA, -raA - pad * 0.35 - 1.6 * fs, 'Ø ' + show(2 * raA) + u0, -0.15 * raA, -0.15 * raA);
+    kp.v(xm, 0, rp - rb.bottom, 'axle to rack bottom ' + show(rp - rb.bottom) + u0, -raA - 0.3 * fs, xoff);
+    out.push(kp.done());
     svg.innerHTML = out.join('');
     spin();
   }
@@ -3808,9 +3845,9 @@ if (typeof module !== 'undefined' && module.exports) {
       svg.innerHTML = '<text class="gr-bad-text" x="0" y="0" text-anchor="middle" font-size="6">' + (A.problem ? 'The pinion' : 'The ring') + ' can’t be cut</text>';
       return;
     }
-    var b = R.basics, cd = G.ringPair(o, o.gears.A.teeth, o.gears.B.teeth).centerDistance, pad = Math.max(o.bitDiameter * 2 + 4, 0.06 * b.rOut), w = b.rOut + pad;
-    svg.setAttribute('viewBox', (-w) + ' ' + (-w) + ' ' + 2 * w + ' ' + 2 * w);
-    var fs = 2 * w / 45, out = [], rh = GC.ringHoles(o.gears.B, R, o).holes, gh = GC.gearHoles(o.gears.A, A, o, 'Gear A').holes;
+    var b = R.basics, cd = G.ringPair(o, o.gears.A.teeth, o.gears.B.teeth).centerDistance, pad = Math.max(o.bitDiameter * 2 + 4, 0.06 * b.rOut), w = b.rOut + pad, fs = 2 * w / 45;
+    svg.setAttribute('viewBox', (-w) + ' ' + (-w - 2.2 * fs) + ' ' + 2 * w + ' ' + (2 * w + 2.2 * fs));
+    var out = [], rh = GC.ringHoles(o.gears.B, R, o).holes, gh = GC.gearHoles(o.gears.A, A, o, 'Gear A').holes;
     var circ = function (q) { var r = q.diameter / 2; return ' M' + (q.dx + r).toFixed(3) + ' ' + (-q.dy).toFixed(3) + ' a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0'; };
     var holeD = function (q) { return q.shape && q.shape !== 'round' ? ' M' + GC.boreOutline(q).map(function (c) { return (q.dx + c.x).toFixed(3) + ' ' + (-q.dy - c.y).toFixed(3); }).join(' L') + ' Z' : circ(q); };
     out.push('<g class="gr-gear" data-gear="B"><g class="gr-spin">');
@@ -3826,6 +3863,12 @@ if (typeof module !== 'undefined' && module.exports) {
     out.push('</g><circle class="gr-pitch" cx="0" cy="0" r="' + A.basics.rp + '"/>');
     out.push('<text x="0" y="' + (A.basics.ra + fs * 1.1).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">A · ' + o.gears.A.teeth + ' teeth</text></g>');
     out.push('<line class="gr-dim" x1="0" y1="0" x2="' + cd.toFixed(3) + '" y2="0" stroke-dasharray="2 3"/>');
+    // The ring's outside diameter above; the pinion's axle from the ring's center below.
+    var kg = dimKit(fs, 'grg'), uu = ' ' + state.unit;
+    kg.h(-b.rOut, b.rOut, -b.rOut - 1.3 * fs, 'Ø ' + show(2 * b.rOut) + uu, 0, 0);
+    // Inside the opening, just over the pinion, from the ring's center to the pinion's.
+    kg.h(0, cd, -A.basics.ra - 1.1 * fs, 'axle ' + show(cd) + uu + ' off center', 0, 0);
+    out.push(kg.done());
     svg.innerHTML = out.join('');
     spin();
   }
@@ -3894,12 +3937,15 @@ if (typeof module !== 'undefined' && module.exports) {
     var cd = G.pair({ module: s.module, pressureDeg: Number($('gr-pa').value), backlash: s['gr-backlash'] || 0, centerDistance: s['gr-cd'] > 0 ? s['gr-cd'] : null }, s['gr-teeth-a'], s['gr-teeth-b']).centerDistance;
     var axle = function (k) { return (s['gr-frame-' + k] != null ? s['gr-frame-' + k] : GC.frameHole({ bore: s['gr-bore-' + k], boreShape: $('gr-bore-shape-' + k).value })) || 0; };
     var a = axle('a'), b = axle('b');
-    var pad = Math.max(a, b) + 10, w = cd + 2 * pad, h = Math.max(30, 2 * pad), fs = w / 60;
-    svg.setAttribute('viewBox', (-pad) + ' ' + (-h / 2) + ' ' + w + ' ' + h);
+    var pad = Math.max(a, b) + 10, w = cd + 2 * pad, h = Math.max(30, 2 * pad), fs = w / 45, uf = ' ' + state.unit;
+    svg.setAttribute('viewBox', (-pad) + ' ' + (-h / 2 - 1.6 * fs) + ' ' + w + ' ' + (h + 4.4 * fs));
+    // The holes' spacing, center to center, and each hole's diameter.
+    var kf = dimKit(fs, 'grf');
+    kf.h(0, cd, h / 2 + 0.6 * fs, show(cd) + uf + ' center to center', a / 2, b / 2);
     svg.innerHTML = '<rect class="gr-body gr-off" x="' + (-pad + 2) + '" y="' + (-h / 2 + 2) + '" width="' + (w - 4) + '" height="' + (h - 4) + '" rx="2"/>' +
       '<circle class="gr-hole" cx="0" cy="0" r="' + a / 2 + '"/><circle class="gr-hole" cx="' + cd + '" cy="0" r="' + b / 2 + '"/>' +
-      '<line class="gr-dim" x1="0" y1="' + (pad * 0.45) + '" x2="' + cd + '" y2="' + (pad * 0.45) + '"/>' +
-      '<text x="' + cd / 2 + '" y="' + (pad * 0.45 - fs * 0.6) + '" text-anchor="middle" font-size="' + fs + '">' + show(cd) + ' ' + state.unit + '</text>';
+      '<text class="gr-dim-label" x="0" y="' + (-a / 2 - 0.5 * fs) + '" font-size="' + fs + '" text-anchor="middle">Ø ' + show(a) + uf + '</text>' +
+      '<text class="gr-dim-label" x="' + cd + '" y="' + (-b / 2 - 0.5 * fs) + '" font-size="' + fs + '" text-anchor="middle">Ø ' + show(b) + uf + '</text>' + kf.done();
     $('gr-frame-facts').innerHTML = '<span>Center distance <b>' + show(cd) + ' ' + state.unit + '</b> for ' + s['gr-teeth-a'] + ' and ' + s['gr-teeth-b'] + ' teeth</span>' +
       '<span>Holes <b>' + show(a) + '</b> and <b>' + show(b) + ' ' + state.unit + '</b></span>';
     scheduleNote();
@@ -4170,7 +4216,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var svg = $('gt-preview'), t = lastTrain;
     if (!t || !t.L) { svg.setAttribute('viewBox', '-100 -60 200 120'); svg.innerHTML = fixMessage(t && t.blockingSay, 'the train'); return; }
     var L = t.L, s = t.s, b = L.box, x0 = b.x0, x1 = b.x1;
-    var pad = Math.max(s['gr-bit'] * 2 + 4, 0.05 * Math.max(x1 - x0, b.y1 - b.y0)), fs = Math.max(x1 - x0, b.y1 - b.y0) / 45;
+    var fs = Math.max(x1 - x0, b.y1 - b.y0) / 45, pad = Math.max(s['gr-bit'] * 2 + 4, 0.05 * Math.max(x1 - x0, b.y1 - b.y0)) + 2.6 * fs;
     svg.setAttribute('viewBox', (x0 - pad) + ' ' + (-b.y1 - pad) + ' ' + (x1 - x0 + 2 * pad) + ' ' + (b.y1 - b.y0 + 2 * pad));
     var job = $('gt-job').value, mj = /^s(\d+)-(\w+)$/.exec(job), out = [];
     var cutting = function (g) { return job === 'all' || (job !== 'frame' && mj && +mj[1] === g.stage && (mj[2] === 'both' || mj[2] === g.role)); };
@@ -4204,6 +4250,14 @@ if (typeof module !== 'undefined' && module.exports) {
       out.push('<g data-axle-handle="' + i + '"><title>Drag to swing axle ' + (i + 2) + ' round axle ' + (i + 1) + ' (it locks onto each 30°)</title><circle class="gr-handle-hit" cx="' + q.x.toFixed(3) + '" cy="' + (-q.y).toFixed(3) + '" r="' + (22 * px).toFixed(3) + '"/>' +
         '<circle class="gr-handle" cx="' + q.x.toFixed(3) + '" cy="' + (-q.y).toFixed(3) + '" r="' + (7 * px).toFixed(3) + '"/></g>');
     });
+    // Each stage's center distance along its link, out past its bigger gear.
+    var kt = dimKit(fs, 'gt'), ut = ' ' + state.unit;
+    t.stages.forEach(function (st, i) {
+      var p0 = L.axles[i], p1 = L.axles[i + 1], big = s.module * (Math.max(st.driver, st.driven) + 2) / 2;
+      if (Math.hypot(p1.x - p0.x, p1.y - p0.y) < 1e-6) return;
+      kt.al({ x: p0.x, y: -p0.y }, { x: p1.x, y: -p1.y }, big + 1.2 * fs, show(s.module * (st.driver + st.driven) / 2) + ut);
+    });
+    out.push(kt.done());
     out.push('<text class="gr-handle-label" id="gt-handle-label" font-size="' + (14 * px).toFixed(3) + '" text-anchor="middle"></text>');
     svg.innerHTML = out.join('');
     state.trainPx = px;
@@ -4224,6 +4278,7 @@ if (typeof module !== 'undefined' && module.exports) {
       e.preventDefault();
       drag = { i: +h.dataset.axleHandle, angle: null, box: lastTrain.L.box };
       state.dragging = true;
+      var td = $('gt-dims'); if (td) td.classList.add('gr-hidden');
       try { svg.setPointerCapture(e.pointerId); } catch (err) {}
       if (state.animating) animate();
     });
@@ -4594,7 +4649,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var e = res.extent, bit = s['gr-bit'], depth = (view === 'train' && $('gt-job').value === 'frame') || (view === 'pair' && $('gr-job').value === 'carrier') ? s['gr-frame-depth'] : s['gr-depth'];
     var w = e.x1 - e.x0, h = e.y1 - e.y0, pad = Math.max(w, h) * 0.08 + bit;
     var X0 = Math.min(e.x0, 0) - pad, X1 = Math.max(e.x1, 0) + pad, Y0 = Math.min(e.y0, 0) - pad, Y1 = Math.max(e.y1, 0) + pad, fs = Math.max(X1 - X0, (Y1 - Y0) * 2.5) / 40;
-    svg.setAttribute('viewBox', X0 + ' ' + (-Y1) + ' ' + (X1 - X0) + ' ' + (Y1 - Y0 + fs * 1.5));
+    svg.setAttribute('viewBox', X0 + ' ' + (-Y1) + ' ' + (X1 - X0 + 3 * fs) + ' ' + (Y1 - Y0 + fs * 3));
     var out = ['<rect class="gr-stock" x="' + e.x0 + '" y="' + (-e.y1) + '" width="' + w + '" height="' + h + '"/>'];
     var cuts = cutThrough(res.gcode, depth), d2 = cuts.map(function (l) { return 'M' + l.map(function (q) { return q.x.toFixed(2) + ' ' + (-q.y).toFixed(2); }).join('L'); }).join('');
     out.push('<path class="gr-kerf" stroke-width="' + bit + '" d="' + d2 + '"/>');
@@ -4602,7 +4657,11 @@ if (typeof module !== 'undefined' && module.exports) {
     var m = Math.max(w, h) * 0.05;
     out.push('<line class="gr-origin" x1="' + (-m) + '" y1="0" x2="' + m + '" y2="0"/><line class="gr-origin" x1="0" y1="' + (-m) + '" x2="0" y2="' + m + '"/><circle class="gr-origin-dot" r="' + (m * 0.18) + '"/>');
     out.push('<text class="gr-origin-text" x="' + (m * 0.4) + '" y="' + (-m * 0.4) + '" font-size="' + fs + '">X0 Y0</text>');
-    out.push('<text x="' + ((e.x0 + e.x1) / 2) + '" y="' + (-e.y0 + fs * 1.3) + '" text-anchor="middle" font-size="' + fs + '">' + show(w) + ' × ' + show(h) + ' ' + state.unit + '</text>');
+    // The stock's width below it and its height at the right.
+    var kl = dimKit(fs, 'gl-' + view);
+    kl.h(e.x0, e.x1, -e.y0 + 1.4 * fs, show(w) + ' ' + state.unit, -e.y0, -e.y0);
+    kl.v(e.x1 + 1.4 * fs, -e.y1, -e.y0, show(h) + ' ' + state.unit, e.x1, e.x1);
+    out.push(kl.done());
     svg.innerHTML = out.join('');
     say.textContent = 'Seen from above: the cuts through the stock, the bit’s width, on ' + show(w) + ' × ' + show(h) + ' ' + state.unit + ' of stock (+X right, +Y up)' +
       (cuts.tabs.length ? '; the ' + cuts.tabs.length + ' orange dots are holding tabs' : '') + '.';

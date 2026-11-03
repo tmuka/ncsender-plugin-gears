@@ -2,8 +2,11 @@
 
 ## Unreleased
 
-- **The Gear Pair picture is measured**, in QuickCut's style (accent dimension lines, open arrowheads, bold
-  values): each gear's outside diameter and the center distance, center to center. Hidden while a dot is dragged.
+- **The pictures are measured**, in QuickCut's style (accent dimension lines, open arrowheads, bold values): two
+  gears' outside diameters and center distance; a rack's length, its pinion's diameter and the axle-to-rack-bottom
+  mounting distance; a ring's diameter and its pinion's offset; a planetary set's ring and axle circle; each gear
+  train stage's distance along its link; the Frame Holes' spacing and sizes; the cut layout's stock width and
+  height. Hidden while a dot or an axle is dragged.
 
 ## 0.6.1: Help with pictures
 
