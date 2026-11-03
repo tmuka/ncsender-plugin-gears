@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Start from the Center Distance says when nothing fits:** a ratio (or Gear A's size) no pair can make at the
+  distance with your bit is an error under the field and in the problems, saying the distance or bit that would
+  work (rounded so typing it works) and that the Teeth card still has the pair from before. It was a grey hint, so
+  the old pair looked like the answer.
+
 ## 0.6.0: Shop standard and planetary sets
 
 ### ✨ New

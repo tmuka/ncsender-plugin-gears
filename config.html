@@ -3024,8 +3024,11 @@ if (typeof module !== 'undefined' && module.exports) {
       }
     }
     last = { s: s, errs: errs, o: o, problems: problems, blocking: blocking.map(function (id) { return errs[id]; }) };
+    // A ratio (or size) nothing meshes for: an error under it and in the problems.
+    if (state.designErr && $('gr-design-mode').value === 'new' && !isRack() && !isRing() && !isPlanet()) problems.unshift(state.designErr.say);
     // A problem about one field shows under it too.
     var more = {};
+    if (state.designErr && problems[0] === state.designErr.say) more[state.designErr.id] = state.designErr.field;
     problems.forEach(function (t) { var id = problemField(t); if (id && !more[id]) { more[id] = t.charAt(0).toUpperCase() + t.slice(1); $(id).dataset.touched = '1'; } });
     showErrors(Object.assign({}, errs, more), false);
     drawPair();
@@ -3167,7 +3170,25 @@ if (typeof module !== 'undefined' && module.exports) {
   // straight away (Balanced, or the kind last tapped), so the Teeth card
   // always meshes at the distance; a tap picks another. The Teeth card can
   // still be changed by hand. A blank Ratio is the one the teeth make now.
+  // Why no pair fits a ratio (or Gear A's size) at the distance, and what would: the distance a 6-tooth gear
+  // and its mate need with this bit (at 25° when the bit can, as the list picks), or the bit those teeth allow.
+  function noPairWhy(s, byRatio, ratio) {
+    var u = ' ' + state.unit, C = s['gr-cd'], br = (s['gr-bit'] || 0) / 2, at = function (pa) { return { pressureDeg: pa, bitRadius: br, backlash: s['gr-backlash'] || 0 }; };
+    if (!byRatio || !(ratio > 0)) {
+      var f0 = 'No pair meshes at ' + show(C) + u + ' with Gear A that size and this bit';
+      return { field: f0, say: f0 + ': a longer distance, a smaller Gear A, or a smaller bit. The Teeth card below still has the pair from before.' };
+    }
+    var big = Math.max(ratio, 1 / ratio), zs = 6, zb = Math.round(zs * big), turn = ratio >= 1 ? parseFloat(ratio.toFixed(3)) + ':1' : '1:' + parseFloat((1 / ratio).toFixed(3));
+    var m = Math.min(G.minModule(at(25)), G.minModule(at(20))), need = m * (zs + zb) / 2;
+    // Rounded the safe way: the distance up, the bit down, so typing what's shown works.
+    var dp = state.imperial ? 1e4 : 1e3, up = function (mm) { return Math.ceil(mm / K() * dp - 1e-9) / dp; }, down = function (mm) { return Math.floor(mm / K() * dp + 1e-9) / dp; };
+    var f = 'No pair makes ' + turn + ' at ' + show(C) + u + ' with this bit';
+    var say = zb > 400 ? f + ': ' + turn + ' needs a gear of more than 400 teeth; use a Gear Train for it'
+      : f + ': the smallest pair (' + zs + ' and ' + zb + ' teeth) needs ' + up(need) + u + ' or more, or a bit of ' + down(Math.max(G.maxBitDiameter({ module: 2 * C / (zs + zb), pressureDeg: 25, backlash: s['gr-backlash'] || 0 }), G.maxBitDiameter({ module: 2 * C / (zs + zb), pressureDeg: 20, backlash: s['gr-backlash'] || 0 }))) + u + ' or less; or a Gear Train for big ratios';
+    return { field: f, say: say + '. The Teeth card below still has the pair from before.' };
+  }
   function showSolutions(s, errs) {
+    state.designErr = null;
     var adding = $('gr-design-mode').value === 'add';
     $('gr-design-with-field').hidden = !adding; $('gr-design-by-field').hidden = adding;
     if (adding) { showAddOptions(s, errs); return; }
@@ -3191,8 +3212,13 @@ if (typeof module !== 'undefined' && module.exports) {
       if (!meshes) { applySolution(want, s['gr-cd']); return; }
     }
     if (r.problem) {
-      box.innerHTML = '<span class="gr-hint">' + (/^(a |Gear)/.test(r.problem) ? 'Type ' + esc(r.problem) + ' to see the pairs that mesh at that distance.' :
-        'None fits: the ' + show(s['gr-bit']) + ' ' + state.unit + ' bit is too big for teeth that small, or the distance too short for the ratio.') + '</span>';
+      if (/^(a |Gear)/.test(r.problem)) { box.innerHTML = '<span class="gr-hint">Type ' + esc(r.problem) + ' to see the pairs that mesh at that distance.</span>'; return; }
+      // Nothing meshes for what was typed: an error under the field and in the problems, saying what would,
+      // as the Teeth card below still holds the pair from before.
+      var why = noPairWhy(s, byRatio, ratio);
+      state.designErr = { id: byRatio ? 'gr-design-ratio' : 'gr-design-od', field: why.field, say: why.say };
+      $(state.designErr.id).dataset.touched = '1';
+      box.innerHTML = '<span class="gr-hint" style="color:#ff6b6b">' + esc(why.say) + '</span>';
       return;
     }
     var u = ' ' + state.unit, mode = $('gr-size-mode').value, current = moduleFromSize();
@@ -3407,6 +3433,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // nearest the distance typed, for the ratio (or Gear A's size); one that
   // can be spread to it exactly says so. Typing picks the nearest.
   function showStandardOptions(s, errs, byRatio) {
+    state.designErr = null;
     var box = $('gr-solutions'), st = state.standard, u = ' ' + state.unit, given = byRatio ? 'gr-design-ratio' : 'gr-design-od';
     if (errs['gr-cd'] || errs[given]) { box.innerHTML = ''; state.autoPick = false; return; }
     var nowRatio = s['gr-teeth-a'] > 0 && s['gr-teeth-b'] > 0 && !errs['gr-teeth-a'] && !errs['gr-teeth-b'] ? s['gr-teeth-a'] / s['gr-teeth-b'] : null;
@@ -3417,7 +3444,14 @@ if (typeof module !== 'undefined' && module.exports) {
     var head = '<span class="gr-hint">At your shop standard, <b>' + esc(sizeLabel(st.module, st.pressureDeg)) + '</b>: whole teeth only, so the nearest distances that work; each tooth moves it ' + show(st.module / 2) + u + '.</span>';
     var auto = state.autoPick;
     state.autoPick = false;
-    if (r.problem) { box.innerHTML = head + '<span class="gr-hint">' + (/^a /.test(r.problem) ? 'Type ' + esc(r.problem) + ' to see the pairs.' : esc(r.problem.charAt(0).toUpperCase() + r.problem.slice(1).replace(/(\d+(?:\.\d+)?) mm/, function (_, v) { return show(+v) + u; })) + '.') + '</span>'; return; }
+    if (r.problem) {
+      if (/^a /.test(r.problem)) { box.innerHTML = head + '<span class="gr-hint">Type ' + esc(r.problem) + ' to see the pairs.</span>'; return; }
+      var said = r.problem.charAt(0).toUpperCase() + r.problem.slice(1).replace(/(\d+(?:\.\d+)?) mm/, function (_, v) { return show(+v) + u; });
+      state.designErr = { id: /distance/i.test(said) || !byRatio ? 'gr-cd' : 'gr-design-ratio', field: said, say: 'At your shop standard: ' + said + '. The Teeth card below still has the pair from before.' };
+      $(state.designErr.id).dataset.touched = '1';
+      box.innerHTML = head + '<span class="gr-hint" style="color:#ff6b6b">' + esc(said) + '.</span>';
+      return;
+    }
     var cdFor = function (o) { return o.spreadable ? s['gr-cd'] : o.ownDistance; };
     var picked = function (o) { return s['gr-teeth-a'] === o.teethA && s['gr-teeth-b'] === o.teethB && onStandard() && Math.abs((s['gr-cd'] || 0) - cdFor(o)) < 1e-6; };
     if (auto && !picked(r.pick)) { applyStandard(r.pick, s['gr-cd']); return; }
