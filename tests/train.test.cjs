@@ -257,3 +257,34 @@ test('planetary fixes are teeth that really work; no whole-tooth pair says why',
   assert.match(G.solveStandard({ centerDistance: 10, ratio: 2, module: 6.35, pressureDeg: 20 }).problem, /too close/);
   assert.match(G.solveStandard({ centerDistance: 76.2, outsideA: 20, module: 6.35, pressureDeg: 20 }).problem, /outside diameter/);
 });
+
+test('starter standards for a bit: round sizes it cuts (≤0.45 mm backlash), the finest suggested', () => {
+  const rec = (bit, imperial) => G.suggestStandards({ bit, imperial, backlash: 0.3 }).find((q) => q.recommended);
+  assert.deepStrictEqual([rec(3.175, true).name, rec(3.175, true).backlash], ['DP 8', 0.35]);
+  assert.equal(rec(6.35, true).name, 'DP 3');
+  assert.equal(rec(3, false).name, 'Module 3');
+  assert.equal(rec(4, false).name, 'Module 4');
+  for (const [bit, imp] of [[3.175, true], [1.5875, true], [3, false], [6, false]]) for (const q of G.suggestStandards({ bit, imperial: imp, backlash: 0.3 })) {
+    if (!q.ok) continue;
+    assert.ok(q.needs <= 0.45 + 1e-9);
+    assert.ok(G.maxBitDiameter({ module: q.module, pressureDeg: 20, backlash: q.backlash }) >= bit - 1e-9, `${q.name} with a ${bit} mm bit at ${q.backlash}`);
+  }
+});
+
+test('round-size pairs: at a distance without a standard, for a ratio alone, and measuring a gear', () => {
+  const b = { bitRadius: 3.175 / 2, backlash: 0.3, pressureDeg: 20, imperial: true };
+  const r = G.solveRoundPairs({ ...b, centerDistance: 76.2, ratio: 2, byRatio: true });
+  assert.ok(r.options.length >= 2);
+  for (const o of r.options) {
+    assert.ok([12, 10, 8, 6, 5, 4, 3].some((dp) => Math.abs(25.4 / dp - o.module) < 1e-9), 'a whole DP');
+    assert.ok(o.module >= G.minModule({ pressureDeg: 20, bitRadius: 3.175 / 2, backlash: 0.3 }) - 1e-9, 'the bit cuts it');
+    assert.equal(o.ownDistance, o.module * (o.teethA + o.teethB) / 2);
+  }
+  assert.equal(new Set(r.options.map((o) => o.teethA + ':' + o.teethB)).size, r.options.length, 'no duplicates');
+  const q = G.solveRatioPairs({ ...b, ratio: 3 });
+  for (const o of q.options) { assert.equal(o.teethA / o.teethB, 3); assert.ok(Math.min(o.teethA, o.teethB) >= 10); }
+  const m = G.measureGear(24, 91);
+  assert.equal(m.module, 3.5); assert.equal(m.nearModule.module, 3.5);
+  assert.equal(G.measureGear(30, 3.2 * 25.4).nearDP.dp, 10);
+  assert.ok(G.measureGear(3, 20).problem);
+});

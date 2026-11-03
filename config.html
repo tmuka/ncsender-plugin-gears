@@ -130,6 +130,8 @@
   .gr-solution.gr-picked { border-color: var(--color-accent) !important; box-shadow: inset 3px 0 0 var(--color-accent); }
   .gr-solution-kind { grid-row: span 2; font-weight: 700; color: var(--color-accent); }
   .gr-solution-more { font-size: 0.8rem; color: var(--color-text-secondary); }
+  .gr-solution .gr-warn, .gr-warn { color: #ff6b6b; }
+  .gr-solution.gr-solution-warn { opacity: 0.85; }
   .gr-label-link { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
   .gr-tool-note { font-size: 0.82rem; color: var(--color-text-secondary); }
   .gr-tool-note[data-state="bad"] { color: #ff6b6b; }
@@ -341,10 +343,26 @@
   .gt-preset-say { margin-bottom: 8px; }
   #gt-same + * , .gr-card > .gr-switch { margin: 8px 0; }
   .gr-bit-line { margin: 0 0 8px; }
+  .gr-first { border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border)); }
+  .gr-first-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+  .gr-std-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .gr-std-pick { text-align: left; margin: 0; padding: 6px 10px !important; border-radius: 6px; border: 1px solid var(--color-border) !important; background: transparent !important; color: var(--color-text-primary) !important; cursor: pointer; font-size: 0.82rem; }
+  .gr-std-pick:hover { border-color: var(--color-accent) !important; }
+  .gr-std-pick.gr-rec { border-color: var(--color-accent) !important; }
+  .gr-std-pick[disabled] { opacity: 0.45; cursor: default; }
+  .gr-std details > summary { cursor: pointer; color: var(--color-accent); }
   .gr-std { font-size: 0.85rem; margin: 2px 0 10px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--color-border); color: var(--color-text-secondary); }
   .gr-std.gr-std-off { border-color: #e6b450; background: color-mix(in srgb, #e6b450 10%, transparent); color: var(--color-text-primary); }
   .gr-std b { color: var(--color-text-primary); }
   .gr-std .gr-link { margin-left: 8px; white-space: nowrap; }
+  .gr-bit-badge { display: block; margin-top: 6px; font-size: 0.75rem; text-decoration: none; }
+  .gr-field > label.gr-has-tip { text-decoration: underline dotted color-mix(in srgb, var(--color-text-secondary) 60%, transparent); text-underline-offset: 3px; cursor: help; }
+  .gr-tip { position: fixed; z-index: 60; max-width: 340px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-primary);
+    font-size: 0.82rem; line-height: 1.45; box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
+  .gr-more { margin-top: 2px; }
+  .gr-more > summary { cursor: pointer; font-size: 0.8rem; color: var(--color-text-secondary); padding: 4px 0; }
+  .gr-more[open] > summary { margin-bottom: 6px; }
+  .gr-note-link { cursor: pointer; text-decoration: underline; }
   .gr-std-badge { display: inline-block; margin-top: 6px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; color: #e6b450; border: 1px solid color-mix(in srgb, #e6b450 50%, transparent); border-radius: 10px; padding: 1px 8px; }
   .gr-layout-say { font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 6px; }
   .gr-preview .gr-handle { fill: var(--color-accent); stroke: var(--color-surface); stroke-width: 2; vector-effect: non-scaling-stroke; pointer-events: none; }
@@ -403,6 +421,7 @@
         <span class="gr-eyebrow">ncSender</span>
         <span class="gr-title">Gears<span class="gr-beta">Beta</span></span>
         <span class="gr-unit" id="gr-unit">METRIC (mm)</span>
+        <span class="gr-bit-badge gr-link" id="gr-bit-badge" title="The bit: tap to change it (Tool, on the Gear Pair tab)."></span>
         <span class="gr-std-badge" id="gr-std-badge" hidden title="Your shop standard: the tooth size and pressure angle every design keeps, so all your gears mesh. Set on the Gear Pair tab&rsquo;s Teeth card."></span>
       </div>
       <nav class="gr-nav">
@@ -453,6 +472,17 @@
           <div class="gr-problems" id="gr-problems" hidden></div>
         </div>
 
+        <div class="gr-card gr-first" id="gr-first-card" hidden>
+          <div class="gr-card-head"><h4 class="gr-card-title">Your First Cut</h4>
+            <div class="gr-right"><button type="button" class="gr-secondary" id="gr-first-close" title="Hide this card; Help has it all.">Not Now</button></div></div>
+          <div class="gr-hint">A small test pair first: a few minutes to check that your machine, bit and settings make gears that mesh, before anything bigger.</div>
+          <div class="gr-row gr-row-4">
+            <div class="gr-field"><label for="gr-board">Board Thickness</label><input class="gr-input" id="gr-board" data-unit="length" placeholder="1/2 in" title="How thick the board you&rsquo;ll cut is: Total Depth goes a little past it, to cut through."></div>
+            <div class="gr-field" style="grid-column: span 3"><label>Bit</label><div class="gr-hint gr-first-bit" id="gr-first-bit"></div></div>
+          </div>
+          <div class="gr-first-actions"><button type="button" class="gr-primary" id="gr-first-go">Set Up a Test Pair</button><span class="gr-hint" id="gr-first-say"></span></div>
+        </div>
+
         <div class="gr-card gr-planet-only" id="gr-planet-card">
           <div class="gr-card-head"><h4 class="gr-card-title"><select class="gr-label-select" id="gr-pl-by" aria-label="Find a planetary set by" title="Ratio: type the reduction and pick a set that makes it. Teeth: type the sun&rsquo;s and planets&rsquo; teeth in the Teeth card yourself.">
             <option value="ratio">Find a Planetary Set by Ratio</option><option value="teeth">Planetary Set by Teeth</option></select></h4></div>
@@ -465,10 +495,10 @@
 
         <div class="gr-card gr-not-special" id="gr-design-card">
           <div class="gr-card-head"><h4 class="gr-card-title"><select class="gr-label-select" id="gr-design-mode" aria-label="Design" title="Start from the Center Distance: a new pair, its teeth and tooth size picked for where the axles go. Add a Gear to This Set: keep this pair&rsquo;s tooth size and pressure angle, so a new gear meshes with the ones you cut; Load the pair&rsquo;s program first if you&rsquo;ve changed it since.">
-            <option value="new">Start from the Center Distance</option><option value="add">Add a Gear to This Set</option></select></h4></div>
+            <option value="new">Start from the Center Distance</option><option value="ratio">Start from the Ratio</option><option value="match">Match a Gear I Have</option><option value="add">Add a Gear to This Set</option></select></h4></div>
           <div class="gr-hint gr-bit-line"></div>
           <div class="gr-row gr-row-4">
-            <div class="gr-field"><label for="gr-cd">Center Distance</label><input class="gr-input" id="gr-cd" data-unit="length" placeholder="auto" title="Where the axles go: the distance between them. With the Ratio or Gear A&rsquo;s size, the pairs that mesh there are listed below to pick from. Blank: the gears&rsquo; own (the two pitch radii). Typed a little wider than their own, the gears are spread to it: more backlash, which the facts show. The frame&rsquo;s holes are drilled at it."></div>
+            <div class="gr-field" id="gr-cd-field"><label for="gr-cd">Center Distance</label><input class="gr-input" id="gr-cd" data-unit="length" placeholder="auto" title="Where the axles go: the distance between them. With the Ratio or Gear A&rsquo;s size, the pairs that mesh there are listed below to pick from. Blank: the gears&rsquo; own (the two pitch radii). Typed a little wider than their own, the gears are spread to it: more backlash, which the facts show. The frame&rsquo;s holes are drilled at it."></div>
             <div class="gr-field" id="gr-design-with-field" hidden><label for="gr-design-with">Meshes With</label>
               <select class="gr-select" id="gr-design-with" title="The gear you already have. The new gear becomes Gear B, and Cut is set to Gear B only."><option value="A">Gear A</option><option value="B">Gear B</option></select></div>
             <div class="gr-field" id="gr-design-by-field">
@@ -478,6 +508,14 @@
               <input class="gr-input" id="gr-design-ratio" aria-labelledby="gr-design-by" title="Turns of Gear B for one of Gear A: 3 for 3:1, 0.5 for 1:2.">
               <input class="gr-input" id="gr-design-od" data-unit="length" aria-labelledby="gr-design-by" hidden title="Gear A&rsquo;s outside diameter, across its tooth tips. It comes out as near as whole teeth allow.">
             </div>
+          </div>
+          <div class="gr-row gr-row-4" id="gr-match-row" hidden>
+            <div class="gr-field"><label for="gr-match-teeth">Its Teeth</label><input class="gr-input" id="gr-match-teeth" title="Count the gear&rsquo;s teeth (mark one with a pencil to start from)."></div>
+            <div class="gr-field"><label for="gr-match-od">Across Its Tips</label><input class="gr-input" id="gr-match-od" data-unit="length" title="The gear&rsquo;s outside diameter: across from a tooth&rsquo;s tip to the opposite side&rsquo;s (for an odd number of teeth, to the tips either side of the opposite space)."></div>
+          </div>
+          <div class="gr-row gr-row-4" id="gr-fit-row">
+            <div class="gr-field"><label for="gr-fit-w">Must Fit: Width</label><input class="gr-input" id="gr-fit-w" data-unit="length" placeholder="any" title="The space or the board the pair must fit, both gears cut nested side by side: each option says whether it fits. Blank: any size."></div>
+            <div class="gr-field"><label for="gr-fit-h">Height</label><input class="gr-input" id="gr-fit-h" data-unit="length" placeholder="any" title="The space&rsquo;s or board&rsquo;s other side. Blank: any."></div>
           </div>
           <div class="gr-solutions" id="gr-solutions"></div>
         </div>
@@ -720,6 +758,12 @@
     <section class="gr-content" data-view="help">
       <div class="gr-header"><h2>Help</h2><div class="gr-sub">How Gears works. Inspired by Matthias Wandel's gear work at <b>woodgears.ca</b>; for paper templates, his gear template generator at <b>woodgears.ca/gear</b>.</div></div>
       <div class="gr-panel gr-help">
+        <div class="gr-card"><h3>Getting started</h3><ul>
+          <li><b>First, a test pair.</b> On a first open, <b>Your First Cut</b> on the Gear Pair tab asks how thick your board is and sets up a small 2:1 pair for the bit you have (about four minutes with a 1/8 in or 3 mm bit). Zero X and Y at the board&rsquo;s front-left corner and Z on its top, air-cut it, then cut it; its <b>frame holes</b> (Frame Holes tab) drill a board to mount the pair on two bolts. If they mesh, your machine, bit and settings are right.</li>
+          <li><b>Then keep one tooth size.</b> Gears only mesh at the same tooth size and pressure angle. After that first test the Teeth card suggests a <b>shop standard</b> for your bit; keep it, and everything you cut meshes with everything else. Changing it later is fine: gears you&rsquo;ve cut still mesh with each other.</li>
+          <li><b>Then start from what you know</b> (the first card&rsquo;s title menu): <b>where the axles go</b> (Start from the Center Distance), <b>the ratio</b> alone (Start from the Ratio), <b>a gear you have</b> (Match a Gear I Have: count its teeth, measure across its tips), or a gear to <b>add to a set</b> you&rsquo;ve cut. <b>Must Fit</b> says which pairs fit your board or space.</li>
+          <li><b>Rack, ring, planetary</b> are the buttons at the top of the Gear Pair tab; several pairs in a row for a big ratio (a clock&rsquo;s) are the Gear Train tab. A field&rsquo;s name underlined with dots explains itself: tap it (or hover with a mouse).</li>
+        </ul></div>
         <div class="gr-card"><h3>The teeth</h3><div class="gr-help-figs"><figure><svg class="gr-preview gr-help-fig" data-fig="anatomy" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A tooth close up"></svg><figcaption>A tooth close up: the <b>pitch circle</b> is where the teeth roll; the tip is one module above it, the root a module and the tip clearance below. The bit (green) fits the bottom of each space.</figcaption></figure><figure><svg class="gr-preview gr-help-fig" data-fig="mesh" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Two gears meshing at the same tooth size"></svg><figcaption>Two gears meshing at the same tooth size: the pitch circles (dashed) just touch, and the center distance is module &times; (teeth A + teeth B) &divide; 2.</figcaption></figure></div><ul>
           <li><b>Module</b> is the tooth size: the pitch diameter is module × teeth, and the outside diameter two modules more. <b>Diametral Pitch</b> is the inch way (teeth per inch of pitch diameter); <b>Circular Pitch</b> is tooth to tooth.</li>
           <li>The teeth are true involutes, cut as a rack would cut them, so any two gears of the same tooth size and pressure angle mesh. Small gears get the undercut the mating tooth needs.</li>
@@ -728,7 +772,7 @@
         </ul></div>
         <div class="gr-card"><h3>Designing gears: how it&rsquo;s usually done</h3><div class="gr-help-figs"><figure><svg class="gr-preview gr-help-fig" data-fig="nomesh" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Left"></svg><figcaption>Left: the same tooth size, so they mesh. Right: a bigger tooth size on one gear: its teeth run into the other&rsquo;s (red), whatever the distance.</figcaption></figure><figure><svg class="gr-preview gr-help-fig" data-fig="measure" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Measuring a gear"></svg><figcaption>Measuring a gear: count the teeth (24) and measure across the tips; module = that diameter &divide; (teeth + 2).</figcaption></figure></div><ul>
           <li><b>What makes gears mesh:</b> the same <b>tooth size</b> (module, Diametral Pitch or Circular Pitch: three ways to say one thing) and the same <b>pressure angle</b>. Nothing else: not the teeth, not the diameters. Two pairs cut at different tooth sizes will never mesh with each other, however close the sizes look.</li>
-          <li><b>Keep a shop standard.</b> Pick one tooth size and pressure angle and use it for everything, and every gear you ever cut meshes with every other: spares, new axles and add-ons all fit. Set it on the Teeth card (<b>Make &hellip; my standard</b>); it&rsquo;s kept apart from your designs (Load and sets don&rsquo;t change it) and shown under the units in the sidebar. A design off it says so. Good standards are round sizes: a whole Diametral Pitch (4, 5, 6, 8, 10, 12) or a standard module (1, 1.25, 1.5, 2, 2.5, 3, 4, 5 mm), coarse enough for your bit (the Teeth card says the smallest it can cut). Small mechanisms and clocks often use DP 8 to 10 or module 2.5 to 3; toys and demonstrators DP 4 to 6; 20&deg; is the usual pressure angle, 25&deg; makes small pinions stronger. Write it on the shop wall.</li>
+          <li><b>Keep a shop standard.</b> Pick one tooth size and pressure angle and use it for everything, and every gear you ever cut meshes with every other: spares, new axles and add-ons all fit. Set it on the Teeth card (<b>Make &hellip; my standard</b>); it&rsquo;s kept apart from your designs (Load and sets don&rsquo;t change it) and shown under the units in the sidebar. A design off it says so. Good standards are round sizes (a whole Diametral Pitch, a standard module) your bit can cut; the Teeth card suggests them for your bit, each said as the gears it makes. With a 1/8 in or 3 mm bit: DP 8 or module 3 (with 0.35 mm backlash), gears from about 1.75 in across, 2:1 within 3 in; DP 6 for sturdier, bigger ones. With a 1/4 in or 6 mm bit: DP 3 to 4 or module 7, gears from about 4 in. Finer teeth (DP 10 to 12, module 2 to 2.5: clocks under 3 in) need a 1/16 in bit, which cuts three or four times slower and may not reach through a thick board. 20&deg; is the usual pressure angle; 25&deg; gives small pinions stronger roots but needs teeth about half as big again for the same bit. Write it on the shop wall.</li>
           <li><b>The usual order:</b> a designer picks the <b>tooth size</b> first (from how big the mechanism should be and how strong its teeth must be), then the <b>tooth counts</b> for the ratio (pinions of 8 or more; 17 or more avoids undercut at 20&deg;, 12 at 25&deg;, and Gears shapes the undercut a smaller pinion needs), and the <b>center distance follows</b>: module &times; (teeth A + teeth B) &divide; 2. With a shop standard, that&rsquo;s what Start from the Center Distance does: it keeps the standard and gives the whole-tooth pairs nearest the distance you typed.</li>
           <li><b>When the distance is fixed</b> (holes already drilled, a spoilboard&rsquo;s inserts): keep the tooth size and choose the teeth whose own distance lands nearest, then take up the little that&rsquo;s left by spreading the gears apart (more backlash; the range that works is shown). Only if that won&rsquo;t do, change the tooth size to fit exactly (<b>Fit Tooth Size</b>), knowing that pair meshes only with itself. Without a standard, Start from the Center Distance works this way round: it sets the tooth size to make the distance exact, which is why each new design can come out at a different, odd size.</li>
           <li><b>How a clockmaker starts:</b> from time. The pendulum&rsquo;s length sets the beat (about 994 mm for one second), the escape wheel&rsquo;s teeth and the beat set how fast it turns (once a minute for a seconds hand), and the hands set the ratios: 60:1 from the seconds arbor to the minute hand, 12:1 from the minute hand to the hour hand (the motion work, on the same center). Tooth counts come from well-tried combinations (8:60 then 8:64; 8:32 then 10:30 for the motion work), one tooth size for the going train, sometimes a finer one for the motion work. Then the arbors are <b>planted</b> on the plate: the distances are fixed by the teeth, so only the directions are chosen, folding the train to fit the case, as the Gear Train tab&rsquo;s dragging does. The depth of each mesh is checked on the bench before the plate is drilled; Gears&rsquo; backlash and spread play that part. Traditional clocks use cycloidal teeth and wooden ones often lantern pinions; Gears makes involute teeth, which mesh just as well and don&rsquo;t mind a small error in the distance.</li>
@@ -1344,6 +1388,36 @@ if (typeof module !== 'undefined' && module.exports) {
     return { options: out };
   }
 
+  // Round tooth sizes for a shop: whole Diametral Pitches in inches, standard
+  // modules in mm, finest first.
+  var ROUND_DP = [12, 10, 8, 6, 5, 4, 3], ROUND_M = [2, 2.5, 3, 3.5, 4, 5, 6, 7, 8];
+  function roundSizes(imperial) {
+    return imperial ? ROUND_DP.map(function (dp) { return { name: 'DP ' + dp, module: 25.4 / dp, dp: dp } })
+      : ROUND_M.map(function (m) { return { name: 'Module ' + m, module: m } });
+  }
+  // The least backlash at which a bit cuts a tooth size (the root rounding
+  // fits the bit when the rack tooth is a little thinner); Infinity past 1.5 mm.
+  function backlashFor(m, bit, pressureDeg, clearance) {
+    var p = { module: m, pressureDeg: pressureDeg || 20, clearance: clearance };
+    for (var b = 0; b <= 1.5 + 1e-9; b += 0.01) { p.backlash = b; if (maxBitDiameter(p) >= bit - 1e-9) return Math.round(b * 100) / 100; }
+    return Infinity;
+  }
+  // Starter standards for a bit: each round size the bit cuts with at most
+  // 0.45 mm of backlash (wood swells: that much is fine), with the backlash it
+  // needs (at least the one given), the smallest comfortable gear (12 teeth)
+  // and how many teeth fit in 3 in (76.2 mm) across; the finest of them
+  // recommended (it makes the widest range of gears).
+  function suggestStandards(t) {
+    var bit = t.bit, b0 = t.backlash > 0 ? t.backlash : 0.3, out = roundSizes(t.imperial).map(function (r) {
+      var need = backlashFor(r.module, bit, 20);
+      return { name: r.name, module: r.module, dp: r.dp, pressureDeg: 20, backlash: Math.max(b0, need === Infinity ? b0 : need), needs: need,
+        ok: need <= 0.45 + 1e-9, smallGear: r.module * 14, teethIn3: Math.floor(76.2 / r.module - 2) };
+    });
+    var rec = out.filter(function (o) { return o.ok; })[0];
+    if (rec) rec.recommended = true;
+    return out;
+  }
+
   // Pairs at a set tooth size and pressure angle (a shop standard, so they
   // mesh with every other gear of it): whole teeth only, so only some
   // distances. For a ratio (or Gear A's outside diameter) and the distance
@@ -1396,6 +1470,65 @@ if (typeof module !== 'undefined' && module.exports) {
     // The one to pick: the nearest distance within 2% of the ratio (or size) asked for, else the nearest.
     var pick = list.filter(function (o) { return o.ratioError <= 0.02; }).sort(function (a, b) { return Math.abs(a.ownDistance - C) - Math.abs(b.ownDistance - C); })[0] || list[0];
     return { options: list, pick: pick, tooSmall: (t.bitRadius || 0) > 0 && m < minModule(p) - 1e-9 };
+  }
+
+  // The round sizes a bit cuts at a backlash (finest first): what the
+  // design lists offer when there's no shop standard, so no odd sizes.
+  function roundFor(t) {
+    var p = { pressureDeg: t.pressureDeg || 20, backlash: t.backlash || 0, clearance: t.clearance, bitRadius: t.bitRadius || 0 };
+    return roundSizes(t.imperial).filter(function (r) { return r.module >= minModule(p) - 1e-9; });
+  }
+  // Start from the Center Distance without a standard: the nearest whole-
+  // tooth pair at each of the finest round sizes the bit cuts (solveStandard
+  // at each), as Fine, Balanced and Coarse. Each says how it meets the
+  // distance (exact, spread, or its own).
+  function solveRoundPairs(t) {
+    if (!(t.centerDistance > 0)) return { problem: 'a Center Distance' };
+    if (!(t.ratio > 0) && !(t.outsideA > 0)) return { problem: t.byRatio === false ? 'Gear A\'s outside diameter' : 'a ratio' };
+    var sizes = roundFor(t), out = [];
+    if (!sizes.length) return { problem: 'no round tooth size is coarse enough for this bit' };
+    sizes.slice(0, 4).forEach(function (r) {
+      var q = solveStandard(Object.assign({}, t, { module: r.module, pressureDeg: t.pressureDeg || 20 }));
+      if (q.pick && !out.some(function (o) { return o.teethA === q.pick.teethA && o.teethB === q.pick.teethB; })) out.push(Object.assign({ sizeName: r.name }, q.pick));
+    });
+    if (!out.length) return { problem: 'none fits: the distance is too short for this bit\'s teeth, or the ratio too big for one pair' };
+    var kinds = out.length === 1 ? ['balanced'] : out.length === 2 ? ['fine', 'coarse'] : ['fine', 'balanced', 'coarse'];
+    var pick = out.length <= 3 ? out : [out[0], out[1], out[out.length - 1]];
+    return { options: pick.map(function (o, i) { return Object.assign({ kind: kinds[i] }, o); }) };
+  }
+  // Start from the Ratio: no distance; at each of the finest round sizes the
+  // bit cuts, the smallest pair (pinion of 10 or more) that makes the ratio
+  // exactly, else as near as 0.5% allows. Its own center distance follows.
+  function solveRatioPairs(t) {
+    var R = t.ratio;
+    if (!(R > 0)) return { problem: 'a ratio' };
+    var sizes = roundFor(t), out = [], small = Math.max(10, Math.round(t.minTeeth || 10));
+    sizes.slice(0, 3).forEach(function (r) {
+      var best = null;
+      for (var zs = small; zs <= 200; zs++) {
+        var zb = Math.round(zs * Math.max(R, 1 / R)), q = R >= 1 ? zb / zs : zs / zb, err = Math.abs(q - R) / R;
+        if (zb > 400) break;
+        if (err < 1e-9) { best = { zs: zs, zb: zb, err: 0 }; break; }
+        if (err <= 0.005 && (!best || err < best.err)) best = { zs: zs, zb: zb, err: err };
+      }
+      if (!best) return;
+      var zA = R >= 1 ? best.zb : best.zs, zB = R >= 1 ? best.zs : best.zb, m = r.module;
+      out.push({ sizeName: r.name, module: m, pressureDeg: t.pressureDeg || 20, teethA: zA, teethB: zB, ratio: zA / zB, ratioError: best.err, ownDistance: m * (zA + zB) / 2, spreadable: false,
+        outsideA: m * (zA + 2), outsideB: m * (zB + 2), undercut: Math.min(zA, zB) < (t.pressureDeg >= 25 ? 12 : 17) });
+    });
+    if (!out.length) return { problem: 'no pair of 400 teeth or fewer makes that ratio: a Gear Train for big ratios' };
+    var kinds = out.length === 1 ? ['balanced'] : out.length === 2 ? ['fine', 'coarse'] : ['fine', 'balanced', 'coarse'];
+    return { options: out.map(function (o, i) { return Object.assign({ kind: kinds[i] }, o); }) };
+  }
+  // Match a Gear I Have: its tooth size from its teeth and the diameter
+  // across its tips (module = Ø ÷ (teeth + 2)), and the nearest round module
+  // and Diametral Pitch, with how far each is off (a worn or odd gear won't
+  // land on one). Pressure angle can't be measured: 20° usually.
+  function measureGear(teeth, outside) {
+    if (!(teeth >= 6) || !(outside > 0)) return { problem: 'its teeth (6 or more) and the diameter across its tips' };
+    var m = outside / (teeth + 2), dp = 25.4 / m;
+    var nm = MODULES.reduce(function (a, b) { return Math.abs(b - m) < Math.abs(a - m) ? b : a; }), nd = Math.max(1, Math.round(dp));
+    return { module: m, dp: dp, nearModule: { module: nm, off: Math.abs(nm - m) / m }, nearDP: { dp: nd, module: 25.4 / nd, off: Math.abs(25.4 / nd - m) / m } };
   }
 
   // A planetary set: a sun in the middle, n planets round it on a carrier,
@@ -1816,7 +1949,7 @@ if (typeof module !== 'undefined' && module.exports) {
     return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
   }
 
-  return { basics: basics, rack: rack, gear: gear, makeRack: makeRack, rackPair: rackPair, makeRing: makeRing, ringPair: ringPair, RING_DIFF: RING_DIFF, toolPath: toolPath, minModule: minModule, maxBitDiameter: maxBitDiameter, solvePairs: solvePairs, solveStandard: solveStandard, planetary: planetary, planetPhase: planetPhase, solvePlanetary: solvePlanetary, nestInRing: nestInRing, solveTrain: solveTrain, trainLayout: trainLayout, foldTrain: foldTrain, minClearance: minClearance, friendlyModule: friendlyModule, pair: pair,
+  return { basics: basics, rack: rack, gear: gear, makeRack: makeRack, rackPair: rackPair, makeRing: makeRing, ringPair: ringPair, RING_DIFF: RING_DIFF, toolPath: toolPath, minModule: minModule, maxBitDiameter: maxBitDiameter, solvePairs: solvePairs, solveStandard: solveStandard, roundSizes: roundSizes, backlashFor: backlashFor, suggestStandards: suggestStandards, roundFor: roundFor, solveRoundPairs: solveRoundPairs, solveRatioPairs: solveRatioPairs, measureGear: measureGear, planetary: planetary, planetPhase: planetPhase, solvePlanetary: solvePlanetary, nestInRing: nestInRing, solveTrain: solveTrain, trainLayout: trainLayout, foldTrain: foldTrain, minClearance: minClearance, friendlyModule: friendlyModule, pair: pair,
            offsetOutward: offsetOutward, trimLoops: trimLoops, simplify: simplify, simplifyClosed: simplifyClosed, distToSegment: distToSegment, MODULES: MODULES };
 });
 /* END lib/gear-geometry.cjs */</script>
@@ -2820,7 +2953,8 @@ if (typeof module !== 'undefined' && module.exports) {
     'gr-keyw-a': ['length', 0, 500, 'Gear A Key Width', null], 'gr-keyw-b': ['length', 0, 500, 'Gear B Key Width', null],
     'gr-keyd-a': ['length', 0, 500, 'Gear A Key Depth', null], 'gr-keyd-b': ['length', 0, 500, 'Gear B Key Depth', null],
     'gr-cd': ['length', 0, 5000, 'Center Distance', null], 'gr-rack-h': ['length', 1, 500, 'Rack Height', 12], 'gr-ring-w': ['length', 1, 500, 'Rim Width', 12], 'gr-spoke-w': ['length', 0, 500, 'Spoke Width', null], 'gr-ratio': ['count', 0.01, 100, 'Ratio', 2],
-    'gr-design-ratio': ['count', 0.01, 100, 'Ratio', null], 'gr-planets': ['whole', 2, 8, 'Planets', 3], 'gr-pl-ratio': ['count', 2.01, 1000, 'Ratio', null], 'gr-design-od': ['length', 1, 5000, 'Gear A Outside Ø', null],
+    'gr-design-ratio': ['count', 0.01, 100, 'Ratio', null], 'gr-planets': ['whole', 2, 8, 'Planets', 3], 'gr-match-teeth': ['whole', 6, 400, 'Its Teeth', null], 'gr-match-od': ['length', 1, 5000, 'Across Its Tips', null],
+    'gr-fit-w': ['length', 1, 10000, 'Must Fit: Width', null], 'gr-board': ['length', 1, 200, 'Board Thickness', null], 'gr-fit-h': ['length', 1, 10000, 'Must Fit: Height', null], 'gr-pl-ratio': ['count', 2.01, 1000, 'Ratio', null], 'gr-design-od': ['length', 1, 5000, 'Gear A Outside Ø', null],
     'gr-holes-a': ['whole', 0, 24, 'Gear A Lightening Holes', 5], 'gr-holes-b': ['whole', 0, 24, 'Gear B Lightening Holes', 0],
     'gr-depth': ['length', 0.05, 200, 'Total Depth', 12.5], 'gr-step': ['length', 0.05, 50, 'Depth of Cut', null],
     'gr-tabs': ['whole', 1, 12, 'Tabs', 3], 'gr-tab-w': ['length', 0.5, 50, 'Tab Width', 4], 'gr-tab-h': ['length', 0.1, 50, 'Tab Height', 1.5],
@@ -2885,7 +3019,7 @@ if (typeof module !== 'undefined' && module.exports) {
       // center distance worked out to the tooth, shown rounded).
       var f = FIELDS[id], w = state.written[id], v = w && w.text === $(id).value ? w.v : read(id);
       s[id] = v;
-      var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od|pl-ratio)$|^gt-ratio$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
+      var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od|pl-ratio|match-teeth|match-od|fit-w|fit-h|board)$|^gt-ratio$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
       // Named as the menus on their labels say: Gear A Spokes, Gear A D Bore...
       var nm = f[3], km = /^gr-(holes|bore)-([ab])$/.exec(id);
@@ -2988,6 +3122,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (!byCard.has(card)) byCard.set(card, []);
       if (show && byCard.get(card).indexOf(msg) < 0) byCard.get(card).push(msg);
     });
+    ROOT.querySelectorAll('details.gr-more').forEach(function (d) { if (d.querySelector('.gr-bad')) d.open = true; });
     byCard.forEach(function (msgs, card) {
       var box = card.querySelector(':scope > .gr-card-errors');
       if (!msgs.length) { if (box) box.remove(); return; }
@@ -3040,6 +3175,8 @@ if (typeof module !== 'undefined' && module.exports) {
       var a2 = el.querySelector('.gr-to-tool');
       if (a2) a2.onclick = function () { $('gr-tool-card').scrollIntoView({ block: 'start', behavior: 'smooth' }); var f = $('gr-bit'); setTimeout(function () { f.focus(); }, 300); };
     });
+    showFirstCut(s, errs);
+    showBitBadge();
     showSolutions(s, errs);
     showPlanetOptions(s, errs);
     showStandard();
@@ -3056,8 +3193,10 @@ if (typeof module !== 'undefined' && module.exports) {
       var name = mode === 'module' ? pick + ' mm module' : mode === 'dp' ? 'Diametral Pitch ' + pick : 'Circular Pitch ' + pick + ' ' + state.unit;
       var least = mode === 'module' ? parseFloat(minM.toFixed(2)) + ' mm module' : mode === 'dp' ? 'Diametral Pitch ' + parseFloat((25.4 / minM).toFixed(2))
         : 'Circular Pitch ' + show(Math.PI * minM) + ' ' + state.unit;
-      $('gr-min-size').innerHTML = 'Smallest teeth this bit can cut: <b>' + least + '</b>. <span class="gr-link" id="gr-use-min">Use ' + name + '</span>' + (standardOn() && Math.abs(moduleFromText(pick, mode) - state.standard.module) > 1e-6 ? ' (not your shop standard)' : '') + '.';
-      $('gr-use-min').onclick = function () { writeSize(moduleFromText(pick, mode)); touch(); };
+      // The finest it can cut; the link only when the teeth are finer than that.
+      var tooFine = s.module > 0 && s.module < minM - 1e-9;
+      $('gr-min-size').innerHTML = 'This bit cuts teeth down to <b>' + least + '</b> (finer won&rsquo;t fit the bit).' + (tooFine ? ' <span class="gr-link" id="gr-use-min">Use ' + name + '</span>' + (standardOn() && Math.abs(moduleFromText(pick, mode) - state.standard.module) > 1e-6 ? ' (not your shop standard)' : '') + '.' : '');
+      if (tooFine) $('gr-use-min').onclick = function () { writeSize(moduleFromText(pick, mode)); touch(); };
     } else $('gr-min-size').textContent = '';
     distanceHint(s, errs, minM);
     var blocking = ['gr-size', 'gr-bit', 'gr-teeth-a', 'gr-teeth-b', 'gr-backlash', 'gr-clearance'].filter(function (id) { return errs[id]; });
@@ -3242,51 +3381,80 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   function showSolutions(s, errs) {
     state.designErr = null;
-    var adding = $('gr-design-mode').value === 'add';
-    $('gr-design-with-field').hidden = !adding; $('gr-design-by-field').hidden = adding;
+    var mode0 = $('gr-design-mode').value, adding = mode0 === 'add', byRatioMode = mode0 === 'ratio', matching = mode0 === 'match';
+    $('gr-design-with-field').hidden = !adding; $('gr-design-by-field').hidden = adding || matching;
+    $('gr-cd-field').hidden = byRatioMode || matching; $('gr-match-row').hidden = !matching; $('gr-fit-row').hidden = adding || matching;
+    if (byRatioMode && $('gr-design-by').value !== 'ratio') $('gr-design-by').value = 'ratio';
+    $('gr-design-by').disabled = byRatioMode;
     if (adding) { showAddOptions(s, errs); return; }
     var byRatio = $('gr-design-by').value === 'ratio';
     $('gr-design-ratio').hidden = !byRatio; $('gr-design-od').hidden = byRatio;
     var box = $('gr-solutions');
     if (isRack() || isRing() || isPlanet()) { box.innerHTML = ''; state.autoPick = false; return; }
-    if (standardOn()) { showStandardOptions(s, errs, byRatio); return; }
+    if (matching) { showMatch(s, errs); return; }
+    if (standardOn() && !byRatioMode) { showStandardOptions(s, errs, byRatio); return; }
     var given = byRatio ? 'gr-design-ratio' : 'gr-design-od';
-    if (errs['gr-cd'] || errs[given]) { box.innerHTML = ''; state.autoPick = false; return; }
+    if ((!byRatioMode && errs['gr-cd']) || errs[given]) { box.innerHTML = ''; state.autoPick = false; return; }
     var nowRatio = s['gr-teeth-a'] > 0 && s['gr-teeth-b'] > 0 && !errs['gr-teeth-a'] && !errs['gr-teeth-b'] ? s['gr-teeth-a'] / s['gr-teeth-b'] : null;
-    $('gr-design-ratio').placeholder = nowRatio ? parseFloat(nowRatio.toFixed(3)) + ' (as now)' : '';
+    $('gr-design-ratio').placeholder = nowRatio ? parseFloat(nowRatio.toFixed(3)) + ' (the teeth now)' : '';
     var ratio = byRatio ? (s['gr-design-ratio'] > 0 ? s['gr-design-ratio'] : nowRatio) : null;
-    var r = G.solvePairs({ centerDistance: s['gr-cd'], byRatio: byRatio, ratio: ratio, outsideA: byRatio ? null : s['gr-design-od'],
-      bitRadius: (s['gr-bit'] || 0) / 2, backlash: s['gr-backlash'] || 0, clearance: s['gr-clearance'] != null && !errs['gr-clearance'] ? s['gr-clearance'] : undefined });
+    // Round tooth sizes only (or the standard's): no odd sizes. Fit Tooth Size, under the Teeth card, fits a distance exactly.
+    var t = { centerDistance: s['gr-cd'], byRatio: byRatio, ratio: ratio, outsideA: byRatio ? null : s['gr-design-od'], imperial: state.imperial, pressureDeg: 20,
+      bitRadius: (s['gr-bit'] || 0) / 2, backlash: s['gr-backlash'] || 0, clearance: s['gr-clearance'] != null && !errs['gr-clearance'] ? s['gr-clearance'] : undefined };
+    if (byRatioMode && standardOn()) { t.sizes = [{ name: 'your standard', module: state.standard.module }]; t.pressureDeg = state.standard.pressureDeg; }
+    var r = byRatioMode ? G.solveRatioPairs(t) : G.solveRoundPairs(t);
+    if (r.options) r.options.forEach(function (o) { o.checks = optionChecks(o, s); });
     var auto = state.autoPick;
     state.autoPick = false;
     if (auto && r.options) {
-      var want = r.options.filter(function (o) { return o.kind === (state.designKind || 'balanced'); })[0] || r.options[Math.floor((r.options.length - 1) / 2)];
+      var want = choosePick(r.options);
       var meshes = s['gr-teeth-a'] === want.teethA && s['gr-teeth-b'] === want.teethB && Math.abs(moduleFromSize() - want.module) < 1e-6;
-      if (!meshes) { applySolution(want, s['gr-cd']); return; }
+      if (!meshes) { applySolution(want, byRatioMode ? null : s['gr-cd']); return; }
     }
     if (r.problem) {
-      if (/^(a |Gear)/.test(r.problem)) { box.innerHTML = '<span class="gr-hint">Type ' + esc(r.problem) + ' to see the pairs that mesh at that distance.</span>'; return; }
-      // Nothing meshes for what was typed: an error under the field and in the problems, saying what would,
-      // as the Teeth card below still holds the pair from before.
-      var why = noPairWhy(s, byRatio, ratio);
+      if (/^(a |Gear)/.test(r.problem)) { box.innerHTML = '<span class="gr-hint">Type ' + esc(r.problem) + (byRatioMode ? ' to see the pairs that make it.' : ' to see the pairs that mesh at that distance.') + '</span>'; return; }
+      var why = byRatioMode ? { field: r.problem.charAt(0).toUpperCase() + r.problem.slice(1), say: r.problem.charAt(0).toUpperCase() + r.problem.slice(1) + '. The Teeth card below still has the pair from before.' } : noPairWhy(s, byRatio, ratio);
       state.designErr = { id: byRatio ? 'gr-design-ratio' : 'gr-design-od', field: why.field, say: why.say };
       $(state.designErr.id).dataset.touched = '1';
       box.innerHTML = '';
       return;
     }
-    var u = ' ' + state.unit, mode = $('gr-size-mode').value, current = moduleFromSize();
-    var turn = function (q) { return q >= 1 ? parseFloat(q.toFixed(3)) + ':1' : '1:' + parseFloat((1 / q).toFixed(3)); };
-    box.innerHTML = r.options.map(function (o) {
-      var picked = s['gr-teeth-a'] === o.teethA && s['gr-teeth-b'] === o.teethB && Math.abs(current - o.module) < 1e-6 && Number($('gr-pa').value) === o.pressureDeg;
-      var small = o.teethA <= o.teethB ? 'Gear A' : 'Gear B';
-      return '<button type="button" class="gr-solution' + (picked ? ' gr-picked' : '') + '">' +
-        '<span class="gr-solution-kind">' + { coarse: 'Coarse', balanced: 'Balanced', fine: 'Fine' }[o.kind] + '</span>' +
-        '<span><b>' + o.teethA + ' and ' + o.teethB + ' teeth</b>, ' + SIZE_NAMES[mode] + ' ' + sizeText(o.module, mode) + (mode === 'cp' ? u : '') + ', ' + o.pressureDeg + '&deg;</span>' +
-        '<span class="gr-solution-more">' + turn(o.ratio) + (byRatio && Math.abs(o.ratio - ratio) < 1e-9 ? ' exactly' : '') +
-        ', &Oslash;' + show(o.outsideA) + ' and &Oslash;' + show(o.outsideB) + u + ', bit up to ' + show(o.maxBit) + u +
-        (o.undercut ? '; ' + small + '&rsquo;s teeth are undercut (thin at the root)' : '') + '</span></button>';
-    }).join('') + '<span class="gr-hint">' + (r.options.length > 1 ? 'Coarse: fewer, bigger teeth (strongest, easiest to cut). Fine: more, smaller teeth (smoother). ' : '') + 'The one picked fills in the Teeth card below; tap another to change it.</span>';
-    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { state.designKind = r.options[i].kind; applySolution(r.options[i], s['gr-cd']); }); });
+    box.innerHTML = pairOptionsHtml(r.options, s, byRatio ? ratio : null, byRatioMode ? null : s['gr-cd']) + '<span class="gr-hint">' +
+      (r.options.length > 1 ? 'Coarse: fewer, bigger teeth (strongest, easiest to cut). Fine: more, smaller teeth (smoother). ' : '') +
+      'All at round tooth sizes' + (standardOn() ? ' (your standard)' : ' this bit cuts') + ', so later gears can match. The one picked fills in the Teeth card below; tap another to change it.</span>';
+    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { state.designKind = r.options[i].kind; applySolution(r.options[i], byRatioMode ? null : s['gr-cd']); }); });
+  }
+  // Match a Gear I Have: its tooth size from its teeth and the diameter
+  // across its tips, the nearest round module and DP to pick from (both, as
+  // they're close: module 2.5 and DP 10 are 0.04 mm apart), and whether this
+  // bit can cut it. Picking sets the Teeth card, Gear A as that gear, and
+  // turns to Add a Gear for its mate.
+  function showMatch(s, errs) {
+    var box = $('gr-solutions'), u = ' ' + state.unit;
+    if (errs['gr-match-teeth'] || errs['gr-match-od']) { box.innerHTML = ''; return; }
+    var r = G.measureGear(s['gr-match-teeth'], s['gr-match-od']);
+    if (r.problem) { box.innerHTML = '<span class="gr-hint">Count the gear&rsquo;s teeth and measure across its tips: its tooth size follows, then Add a Gear finds its mate. Most gears are 20&deg;.</span>'; return; }
+    var minM = G.minModule({ pressureDeg: 20, bitRadius: (s['gr-bit'] || 0) / 2, backlash: s['gr-backlash'] || 0 });
+    var choices = [{ label: 'Module ' + parseFloat(r.nearModule.module.toFixed(3)), m: r.nearModule.module, mode: 'module', off: r.nearModule.off }, { label: 'Diametral Pitch ' + r.nearDP.dp, m: r.nearDP.module, mode: 'dp', off: r.nearDP.off }]
+      .sort(function (a, b) { return a.off - b.off; });
+    var html = '<span class="gr-hint">Measured: module <b>' + parseFloat(r.module.toFixed(3)) + ' mm</b>, Diametral Pitch <b>' + parseFloat(r.dp.toFixed(2)) + '</b>. The nearest round sizes:</span>' + choices.map(function (c) {
+      var cut = c.m >= minM - 1e-9;
+      return '<button type="button" class="gr-solution' + (cut ? '' : ' gr-solution-warn') + '"><span class="gr-solution-kind">' + (c.off < 0.01 ? 'Matches' : parseFloat((c.off * 100).toFixed(1)) + '% off') + '</span>' +
+        '<span><b>' + c.label + '</b>, 20&deg;, ' + s['gr-match-teeth'] + ' teeth, &Oslash;' + show(c.m * (s['gr-match-teeth'] + 2)) + u + '</span>' +
+        '<span class="gr-solution-more">' + (cut ? 'This bit cuts it. Picking it makes it Gear A and turns to Add a Gear for its mate.' : '<span class="gr-warn">Too fine for this bit: it needs a bit of ' + show(G.maxBitDiameter({ module: c.m, pressureDeg: 20, backlash: s['gr-backlash'] || 0 })) + u + ' or less</span>') + '</span></button>';
+    }).join('') + '<span class="gr-hint">Off by more than a few percent: a worn or unusual gear, or an odd count of teeth measured to a tip. 14.5&deg; is older gears&rsquo; angle (the teeth look straighter): set it in the Teeth card.</span>';
+    box.innerHTML = html;
+    box.querySelectorAll('.gr-solution').forEach(function (b, i) {
+      b.addEventListener('click', function () {
+        var c = choices[i];
+        $('gr-size-mode').value = c.mode; writeSize(c.m); $('gr-pa').value = '20';
+        if ($('gr-b-mode').value === 'ratio' || isRack() || isRing() || isPlanet()) { $('gr-b-mode').value = 'teeth'; }
+        write('gr-teeth-a', s['gr-match-teeth']);
+        $('gr-design-mode').value = 'add'; $('gr-design-with').value = 'A';
+        fitLabelSelects();
+        touch();
+      });
+    });
   }
   // Add a Gear to This Set: the tooth size and pressure angle kept, so the
   // new gear meshes with the one you have. Only whole teeth fit, so only
@@ -3439,6 +3607,49 @@ if (typeof module !== 'undefined' && module.exports) {
     [['Sun', S], ['Planets', P]].forEach(function (x) { (x[1].notes || []).forEach(function (n) { parts.push(x[0] + ': ' + esc(n)); }); });
     $('gr-facts').innerHTML = parts.map(function (t) { return '<span>' + t + '</span>'; }).join('');
   }
+  // ---------- Your First Cut ----------
+  // A small, coarse 2:1 test pair with the bit you have, at the suggested
+  // round size for it (with the backlash it needs), small bores, no holes,
+  // both gears nested, X0 Y0 at the front-left corner, through the board.
+  function showFirstCut(s, errs) {
+    var card = $('gr-first-card');
+    card.hidden = !!state.firstCutDone || isRack() || isRing() || isPlanet();
+    if (card.hidden) return;
+    var u = ' ' + state.unit, n = bitToolNumber(), t = n && (state.tools || []).filter(function (x) { return x.n === n; })[0];
+    $('gr-first-bit').innerHTML = s['gr-bit'] > 0 ? '<b>' + show(s['gr-bit']) + u + '</b>' + (t ? ' (T' + n + ', ' + esc(t.name) + ')' : '') + '. A 1/8 in or 3 mm bit is the quick one for a first test; a 1/16 in is three or four times slower and may not reach through. Change it in <span class="gr-link gr-to-tool">Tool</span>.' : 'Set the bit in <span class="gr-link gr-to-tool">Tool</span> first.';
+    var a = card.querySelector('.gr-to-tool');
+    if (a) a.onclick = function () { $('gr-tool-card').scrollIntoView({ block: 'start', behavior: 'smooth' }); setTimeout(function () { $('gr-bit').focus(); }, 300); };
+  }
+  function setupTestPair() {
+    var s = settings().s, bit = s['gr-bit'];
+    if (!(bit > 0)) { $('gr-bit').focus(); return; }
+    var sug = G.suggestStandards({ bit: bit, imperial: state.imperial, backlash: s['gr-backlash'] || 0.3 }), q = sug.filter(function (x) { return x.recommended; })[0];
+    var m = q ? q.module : G.friendlyModule(G.minModule({ pressureDeg: 20, bitRadius: bit / 2, backlash: s['gr-backlash'] || 0.3 }));
+    $('gr-size-mode').value = state.imperial ? 'dp' : 'module';
+    writeSize(m); $('gr-pa').value = '20';
+    if (q && q.backlash > (s['gr-backlash'] || 0) + 1e-9) write('gr-backlash', q.backlash);
+    $('gr-b-mode').value = 'teeth'; state.pairMode = 'teeth';
+    write('gr-teeth-a', 20); write('gr-teeth-b', 10);
+    $('gr-design-mode').value = 'new'; $('gr-design-by').value = 'ratio'; write('gr-design-ratio', 2); write('gr-cd', m * 15);
+    // Bores for a 1/4 in (or 6 mm) bolt or dowel, smaller when the 10-tooth gear needs it.
+    var bas = G.basics({ module: m, teeth: 10, pressureDeg: 20, backlash: read('gr-backlash') || 0.3, bitRadius: bit / 2 }), room = 2 * (bas.rf - Math.max(m, bit)) - 0.4;
+    var bore = Math.max(bit, Math.min(state.imperial ? 6.35 : 6, room));
+    ['a', 'b'].forEach(function (k) { $('gr-bore-shape-' + k).value = 'round'; write('gr-bore-' + k, bore); write('gr-holes-' + k, 0); $('gr-holes-style-' + k).value = 'round'; });
+    var board = read('gr-board');
+    if (board > 0) write('gr-depth', board + (state.imperial ? 0.508 : 0.5));
+    $('gr-tabs-on').checked = true;
+    ROOT.querySelectorAll('.gr-tab-field').forEach(function (f) { f.style.visibility = ''; });
+    $('gr-job').value = 'both'; $('gr-origin').value = 'front-left';
+    if (!$('gr-material').value) $('gr-material').value = 'mdf';
+    fillFeeds(true);
+    boreExtras(false); fitLabelSelects();
+    var u = ' ' + state.unit;
+    $('gr-first-say').innerHTML = 'Set: 20 and 10 teeth at ' + esc(sizeLabel(m, 20)) + (q && q.backlash > 0.3 + 1e-9 ? ', backlash ' + show(q.backlash) + u : '') + ', ' + show(bore) + u + ' bores, through ' + (board > 0 ? show(board) + u : 'the board (check Total Depth)') +
+      '. Zero X and Y at the board&rsquo;s front-left corner and Z on its top, air-cut it first, then Generate. <span class="gr-link" id="gr-first-frame">Its frame holes</span> drill a board to mount them on.';
+    var fr = $('gr-first-frame'); if (fr) fr.onclick = function () { showView('frame'); };
+    touch();
+  }
+
   // ---------- Shop standard ----------
   // One tooth size and pressure angle the shop keeps, so every gear it cuts
   // meshes with every other. Kept apart from any design (Load and sets don't
@@ -3465,15 +3676,33 @@ if (typeof module !== 'undefined' && module.exports) {
     var here = sizeLabel(m, pa);
     if (!standardOn()) {
       el.className = 'gr-std';
-      var round = roundSize(m), alt = Math.abs(round - m) > 1e-6 ? ' <span class="gr-link" data-std="round">or the round size ' + esc(sizeLabel(round, pa)) + '</span>' : '';
-      el.innerHTML = 'No shop standard yet. Gears only mesh at the same tooth size and pressure angle: keep one for everything and it all meshes. <span class="gr-link" data-std="set">Make ' + esc(here) + ' my standard</span>' + alt;
+      // Suggestions for the bit: round sizes it cuts, said as the gears they make; offered open after a first Generate.
+      var bit0 = read('gr-bit'), sug = bit0 > 0 ? G.suggestStandards({ bit: bit0, imperial: state.imperial, backlash: read('gr-backlash') || 0.3 }) : [];
+      var uu = ' ' + state.unit, row = function (q, i) {
+        var lines = q.name + ' &middot; 20&deg;' + (q.recommended ? ' (suggested)' : '') + ': gears from about &Oslash;' + show(q.smallGear) + uu + ' (12 teeth); up to ' + q.teethIn3 + ' teeth in ' + (state.imperial ? '3 in' : '76 mm') +
+          (q.ok ? (q.backlash > (read('gr-backlash') || 0) + 1e-9 ? '; sets backlash ' + show(q.backlash) + uu : '') : '; too fine for this bit');
+        return '<button type="button" class="gr-std-pick' + (q.recommended ? ' gr-rec' : '') + '" data-sug="' + i + '"' + (q.ok ? '' : ' disabled') + '>' + lines + '</button>';
+      };
+      var asked = state.generatedOnce ? 'Did your test pair mesh? Keep one tooth size for everything from now on, so all your gears mesh.' : 'Gears only mesh at the same tooth size and pressure angle: keep one for everything and it all meshes. No need to choose before your first test.';
+      el.innerHTML = 'No shop standard yet. ' + asked + (sug.length ? '<details' + (state.generatedOnce ? ' open' : '') + '><summary>Suggested for your ' + show(bit0) + uu + ' bit</summary><div class="gr-std-list">' + sug.map(row).join('') + '</div></details>' : '') +
+        ' <span class="gr-link" data-std="set">or make ' + esc(here) + ' my standard</span>';
+      state.stdSuggest = sug;
     } else if (onStandard()) {
       el.className = 'gr-std';
-      el.innerHTML = 'Your shop standard: <b>' + esc(sizeLabel(st.module, st.pressureDeg)) + '</b>. New pairs keep it, so they mesh with all your gears. <span class="gr-link" data-std="off">Stop keeping it</span>';
+      el.innerHTML = 'Your shop standard: <b>' + esc(sizeLabel(st.module, st.pressureDeg)) + '</b>. New pairs keep it, so they mesh with all your gears. Changing it later is fine: gears you&rsquo;ve cut still mesh with each other. <span class="gr-link" data-std="off">Stop keeping it</span>';
     } else {
       el.className = 'gr-std gr-std-off';
-      el.innerHTML = 'These teeth (<b>' + esc(here) + '</b>) aren&rsquo;t your shop standard (<b>' + esc(sizeLabel(st.module, st.pressureDeg)) + '</b>): they won&rsquo;t mesh with your other gears. <span class="gr-link" data-std="use">Use the standard</span><span class="gr-link" data-std="set">Make these the standard</span>';
+      el.innerHTML = 'These teeth (<b>' + esc(here) + '</b>) aren&rsquo;t your shop standard (<b>' + esc(sizeLabel(st.module, st.pressureDeg)) + '</b>): they mesh with gears cut at ' + esc(here) + ', not with those at your standard. <span class="gr-link" data-std="use">Use the standard</span><span class="gr-link" data-std="set">Make these the standard</span>';
     }
+    el.querySelectorAll('[data-sug]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var q = state.stdSuggest[+b.dataset.sug];
+        state.standard = { on: true, module: q.module, pressureDeg: 20 };
+        $('gr-size-mode').value = q.dp ? 'dp' : 'module'; writeSize(q.module); $('gr-pa').value = '20';
+        if (q.backlash > (read('gr-backlash') || 0) + 1e-9) write('gr-backlash', q.backlash);
+        fitLabelSelects(); save(true); touch();
+      });
+    });
     el.querySelectorAll('[data-std]').forEach(function (a) {
       a.addEventListener('click', function () {
         var k = a.dataset.std;
@@ -3559,8 +3788,53 @@ if (typeof module !== 'undefined' && module.exports) {
     write('gr-teeth-b', o.teethB);
     $('gr-pa').value = String(o.pressureDeg);
     writeSize(o.module);
-    write('gr-cd', cd);
+    // A round-size pair: spread to the distance typed when it can be, else at its own.
+    write('gr-cd', o.ownDistance != null && !(o.spreadable && cd > 0) ? o.ownDistance : cd);
     touch();
+  }
+  // What an option says beside its teeth: whether the bores and holes fit
+  // it, whether it fits the space typed (nested, side by side, a bit round
+  // each), how much the small gear's teeth are undercut.
+  function optionChecks(o, s) {
+    var u = ' ' + state.unit, out = { notes: [], ok: true, fits: true }, bit = s['gr-bit'] || 0;
+    var oo = { module: o.module, pressureDeg: o.pressureDeg, backlash: s['gr-backlash'] || 0, clearance: s['gr-clearance'] != null ? s['gr-clearance'] : null, bitDiameter: bit };
+    [['a', o.teethA], ['b', o.teethB]].forEach(function (q) {
+      var bas = G.basics(Object.assign({ teeth: q[1], bitRadius: bit / 2 }, oo)), body = gearOpts(s, q[0]);
+      var gh = GC.gearHoles(Object.assign({}, body, { teeth: q[1] }), { basics: Object.assign({ z: q[1] }, bas) }, oo, 'Gear ' + q[0].toUpperCase());
+      if (gh.problems.length) { out.ok = false; out.notes.push('<span class="gr-warn">Gear ' + q[0].toUpperCase() + '&rsquo;s ' + (/bore/i.test(gh.problems[0]) ? 'bore' : 'holes') + ' too big for it (Gear Bodies)</span>'); }
+    });
+    var W = s['gr-fit-w'], H = s['gr-fit-h'];
+    if (W > 0 || H > 0) {
+      var gap = s['gr-gap'] > 0 ? s['gr-gap'] : GC.gapMinimum(bit), w = o.outsideA + o.outsideB + gap + 2 * bit, h = Math.max(o.outsideA, o.outsideB) + 2 * bit;
+      // Either way round on the board.
+      var fitsIt = function (a, b) { return (!(W > 0) || a <= W + 1e-6) && (!(H > 0) || b <= H + 1e-6); };
+      out.fits = fitsIt(w, h) || fitsIt(h, w);
+      out.notes.push(out.fits ? 'fits ' + show(w) + ' × ' + show(h) + u : '<span class="gr-warn">needs ' + show(w) + ' × ' + show(h) + u + ': too big</span>');
+    }
+    var small = Math.min(o.teethA, o.teethB), lim = Math.floor(2 / Math.pow(Math.sin(o.pressureDeg * Math.PI / 180), 2));
+    if (small < lim) out.notes.push(small >= 0.7 * lim ? 'the small gear a little undercut (fine)' : 'the small gear&rsquo;s teeth undercut: thinner at the root, a little weaker');
+    return out;
+  }
+  // The options as the cards show them, with a kind, teeth and tooth size,
+  // how each meets the distance, its sizes and its checks.
+  function pairOptionsHtml(list, s, ratio, cdTyped) {
+    var u = ' ' + state.unit, mode = $('gr-size-mode').value, current = moduleFromSize();
+    var turn = function (q) { return q >= 1 ? parseFloat(q.toFixed(3)) + ':1' : '1:' + parseFloat((1 / q).toFixed(3)); };
+    return list.map(function (o) {
+      var c = o.checks, picked = s['gr-teeth-a'] === o.teethA && s['gr-teeth-b'] === o.teethB && Math.abs(current - o.module) < 1e-6 && Number($('gr-pa').value) === o.pressureDeg;
+      var dist = cdTyped > 0 ? (o.spreadable ? (Math.abs(o.ownDistance - cdTyped) < 1e-6 ? 'exactly your distance' : 'spread ' + show(cdTyped - o.ownDistance) + u + ' to your distance') : show(o.ownDistance) + u + ' apart (its own)') : show(o.ownDistance) + u + ' apart';
+      return '<button type="button" class="gr-solution' + (picked ? ' gr-picked' : '') + (c.ok && c.fits ? '' : ' gr-solution-warn') + '">' +
+        '<span class="gr-solution-kind">' + { coarse: 'Coarse', balanced: 'Balanced', fine: 'Fine' }[o.kind] + '</span>' +
+        '<span><b>' + o.teethA + ' and ' + o.teethB + ' teeth</b>, ' + SIZE_NAMES[mode] + ' ' + sizeText(o.module, mode) + (mode === 'cp' ? u : '') + ', ' + o.pressureDeg + '&deg;, ' + dist + '</span>' +
+        '<span class="gr-solution-more">' + turn(o.ratio) + (ratio && Math.abs(o.ratio - ratio) < 1e-9 ? ' exactly' : '') + ', &Oslash;' + show(o.outsideA) + ' and &Oslash;' + show(o.outsideB) + u +
+        (c.notes.length ? '; ' + c.notes.join('; ') : '') + '</span></button>';
+    }).join('');
+  }
+  // The pick when typing: the kind last tapped (Balanced at first), but one whose bores and space fit first.
+  function choosePick(list) {
+    var kind = state.designKind || 'balanced', good = list.filter(function (o) { return o.checks.ok && o.checks.fits; });
+    var from = good.length ? good : list;
+    return from.filter(function (o) { return o.kind === kind; })[0] || from[Math.floor((from.length - 1) / 2)];
   }
 
   // Under the Center Distance: the gears' own, and Fit Tooth Size to mesh
@@ -4592,6 +4866,10 @@ if (typeof module !== 'undefined' && module.exports) {
     if (view === 'help') return;
     var note = $('gr-note-' + view), btn = $('gr-gen-' + view), p = programFor(view);
     drawLayout(view, p);
+    // The footer's problem is a link to the field it's about.
+    var target = p.bad.length ? p.bad[0] : p.res && p.res.problems.length ? problemField(p.res.problems[0]) : null;
+    note.classList.toggle('gr-note-link', !!(target && $(target)));
+    note.onclick = target && $(target) ? function () { var el = $(target), sec = el.closest('.gr-content'); if (sec && !sec.classList.contains('active')) showView(sec.dataset.view); var fold = el.closest('details'); if (fold) fold.open = true; el.scrollIntoView({ block: 'center' }); el.focus(); } : null;
     var bad = p.bad.length || (p.res && p.res.problems.length);
     btn.classList.toggle('gr-blocked', !!bad);
     note.classList.toggle('gr-bad-note', !!bad);
@@ -4808,6 +5086,7 @@ if (typeof module !== 'undefined' && module.exports) {
           alert('Gears: the program is loaded, but saving it to File Manager failed: ' + err.message);
         }
       }
+      state.generatedOnce = true; state.firstCutDone = true;
       save(true);
       setTimeout(function () { window.postMessage({ type: 'close-plugin-dialog' }, '*'); }, 100);
     } catch (err) {
@@ -5082,6 +5361,7 @@ if (typeof module !== 'undefined' && module.exports) {
       Object.keys(FIELDS).forEach(function (id) { var w = state.written[id], x = w && w.text === $(id).value ? w.v : read(id); if (x != null && !isNaN(x)) v[id] = x; });
       ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode', 'gr-hole-cut', 'gr-pl-by'].forEach(function (id) { v[id] = $(id).value; });
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
+      v.firstCutDone = !!state.firstCutDone; v.generatedOnce = !!state.generatedOnce;
       v.module = moduleFromSize(); v.nested = true; v.gapSpace = true; v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
       v.saveFiles = $('gr-gen-pair').parentNode.querySelector('.gr-save-files').checked;
       v.trainStages = readStages().stages;
@@ -5114,11 +5394,17 @@ if (typeof module !== 'undefined' && module.exports) {
     state.trainJob = v && v['gt-job'] || 's0-both';
     $('gt-job').innerHTML = '';
     trainJobs(readStages().stages);
+    // Your First Cut: shown on a first open until set up or put away; a first Generate is remembered, to offer a standard.
+    state.firstCutDone = !!(v && (v.firstCutDone || (v.firstCutDone == null && v['gr-teeth-a'] != null)));
+    state.generatedOnce = !!(v && (v.generatedOnce || v.firstCutDone == null && v['gr-teeth-a'] != null));
     if (!v) {
-      // First open: MDF feeds for the bit, and the smallest friendly teeth it can cut.
+      // First open: MDF feeds for the bit (1/8 in, or 3 mm on a metric machine), the smallest friendly teeth it
+      // can cut, and X0 Y0 at the front-left corner, where most people zero.
       $('gr-size-mode').value = state.imperial ? 'dp' : 'module';
       $('gr-material').value = 'mdf';
-      var minM = G.minModule({ pressureDeg: 20, bitRadius: 3.175 / 2, backlash: 0.3 });
+      $('gr-origin').value = 'front-left';
+      if (!state.imperial) write('gr-bit', 3);
+      var minM = G.minModule({ pressureDeg: 20, bitRadius: read('gr-bit') / 2, backlash: 0.3 });
       writeSize(state.imperial ? 25.4 / Math.floor(25.4 / minM) : G.friendlyModule(minM));
       fillFeeds(false);
     } else {
@@ -5170,8 +5456,11 @@ if (typeof module !== 'undefined' && module.exports) {
     var ms = ((await (await fetch(BASE_URL + '/api/server-state')).json()) || {}).machineState || {};
     state.loadedTool = Number(ms.tool) > 0 ? Number(ms.tool) : 0;
     state.probes = (tools || []).filter(function (t) { return t.type === 'probe'; }).map(function (t) { return byId ? t.toolId : t.toolNumber; });
+    // Gears are cut with an end mill: flat (or ball) ones that aren't keyhole, roundover, surfacing and the like; the rest behind Show All.
+    var notGear = /keyhole|round ?over|radius|surfac|groove|chamfer|engrav|thread|dovetail|flush|bowl|cove|crown|face mill|v ?bit/i;
     state.tools = (tools || []).filter(function (t) { return t.type !== 'probe'; })
-      .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '', notes: (t.metadata && t.metadata.notes) || '', flutes: (t.metadata && t.metadata.flutes) || 0 }; })
+      .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '', notes: (t.metadata && t.metadata.notes) || '', flutes: (t.metadata && t.metadata.flutes) || 0,
+        gear: (t.type === 'flat' || t.type === 'ball') && !notGear.test((t.name || '') + ' ' + ((t.metadata && t.metadata.notes) || '')) && t.diameter <= 12.7 }; })
       .filter(function (t) { return t.n > 0 && t.mm > 0; })
       // The tool in the spindle first, then the rest by number.
       .sort(function (a, b) { return (b.n === state.loadedTool) - (a.n === state.loadedTool) || a.n - b.n; });
@@ -5248,20 +5537,25 @@ if (typeof module !== 'undefined' && module.exports) {
   function renderToolList() {
     var list = $('gr-tool-list'), n = bitToolNumber(), u = ' ' + state.unit, f = $('gr-tool-filter').value;
     var words = String(f).toLowerCase().split(/\s+/).filter(Boolean);
-    var tools = (state.tools || []).filter(function (t) {
+    // End mills first; the others when asked for (or searched for). An end mill too big for the teeth now is marked.
+    var all = (state.tools || []).filter(function (t) {
       var hay = ('t' + t.n + ' ' + t.name + ' ' + t.notes + ' ' + show(t.mm) + u + (t.n === state.loadedTool ? ' in the spindle' : '')).toLowerCase();
       return words.every(function (w) { return hay.indexOf(w) >= 0; });
     });
+    var others = all.filter(function (t) { return !t.gear; }), tools = toolPop.showAll || words.length ? all : all.filter(function (t) { return t.gear; });
+    var mNow = moduleFromSize(), maxBit = mNow > 0 ? G.maxBitDiameter({ module: mNow, pressureDeg: Number($('gr-pa').value), backlash: read('gr-backlash') || 0 }) : Infinity;
     toolPop.items = tools.map(function (t) { return { value: String(t.n), t: t }; });
     if (n) toolPop.items.push({ value: 'none' });
     var html = !state.tools ? '<div class="gr-tool-empty">Reading the tool table…</div>' : !state.tools.length ? '<div class="gr-tool-empty">No tools with a diameter in the tool table.</div>'
       : !tools.length ? '<div class="gr-tool-empty">No tool matches “' + esc(f) + '”.</div>' : '<div class="gr-tool-head">Tool change to</div>';
     html += toolPop.items.map(function (it, i) {
-      var t = it.t, text = t ? (t.n === n ? '✓ ' : '') + 'T' + t.n + (t.name ? ' ' + esc(t.name) : '') + ' <span class="gr-tool-size">' + show(t.mm) + u + (t.n === state.loadedTool ? ', in the spindle' : '') + '</span>' : 'No tool change';
+      var t = it.t, text = t ? (t.n === n ? '✓ ' : '') + 'T' + t.n + (t.name ? ' ' + esc(t.name) : '') + ' <span class="gr-tool-size">' + show(t.mm) + u + (t.n === state.loadedTool ? ', in the spindle' : '') +
+        (!t.gear ? ', not an end mill for gears' : t.mm > maxBit + 1e-6 ? ', too big for these teeth (up to ' + show(maxBit) + u + ')' : '') + '</span>' : 'No tool change';
       return '<button type="button" class="gr-tool-item' + (i === toolPop.active ? ' gr-active' : '') + '" role="option" aria-selected="' + !!(t && t.n === n) + '" data-v="' + it.value + '">' + text + '</button>';
     }).join('');
+    if (!words.length && others.length) html += '<button type="button" class="gr-tool-item gr-tool-more" data-more="1">' + (toolPop.showAll ? 'End mills only' : 'Show all tools (' + others.length + ' more: V-bits, drills, surfacing…)') + '</button>';
     list.innerHTML = html;
-    list.querySelectorAll('.gr-tool-item').forEach(function (b) { b.addEventListener('click', function () { pickBitTool(b.getAttribute('data-v')); }); });
+    list.querySelectorAll('.gr-tool-item').forEach(function (b) { b.addEventListener('click', function () { if (b.dataset.more) { toolPop.showAll = !toolPop.showAll; renderToolList(); return; } pickBitTool(b.getAttribute('data-v')); }); });
   }
   function showBitTool() {
     var btn = $('gr-bit-tool');
@@ -5343,6 +5637,48 @@ if (typeof module !== 'undefined' && module.exports) {
     });
   }
 
+  // Expert fields behind "More" in their cards (an error opens it).
+  function foldExtras() {
+    [[['gr-backlash', 'gr-clearance'], 'More: Backlash, Tip Clearance'], [['gr-delay', 'gr-mist', 'gr-flood'], 'More: Delay, Mist, Flood'],
+     [['gr-tabs', 'gr-tab-w', 'gr-tab-h'], 'More: how many tabs, and their size'], [['gr-direction', 'gr-gap'], 'More: Direction, Gap Between']].forEach(function (q) {
+      var fields = q[0].map(function (id) { return $(id) && $(id).closest('.gr-field'); }).filter(Boolean);
+      if (!fields.length) return;
+      var row = fields[0].parentNode, d = document.createElement('details'), inner = document.createElement('div');
+      d.className = 'gr-more'; d.innerHTML = '<summary>' + q[1] + '</summary>'; inner.className = 'gr-row gr-row-4';
+      fields.forEach(function (f) { f.style.gridColumn = ''; inner.appendChild(f); });
+      d.appendChild(inner); row.after(d);
+    });
+  }
+  // On a touchscreen there's no hover: a label with an explanation (its
+  // field's title) is underlined faintly, and a tap on it shows the words
+  // beside the field (as well as going to the field).
+  function addInfoTips() {
+    var tip = document.createElement('div');
+    tip.className = 'gr-tip'; tip.hidden = true; tip.setAttribute('role', 'tooltip'); ROOT.appendChild(tip);
+    var open = null, close = function () { tip.hidden = true; open = null; };
+    ROOT.querySelectorAll('.gr-field').forEach(function (f) {
+      var el = f.querySelector('input.gr-input[title], select.gr-select[title]'), lab = f.querySelector(':scope > label');
+      if (!el || !lab || lab.classList.contains('gr-switch') || lab.id === 'gr-bit-label') return;
+      lab.classList.add('gr-has-tip');
+      lab.addEventListener('click', function () {
+        if (open === lab) { close(); return; }
+        open = lab; tip.textContent = el.getAttribute('title'); tip.hidden = false;
+        var r = lab.getBoundingClientRect();
+        tip.style.left = Math.max(8, Math.min(r.left, window.innerWidth - tip.offsetWidth - 8)) + 'px';
+        tip.style.top = (r.bottom + 58 + tip.offsetHeight < window.innerHeight ? r.bottom + 52 : Math.max(8, r.top - tip.offsetHeight - 6)) + 'px';
+      });
+    });
+    document.addEventListener('pointerdown', function onDown(e) { if (!document.body.contains(ROOT)) { document.removeEventListener('pointerdown', onDown, true); return; } if (open && e.target !== open && !open.contains(e.target) && !tip.contains(e.target)) close(); }, true);
+    ROOT.addEventListener('scroll', close, true);
+    ROOT.addEventListener('input', close);
+  }
+  // The sidebar: the bit, under the units and the standard.
+  function showBitBadge() {
+    var b = $('gr-bit-badge'), bit = read('gr-bit'), n = bitToolNumber();
+    if (!b) return;
+    b.textContent = bit > 0 ? show(bit) + ' ' + state.unit + ' bit' + (n ? ' · T' + n : '') : '';
+  }
+
   // ---------- Wiring ----------
   var lastView = 'pair';
   function showView(view) {
@@ -5408,7 +5744,8 @@ if (typeof module !== 'undefined' && module.exports) {
       // Add a Gear: typing lists the distances; the nearest is picked when the edit is done (change).
       // Picked while typing only where the pick keeps what's typed; at a shop standard or adding a gear the
       // distance is snapped to whole teeth, so it's picked when the edit is done (change), not under the fingers.
-      if (/^gr-(cd|design-ratio|design-od)$/.test(e.target.id) && !(e.target.id === 'gr-cd' && ($('gr-design-mode').value === 'add' || standardOn()))) state.autoPick = true;
+      // Round sizes snap the distance to whole teeth, so the distance is picked when the edit is done (change); a ratio, size or space while typing.
+      if (/^gr-(design-ratio|design-od|fit-w|fit-h)$/.test(e.target.id)) state.autoPick = true;
       if (/^gr-(rpm|feed|plunge|step|frame-step)$/.test(e.target.id) && e.isTrusted) state.feedsAuto = false;
       touch();
     });
@@ -5430,9 +5767,9 @@ if (typeof module !== 'undefined' && module.exports) {
       if (id === 'gt-same' && e.target.checked) $('gt-stages').value = '0';
       if (id === 'gt-job') state.trainJob = e.target.value;
       if (e.target.classList.contains('gr-hole-cut')) ROOT.querySelectorAll('.gr-hole-cut').forEach(function (x) { x.value = e.target.value; });
-      if (id === 'gr-design-by' || id === 'gr-design-mode') state.autoPick = id === 'gr-design-by' || $('gr-design-mode').value === 'new';
+      if (id === 'gr-design-by' || id === 'gr-design-mode') state.autoPick = id === 'gr-design-by' || /^(new|ratio)$/.test($('gr-design-mode').value);
       if (id === 'gr-design-mode') fitLabelSelects();
-      if (id === 'gr-cd' && ($('gr-design-mode').value === 'add' || standardOn())) state.autoPick = true;
+      if (id === 'gr-cd' && /^(new|add)$/.test($('gr-design-mode').value)) state.autoPick = true;
       if (e.target.classList.contains('gr-label-select')) fitLabelSelects();
       if (/^gr-bore-(shape-)?[ab]$|^gr-holes-(style-)?[ab]$/.test(id)) boreExtras(/^gr-bore-/.test(id));
       if (id === 'gr-b-mode' && /^(teeth|ratio)$/.test($('gr-b-mode').value)) state.pairMode = $('gr-b-mode').value;
@@ -5445,6 +5782,9 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     $('gr-animate').addEventListener('click', animate);
     wireHandles();
+    $('gr-first-go').addEventListener('click', setupTestPair);
+    $('gr-bit-badge').addEventListener('click', function () { showView('pair'); setTimeout(function () { $('gr-tool-card').scrollIntoView({ block: 'start', behavior: 'smooth' }); $('gr-bit').focus(); }, 50); });
+    $('gr-first-close').addEventListener('click', function () { state.firstCutDone = true; save(true); touch(); });
     // Kind: two gears (as Teeth or Ratio, as last used), a rack or a ring.
     ROOT.querySelectorAll('.gr-kind-btn').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -5509,6 +5849,8 @@ if (typeof module !== 'undefined' && module.exports) {
     ['gr-bore-shape-a', 'gr-bore-shape-b'].forEach(function (id) { ROOT.querySelectorAll('#' + id + ' option').forEach(function (op) { op.textContent += ' (' + state.unit + ')'; }); });
     ROOT.querySelector('#gr-size-mode option[value="cp"]').textContent = 'Circular Pitch (' + state.unit + ')';
     restore();
+    foldExtras();
+    addInfoTips();
     wire();
     boreExtras(false);
     fitLabelSelects();

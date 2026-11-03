@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+- **Your First Cut:** on a first open, a card asks the board's thickness and sets up a small 2:1 test pair for your
+  bit (about four minutes with a 1/8" or 3 mm bit): round teeth it cuts, small bores, through the board, X0 Y0 at
+  its front-left corner, with its frame holes a link away.
+- **Starter standards from your bit:** the Teeth card suggests round sizes the bit cuts (DP 8 for 1/8", module 3
+  for 3 mm, module 4 for 4 mm, DP 3 or module 7 for 1/4" and 6 mm), each said as the gears it makes and setting
+  the backlash it needs; offered open after a first Generate, not before.
+- **Round tooth sizes without a standard:** Start from the Center Distance offers Coarse, Balanced and Fine at round
+  sizes the bit cuts, no more odd ones (Fit Tooth Size still fits a distance exactly).
+- **New ways to start:** Start from the Ratio (no distance), Match a Gear I Have (its teeth and the diameter across
+  its tips give its module and DP, then Add a Gear for its mate).
+- **Must Fit (W × H):** each option says whether the pair fits your board or space; the pick prefers one that does.
+- **Options say more:** whether the bores fit, how much a small gear is undercut (fine, or a little weaker).
+- **The tool menu** lists end mills first; V-bits, drills, surfacing and roundover bits behind Show All Tools; an
+  end mill too big for the teeth is marked.
+- **Less at once:** Backlash, Tip Clearance, Delay, Mist, Flood, the tabs' size, Direction and Gap behind "More";
+  a dotted label explains itself when tapped (no hover on a touchscreen); the bit shown in the sidebar.
+- **Fixes:** "This bit cuts teeth down to …" (it read as the opposite), its link only when the teeth are too fine;
+  a design off the standard says what it meshes with; the footer's problem is a link to its field; new installs
+  zero X0 Y0 at the front-left corner and start a metric machine at a 3 mm bit; Help's standard advice matches
+  what common bits cut.
+- **Help: Getting started** (a test pair, one tooth size, start from what you know).
+
 ## 0.6.2: Measured previews
 
 ### ✨ New

@@ -14,11 +14,16 @@ HDPE, acrylic or aluminum.
 
 ## Three steps
 
-1. **Pick your bit.** Choose it from the tool table or type its size. Gears only offers teeth that
-   bit can cut.
-2. **Type the center distance and the ratio.** Tap one of the pairs that fit: coarse, balanced or
-   fine.
+1. **Cut a test pair first.** On a first open, **Your First Cut** asks how thick your board is and sets up a small
+   2:1 pair for your bit: about four minutes with a 1/8" or 3 mm bit. If it meshes, your machine, bit and
+   settings are right.
+2. **Start from what you know:** where the axles go (center distance and ratio), the ratio alone, a gear you
+   already have (count its teeth, measure across its tips), or one to add to a set. Tap one of the pairs offered:
+   coarse, balanced or fine, all at round tooth sizes your bit can cut, each saying whether it fits your board.
 3. **Press Generate.** Both gears come out in one program, nested close together to save stock.
+
+After the first test, the Teeth card suggests a **shop standard** for your bit (DP 8 for a 1/8" bit, module 3 for
+3 mm...): keep one tooth size and everything you cut meshes with everything else.
 
 ![The Gears dialog: a 2:1 pair at 90 mm, with three pairs to choose from](docs/dialog.png)
 
