@@ -18,6 +18,8 @@
   .gr-wrapper [hidden] { display: none !important; }
   .gr-wrapper:not(.gr-is-rack) .gr-rack-only, .gr-wrapper:not(.gr-is-ring) .gr-ring-only,
   .gr-wrapper.gr-is-rack .gr-not-special, .gr-wrapper.gr-is-ring .gr-not-special { display: none !important; }
+  .gr-wrapper:not(.gr-is-planet) .gr-planet-only, .gr-wrapper.gr-is-planet #gr-design-card { display: none !important; }
+  .gr-wrapper.gr-is-planet .gr-field.gr-ring-only.gr-rim { display: flex !important; }
   /* ncCAM's and Spoilboard Toolbox's size: almost full screen, 24 px clear
      all round, in landscape and portrait. */
   .plugin-dialog-container:has(.gr-wrapper) { max-height: none !important; max-width: none !important; }
@@ -396,6 +398,7 @@
             <button type="button" class="gr-kind-btn" data-kind="pair" role="radio" title="Two spur gears that mesh, side by side.">Two Gears</button>
             <button type="button" class="gr-kind-btn" data-kind="rack" role="radio" title="A pinion and a straight rack: turning becomes sliding, for slides, sliding stops and camera sliders.">Rack and Pinion</button>
             <button type="button" class="gr-kind-btn" data-kind="ring" role="radio" title="A pinion turning inside a ring with its teeth inside: a compact reduction, both turning the same way; the start of a planetary gearbox.">Ring and Pinion</button>
+            <button type="button" class="gr-kind-btn" data-kind="planet" role="radio" title="A planetary set: a sun in the middle, planets round it on a carrier, a ring round them all. A big reduction in a small, round space.">Planetary</button>
           </div></div>
         <div class="gr-sub" id="gr-pair-sub">Two spur gears that mesh: pick the teeth, see them turn, and cut one, the other or both.</div>
       </div>
@@ -437,6 +440,15 @@
           </div>
         </div>
 
+        <div class="gr-card gr-planet-only" id="gr-planet-card">
+          <div class="gr-card-head"><h4 class="gr-card-title"><select class="gr-label-select" id="gr-pl-by" aria-label="Find a planetary set by" title="Ratio: type the reduction and pick a set that makes it. Teeth: type the sun&rsquo;s and planets&rsquo; teeth in the Teeth card yourself.">
+            <option value="ratio">Find a Planetary Set by Ratio</option><option value="teeth">Planetary Set by Teeth</option></select></h4></div>
+          <div class="gr-row gr-row-4" id="gr-pl-ratio-row">
+            <div class="gr-field"><label for="gr-pl-ratio">Ratio</label><input class="gr-input" id="gr-pl-ratio" title="Turns of the sun for one turn of the carrier, with the ring held still: more than 2 (4 for 4:1)."></div>
+          </div>
+          <div class="gr-solutions" id="gr-pl-solutions"></div>
+        </div>
+
         <div class="gr-card gr-not-special" id="gr-design-card">
           <div class="gr-card-head"><h4 class="gr-card-title"><select class="gr-label-select" id="gr-design-mode" aria-label="Design" title="Start from the Center Distance: a new pair, its teeth and tooth size picked for where the axles go. Add a Gear to This Set: keep this pair&rsquo;s tooth size and pressure angle, so a new gear meshes with the ones you cut; Load the pair&rsquo;s program first if you&rsquo;ve changed it since.">
             <option value="new">Start from the Center Distance</option><option value="add">Add a Gear to This Set</option></select></h4></div>
@@ -473,15 +485,16 @@
             <div class="gr-field"><label for="gr-clearance">Tip Clearance</label><input class="gr-input" id="gr-clearance" data-unit="length" placeholder="auto" title="Room between a tooth's tip and the root it meshes with. Blank: a quarter of the module."></div>
           </div>
           <div class="gr-row gr-row-4">
-            <div class="gr-field"><label for="gr-teeth-a">Gear A Teeth</label><input class="gr-input" id="gr-teeth-a" title="Whole number, 6 or more."></div>
+            <div class="gr-field"><label for="gr-teeth-a" id="gr-teeth-a-label">Gear A Teeth</label><input class="gr-input" id="gr-teeth-a" title="Whole number, 6 or more."></div>
             <div class="gr-field">
               <select class="gr-label-select" id="gr-b-mode" aria-label="Gear B by" title="Gear B's teeth; the ratio A:B (3 for 3:1: Gear B then has a third of Gear A's teeth, to the nearest whole tooth); Rack Teeth: Gear B is a straight rack with that many teeth, and Gear A its pinion; or Ring Teeth: Gear B is a ring with teeth inside, Gear A its pinion turning inside it.">
-                <option value="teeth">Gear B Teeth</option><option value="ratio">Ratio A:B</option><option value="rack" hidden>Rack Teeth</option><option value="ring" hidden>Ring Teeth</option>
+                <option value="teeth">Gear B Teeth</option><option value="ratio">Ratio A:B</option><option value="rack" hidden>Rack Teeth</option><option value="ring" hidden>Ring Teeth</option><option value="planet" hidden>Planet Teeth</option>
               </select>
               <input class="gr-input" id="gr-teeth-b" aria-labelledby="gr-b-mode" title="Whole number, 6 or more.">
               <input class="gr-input" id="gr-ratio" aria-labelledby="gr-b-mode" hidden title="How many turns Gear B makes for one of Gear A: 3 for 3:1, 0.5 for 1:2.">
             </div>
-            <div class="gr-field gr-ring-only"><label for="gr-ring-w">Rim Width</label><input class="gr-input" id="gr-ring-w" data-unit="length" title="How wide the ring is outside its tooth roots: room for its screw holes, and stiffness."></div>
+            <div class="gr-field gr-planet-only"><label for="gr-planets">Planets</label><input class="gr-input" id="gr-planets" title="How many planets round the sun, evenly spaced on the carrier: 3 is the usual. The sun&rsquo;s and ring&rsquo;s teeth together must divide by it."></div>
+            <div class="gr-field gr-ring-only gr-rim"><label for="gr-ring-w">Rim Width</label><input class="gr-input" id="gr-ring-w" data-unit="length" title="How wide the ring is outside its tooth roots: room for its screw holes, and stiffness."></div>
             <div class="gr-field gr-rack-only"><label for="gr-rack-h">Rack Height</label><input class="gr-input" id="gr-rack-h" data-unit="length" title="How deep the rack's bar is under its tooth roots: room for its screw holes, and stiffness."></div>
           </div>
           <div class="gr-hints"><span class="gr-hint" id="gr-ratio-hint"></span><span class="gr-hint" id="gr-min-size"></span><span class="gr-hint" id="gr-cd-hint"></span></div>
@@ -553,7 +566,7 @@
           <div class="gr-card-head"><h4 class="gr-card-title">Cut</h4></div>
           <div class="gr-row gr-row-4">
             <div class="gr-field"><label for="gr-job">Cut</label>
-              <select class="gr-select" id="gr-job"><option value="both">Both Gears</option><option value="A">Gear A</option><option value="B" id="gr-job-b">Gear B</option></select></div>
+              <select class="gr-select" id="gr-job"><option value="both">Both Gears</option><option value="A">Gear A</option><option value="B" id="gr-job-b">Gear B</option><option value="ring" hidden>The Ring</option><option value="carrier" hidden>The Carrier Plate</option></select></div>
             <div class="gr-field"><label for="gr-origin">X0 Y0</label>
               <select class="gr-select" id="gr-origin" title="Where X and Y are zeroed on the machine."><option value="center">Gear's Center</option><option value="front-left">Front-Left</option></select></div>
             <div class="gr-field"><label for="gr-direction">Direction</label>
@@ -703,6 +716,13 @@
           <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces, <b>Gap Between</b> apart where they come closest, which saves stock. Blank, the gap is the least the bit allows: its diameter and a tenth, so the bit never cuts into the other gear. Make it more for room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack or ring gear sits the same gap from Gear A. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
         </ul></div>
+        <div class="gr-card"><h3>Planetary sets, plainly</h3><ul>
+          <li><b>The parts:</b> a <b>sun</b> gear in the middle, <b>planets</b> round it (3 is usual), each on an axle in a <b>carrier</b> plate, and a <b>ring</b> with its teeth inside round them all, meshing with every planet. The ring has the sun&rsquo;s teeth plus two planets&rsquo;.</li>
+          <li><b>Three ways to use it:</b> hold one part still, turn another, and the third turns at a fixed ratio. The usual: the ring held, the sun turned, the carrier out, slower by 1 + ring &divide; sun (a 12 sun in a 36 ring: 4:1), the same way round. The carrier held: the ring turns backwards, ring &divide; sun slower. The sun held: the ring in, the carrier out, a little slower (1 + sun &divide; ring). The facts give all three.</li>
+          <li><b>Why the teeth are fussy:</b> for the planets to sit evenly spaced and mesh with the sun and the ring at once, the sun&rsquo;s and ring&rsquo;s teeth together must divide by the number of planets; and the planets mustn&rsquo;t touch each other. Gears checks both and says the nearest teeth that work. With the ring held a set always makes more than 2:1; for less, use a plain pair.</li>
+          <li><b>Find a Planetary Set by Ratio</b> (the card&rsquo;s title menu) lists sets that make your ratio, the smallest ring first; <b>by Teeth</b> you type the sun&rsquo;s and planets&rsquo; teeth and the number of planets in the Teeth card. The sun is Gear A (its bore and holes), the planets Gear B, the ring gets the <b>Rim Width</b>.</li>
+          <li><b>Cutting:</b> <b>Everything, Nested</b> cuts the sun and planets first, inside the ring&rsquo;s opening where they fit (that wood is waste otherwise), the rest beside it, then the ring. Or the sun, one planet (cut it as many times as you have planets) or the ring alone; and <b>The Carrier Plate</b>: a board drilled for the sun&rsquo;s axle in the middle and each planet&rsquo;s at the exact radius (Frame Holes&rsquo; depths; the holes are the bores, or Frame Holes&rsquo; Axle Hole A and B). Mount the planets to turn freely on their axles.</li>
+        </ul></div>
         <div class="gr-card"><h3>Gear trains, plainly</h3><ul>
           <li><b>Why a train:</b> one pair can only turn so slowly before the big gear gets huge: 60:1 in one pair needs a 480-tooth wheel on an 8-tooth pinion. Split it into stages and the ratios multiply: 7.5 &times; 8 = 60 with gears of 60 and 64 teeth.</li>
           <li><b>Stages and axles:</b> each stage is a <b>driver</b> turning a <b>driven</b> gear. The driven gear is fixed to the next stage&rsquo;s driver on the same axle (a compound gear: glue or pin them, or fix both to the shaft), so each stage sits in its own layer, one board&rsquo;s thickness over the last. The picture numbers the axles; axle 1 is the one you turn.</li>
@@ -716,7 +736,7 @@
           <li><b>Replacement gears:</b> a stripped gear in a hand-turned toy, game or model, or a knob-driven gadget, cut in HDPE, acrylic or hardwood (not in anything powered or holding weight up, such as a blind or a mixer). Count its teeth and measure across the tips: its <b>module</b> is that diameter in mm &divide; (teeth + 2), or its <b>Diametral Pitch</b> (teeth + 2) &divide; the diameter in inches. Most are 20&deg;; match its bore with the Gear Bodies card, and use Add a Gear to This Set for its mate.</li>
           <li><b>Workshop jigs:</b> a gear as an <b>indexing wheel</b> (a 24- or 36-tooth gear and a pin or pawl divides a circle into equal parts, for fluting on a lathe or drilling a bolt circle); a crank with a small pinion for a <b>fine adjuster</b> on a fence or stop; a rack and pinion for a camera slider or a sliding stop.</li>
           <li><b>Turning things slowly:</b> a turntable for a display or for finishing a bowl, a rotisserie, a rotating sign: a slow crank, or a small motor on axle 1.</li>
-          <li><b>Planetary and ring gears:</b> a ring and pinion for a compact reduction or a spinning display. For a planetary demonstrator, the ring&rsquo;s teeth are the sun&rsquo;s plus two planets&rsquo; (a 60 ring: a 12 sun and 24-tooth planets), all one tooth size; for three planets evenly spaced, the ring&rsquo;s and the sun&rsquo;s teeth together must divide by 3 (60 + 12 = 72: yes). Cut the ring and a planet on the Gear Pair tab with Ring Teeth, and the sun as a plain gear of the same tooth size.</li>
+          <li><b>Planetary and ring gears:</b> a ring and pinion for a compact reduction or a spinning display; a <b>Planetary</b> set (the button on the Gear Pair tab) for a demonstrator, a compact gearbox or a turntable drive.</li>
           <li><b>Teaching and fun:</b> a pair on a board to show ratios (Animate shows it too), a gear wall, a spinner or top launcher (the 1:5 preset), a coin-sorter&rsquo;s drive, kinetic art.</li>
           <li>And see the fine print: gears cut from wood or plastic aren&rsquo;t for anything that could hurt someone if a tooth broke.</li>
         </ul></div>
@@ -1330,6 +1350,110 @@ if (typeof module !== 'undefined' && module.exports) {
     return { options: list, pick: pick, tooSmall: (t.bitRadius || 0) > 0 && m < minModule(p) - 1e-9 };
   }
 
+  // A planetary set: a sun in the middle, n planets round it on a carrier,
+  // a ring round them all; the ring has the sun's teeth and two planets'.
+  // For the planets to sit evenly spaced and mesh with both, the sun's and
+  // ring's teeth together must divide by n; they mustn't touch each other
+  // (half a module between tips); the ring needs its usual lead over a
+  // planet. Ratios: the ring held, sun in, carrier out, 1 + ring / sun (the
+  // usual reduction); the carrier held, ring / sun, turning backwards; the
+  // sun held, ring in, carrier out, 1 + sun / ring.
+  function planetary(p, zs, zp, n) {
+    var m = p.module, zr = zs + 2 * zp, a = m * (zs + zp) / 2, problems = [];
+    if (!(n >= 2) || Math.round(n) !== n) problems.push('a planetary set needs 2 or more planets');
+    else {
+      if ((zs + zr) % n !== 0) problems.push('for ' + n + ' planets evenly spaced, the sun’s and ring’s teeth together (' + (zs + zr) + ') must divide by ' + n + ': ' + planetFixes(zs, zp, n));
+      var apart = 2 * a * Math.sin(Math.PI / n), need = m * (zp + 2) + 0.5 * m;
+      if (apart < need - 1e-9) problems.push(n + ' planets of ' + zp + ' teeth touch each other: fewer planets, smaller planets or a bigger sun');
+    }
+    var rp = ringPair(p, zp, zr);
+    if (rp.problem) problems.push(rp.problem.replace('the pinion', 'a planet'));
+    return { sun: zs, planet: zp, ring: zr, planets: n, carrierRadius: a, problems: problems,
+      ratios: { ringHeld: 1 + zr / zs, carrierHeld: zr / zs, sunHeld: 1 + zs / zr } };
+  }
+  // The nearest teeth that space n planets evenly: the sun a tooth or two
+  // either way, or the planets.
+  function planetFixes(zs, zp, n) {
+    var opts = [];
+    for (var d = 1; d <= n && opts.length < 2; d++) [zs + d, zs - d].forEach(function (s2) { if (s2 >= 6 && (2 * s2 + 2 * zp) % n === 0 && opts.length < 2) opts.push('a sun of ' + s2); });
+    for (var e = 1; e <= n && opts.length < 3; e++) [zp + e, zp - e].forEach(function (p2) { if (p2 >= 6 && (2 * zs + 2 * p2) % n === 0 && opts.length < 3) opts.push('planets of ' + p2); });
+    return opts.length ? opts.join(', or ') : 'other teeth';
+  }
+  // Where everything is with the ring held and the sun turned sunDeg (math
+  // angles, degrees, counter-clockwise): the carrier turns sun / (sun +
+  // ring) as fast; each planet meshes with the sun as a pair does along its
+  // line, and so with the ring (the even spacing keeps them all in step).
+  // At sunDeg 0 the ring is at 0, as drawn.
+  function planetPhase(zs, zp, n, sunDeg) {
+    var zr = zs + 2 * zp, c = (sunDeg * zs - 180 * (zp + 1)) / (zr + zs), planets = [];
+    for (var k = 0; k < n; k++) {
+      var phi = c + 360 * k / n;
+      planets.push({ at: phi, angle: phi + 180 + 180 / zp - (sunDeg - phi) * zs / zp });
+    }
+    return { sun: sunDeg, carrier: c, ring: 0, planets: planets };
+  }
+  // Sun and planet teeth for a ratio (the ring held, sun in, carrier out):
+  // exact when whole teeth allow, else within 0.5%; n planets that space
+  // evenly and clear each other; teeth in the range (the ring may be more).
+  // The smallest ring first, then one with a bigger sun (stronger, finer).
+  function solvePlanetary(t) {
+    var R = t.ratio, n = Math.round(t.planets || 3), lo = Math.max(6, Math.round(t.minTeeth || 8)), hi = Math.min(400, Math.round(t.maxTeeth || 72));
+    if (!(R > 2)) return { problem: 'a ratio of more than 2: with the ring held, a planetary set always makes 2 + 2 × planet ÷ sun (2:1 or less wants a plain pair)' };
+    var p = { module: 1, pressureDeg: t.pressureDeg || 20 }, found = [];
+    for (var zs = lo; zs <= hi; zs++) for (var zp = lo; zp <= hi; zp++) {
+      var zr = zs + 2 * zp;
+      if (zr > 400) continue;
+      var q = 1 + zr / zs, err = Math.abs(q - R) / R;
+      if (err > 0.005) continue;
+      var ps = planetary(p, zs, zp, n);
+      if (ps.problems.length) continue;
+      found.push({ sun: zs, planet: zp, ring: zr, planets: n, ratio: q, error: err < 1e-9 ? 0 : err });
+    }
+    if (!found.length) return { problem: 'no set of ' + lo + ' to ' + hi + '-tooth suns and planets with ' + n + ' planets comes within 0.5% of it: other teeth, or another number of planets' };
+    var exact = found.filter(function (o) { return o.error === 0; }), list = exact.length ? exact : found;
+    list.sort(function (a, b) { return a.error - b.error || a.ring - b.ring || a.sun - b.sun; });
+    var out = [list[0]];
+    var bigger = list.filter(function (o) { return o.error <= list[0].error + 1e-12 && o.sun >= 1.5 * list[0].sun; })[0];
+    if (bigger) out.push(bigger);
+    return { options: out };
+  }
+  // Pieces (circles of tip radius ra) laid inside the ring's opening to cut
+  // from it (the middle is waste otherwise): each `gap` from the ring's tips
+  // and from each other, biggest first, each hugging the ring's tips or the
+  // pieces placed. Those that fit come back with places; those that don't
+  // are `outside`, to cut beside the ring.
+  function nestInRing(items, ringTip, gap) {
+    var list = items.slice().sort(function (a, b) { return b.ra - a.ra; }), inside = [], outside = [];
+    if (!(ringTip > 0)) return { inside: [], outside: list.map(function (it) { return it.key; }) };
+    list.forEach(function (it) {
+      var rho = ringTip - gap - it.ra, cands = [];
+      if (rho < -1e-9) { outside.push(it.key); return; }
+      if (rho < 1e-9) cands.push({ x: 0, y: 0 });
+      for (var k = 0; k < 72; k++) cands.push({ x: rho * Math.cos(k * Math.PI / 36), y: rho * Math.sin(k * Math.PI / 36) });
+      // Touching the ring's tips and a piece: where the two circles cross; and touching two pieces.
+      var cross = function (ax, ay, ra, bx, by, rb) {
+        var dx = bx - ax, dy = by - ay, D = Math.hypot(dx, dy);
+        if (D < 1e-9 || D > ra + rb || D < Math.abs(ra - rb)) return;
+        var al = (ra * ra - rb * rb + D * D) / (2 * D), h = Math.sqrt(Math.max(0, ra * ra - al * al)), mx = ax + al * dx / D, my = ay + al * dy / D;
+        cands.push({ x: mx - h * dy / D, y: my + h * dx / D }, { x: mx + h * dy / D, y: my - h * dx / D });
+      };
+      inside.forEach(function (q, i) {
+        cross(0, 0, rho, q.x, q.y, q.ra + it.ra + gap);
+        for (var j = i + 1; j < inside.length; j++) cross(q.x, q.y, q.ra + it.ra + gap, inside[j].x, inside[j].y, inside[j].ra + it.ra + gap);
+      });
+      var best = null;
+      cands.forEach(function (c) {
+        if (Math.hypot(c.x, c.y) > rho + 1e-6) return;
+        for (var i = 0; i < inside.length; i++) if (Math.hypot(inside[i].x - c.x, inside[i].y - c.y) < inside[i].ra + it.ra + gap - 1e-6) return;
+        // Out against the ring first (room left in the middle), then the first angle.
+        var score = -Math.hypot(c.x, c.y) + 1e-3 * ((Math.atan2(c.y, c.x) + 2 * Math.PI) % (2 * Math.PI));
+        if (!best || score < best.score) best = { c: c, score: score };
+      });
+      if (best) inside.push({ key: it.key, ra: it.ra, x: best.c.x, y: best.c.y }); else outside.push(it.key);
+    });
+    return { inside: inside.map(function (q) { return { key: q.key, x: q.x, y: q.y }; }), outside: outside };
+  }
+
   // A gear train: stages in a row, each a driver turning a driven gear; a
   // stage's driven gear shares its axle with the next stage's driver. The
   // ratio is turns of the first axle for one of the last: the product of
@@ -1644,7 +1768,7 @@ if (typeof module !== 'undefined' && module.exports) {
     return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
   }
 
-  return { basics: basics, rack: rack, gear: gear, makeRack: makeRack, rackPair: rackPair, makeRing: makeRing, ringPair: ringPair, RING_DIFF: RING_DIFF, toolPath: toolPath, minModule: minModule, maxBitDiameter: maxBitDiameter, solvePairs: solvePairs, solveStandard: solveStandard, solveTrain: solveTrain, trainLayout: trainLayout, foldTrain: foldTrain, minClearance: minClearance, friendlyModule: friendlyModule, pair: pair,
+  return { basics: basics, rack: rack, gear: gear, makeRack: makeRack, rackPair: rackPair, makeRing: makeRing, ringPair: ringPair, RING_DIFF: RING_DIFF, toolPath: toolPath, minModule: minModule, maxBitDiameter: maxBitDiameter, solvePairs: solvePairs, solveStandard: solveStandard, planetary: planetary, planetPhase: planetPhase, solvePlanetary: solvePlanetary, nestInRing: nestInRing, solveTrain: solveTrain, trainLayout: trainLayout, foldTrain: foldTrain, minClearance: minClearance, friendlyModule: friendlyModule, pair: pair,
            offsetOutward: offsetOutward, trimLoops: trimLoops, simplify: simplify, simplifyClosed: simplifyClosed, distToSegment: distToSegment, MODULES: MODULES };
 });
 /* END lib/gear-geometry.cjs */</script>
@@ -2448,14 +2572,16 @@ if (typeof module !== 'undefined' && module.exports) {
       o.many.forEach(function (g, i) {
         var k = 'G' + (i + 1);
         keys.push(k); o.gears[k] = g.body; o.labels[k] = g.label;
-        p.info[k] = G.gear(Object.assign({ teeth: g.body.teeth }, p.base));
+        p.info[k] = g.body.kind === 'ring' ? G.makeRing(Object.assign({ teeth: g.body.teeth, rim: g.body.rim }, p.base)) : G.gear(Object.assign({ teeth: g.body.teeth }, p.base));
         if (p.info[k].problem) p.problems.push(g.label + ': ' + p.info[k].problem);
         (p.info[k].notes || []).forEach(function (n) { if (p.notes.indexOf(n) < 0) p.notes.push(n); });
       });
       if (o.gap > 0 && o.gap < gapMinimum(o.bitDiameter) - 0.01) p.problems.push('Gap Between must be at least ' + (Math.ceil(gapMinimum(o.bitDiameter) * 100) / 100).toFixed(2) + ' mm (the bit and a tenth), so the bit stays out of the other gear');
       if (p.problems.length) return { problems: p.problems, notes: p.notes, gcode: null };
       p.which = keys;
-      packCircles(keys.map(function (k) { return { key: k, ra: p.info[k].basics.ra }; }), o.gap > 0 ? o.gap : gapMinimum(o.bitDiameter), o.bitDiameter, o.sheetWidth, o.sheetHeight).forEach(function (q) { placed.push({ key: q.key, x: q.x, y: q.y, turn: 0 }); });
+      // Given places (a planetary set's sun and planets inside its ring), or packed.
+      if (o.many.every(function (g) { return g.x != null && g.y != null; })) o.many.forEach(function (g, i) { placed.push({ key: keys[i], x: g.x, y: g.y, turn: g.turn || 0 }); });
+      else packCircles(keys.map(function (k) { return { key: k, ra: p.info[k].basics.ra }; }), o.gap > 0 ? o.gap : gapMinimum(o.bitDiameter), o.bitDiameter, o.sheetWidth, o.sheetHeight).forEach(function (q) { placed.push({ key: q.key, x: q.x, y: q.y, turn: 0 }); });
     }
     // Gear A at (0, 0), B beside it in +X, Gap Between apart where they
     // come closest (blank: the least, gapMinimum): two gears nested (B
@@ -2480,7 +2606,7 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     var holes = [];
     placed.forEach(function (pl) {
-      var gh = pl.key === 'B' && p.rack ? rackHoles(o.gears.B, p.info.B, o) : pl.key === 'B' && p.ring ? ringHoles(o.gears.B, p.info.B, o) : gearHoles(o.gears[pl.key], p.info[pl.key], o, nameOf(pl.key));
+      var gh = pl.key === 'B' && p.rack ? rackHoles(o.gears.B, p.info.B, o) : p.info[pl.key].kind === 'ring' ? ringHoles(o.gears[pl.key], p.info[pl.key], o) : gearHoles(o.gears[pl.key], p.info[pl.key], o, nameOf(pl.key));
       gh.problems.forEach(function (q) { p.problems.push(q); });
       pl.holes = gh.holes.map(function (h) { return Object.assign({}, h, { x: pl.x + h.dx, y: pl.y + h.dy, depth: o.depth }); });
     });
@@ -2515,7 +2641,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var sx = 0, sy = 0;
     if (o.origin === 'front-left') { sx = -ext.x0; sy = -ext.y0; }
     var unitNote = o.imperial ? ' (the program is in mm; G20 at the end puts the machine back in inches)' : '';
-    if (o.many) L.push(comment('Gears: a gear train, ' + o.many.length + ' gears: ' + o.many.map(function (g) { return g.body.teeth; }).join(', ') + ' teeth'));
+    if (o.many) L.push(comment('Gears: ' + (o.manyTitle || 'a gear train') + ', ' + o.many.length + ' gears: ' + o.many.map(function (g) { return g.body.teeth; }).join(', ') + ' teeth'));
     else L.push(comment('Gears: ' + (o.job === 'frame' ? 'frame holes' : p.which.map(function (k) { return (k === 'B' && p.rack ? 'a rack of ' : k === 'B' && p.ring ? 'a ring gear of ' : 'Gear ' + k + ' ') + o.gears[k].teeth + ' teeth'; }).join(', '))));
     // A whole Diametral Pitch is named too: gears that mesh with these need
     // the same tooth size and pressure angle.
@@ -2640,7 +2766,7 @@ if (typeof module !== 'undefined' && module.exports) {
     'gr-keyw-a': ['length', 0, 500, 'Gear A Key Width', null], 'gr-keyw-b': ['length', 0, 500, 'Gear B Key Width', null],
     'gr-keyd-a': ['length', 0, 500, 'Gear A Key Depth', null], 'gr-keyd-b': ['length', 0, 500, 'Gear B Key Depth', null],
     'gr-cd': ['length', 0, 5000, 'Center Distance', null], 'gr-rack-h': ['length', 1, 500, 'Rack Height', 12], 'gr-ring-w': ['length', 1, 500, 'Rim Width', 12], 'gr-spoke-w': ['length', 0, 500, 'Spoke Width', null], 'gr-ratio': ['count', 0.01, 100, 'Ratio', 2],
-    'gr-design-ratio': ['count', 0.01, 100, 'Ratio', null], 'gr-design-od': ['length', 1, 5000, 'Gear A Outside Ø', null],
+    'gr-design-ratio': ['count', 0.01, 100, 'Ratio', null], 'gr-planets': ['whole', 2, 8, 'Planets', 3], 'gr-pl-ratio': ['count', 2.01, 1000, 'Ratio', null], 'gr-design-od': ['length', 1, 5000, 'Gear A Outside Ø', null],
     'gr-holes-a': ['whole', 0, 24, 'Gear A Lightening Holes', 5], 'gr-holes-b': ['whole', 0, 24, 'Gear B Lightening Holes', 0],
     'gr-depth': ['length', 0.05, 200, 'Total Depth', 12.5], 'gr-step': ['length', 0.05, 50, 'Depth of Cut', null],
     'gr-tabs': ['whole', 1, 12, 'Tabs', 3], 'gr-tab-w': ['length', 0.5, 50, 'Tab Width', 4], 'gr-tab-h': ['length', 0.1, 50, 'Tab Height', 1.5],
@@ -2705,7 +2831,7 @@ if (typeof module !== 'undefined' && module.exports) {
       // center distance worked out to the tooth, shown rounded).
       var f = FIELDS[id], w = state.written[id], v = w && w.text === $(id).value ? w.v : read(id);
       s[id] = v;
-      var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od)$|^gt-ratio$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
+      var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od|pl-ratio)$|^gt-ratio$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
       // Named as the menus on their labels say: Gear A Spokes, Gear A D Bore...
       var nm = f[3], km = /^gr-(holes|bore)-([ab])$/.exec(id);
@@ -2753,11 +2879,14 @@ if (typeof module !== 'undefined' && module.exports) {
       delete errs['gr-cd'];
     }
     if (!isRack()) delete errs['gr-rack-h'];
-    if (!isRing()) delete errs['gr-ring-w'];
+    if (!isRing() && !isPlanet()) delete errs['gr-ring-w'];
+    if (!isPlanet()) delete errs['gr-planets'];
+    if (isPlanet()) delete errs['gr-cd'];
     s.module = m;
     return { s: s, errs: errs };
   }
   function isRack() { return $('gr-b-mode').value === 'rack'; }
+  function isPlanet() { return $('gr-b-mode').value === 'planet'; }
   function isRing() { return $('gr-b-mode').value === 'ring'; }
   function gearOpts(s, k) {
     return { teeth: s['gr-teeth-' + k], bore: s['gr-bore-' + k], boreShape: $('gr-bore-shape-' + k).value, holes: s['gr-holes-' + k],
@@ -2774,7 +2903,8 @@ if (typeof module !== 'undefined' && module.exports) {
       tabs: $('gr-tabs-on').checked ? { count: s['gr-tabs'], width: s['gr-tab-w'], height: s['gr-tab-h'] } : null,
       gears: { A: gearOpts(s, 'a'), B: Object.assign(gearOpts(s, 'b'), isRack() ? { kind: 'rack', rackHeight: s['gr-rack-h'], boreShape: 'round', holeStyle: 'round' }
         : isRing() ? { kind: 'ring', rim: s['gr-ring-w'], boreShape: 'round', holeStyle: 'round' } : {}) },
-      centerDistance: s['gr-cd'] > 0 && !isRack() && !isRing() ? s['gr-cd'] : null,
+      centerDistance: s['gr-cd'] > 0 && !isRack() && !isRing() && !isPlanet() ? s['gr-cd'] : null,
+      planetary: isPlanet() ? { planets: s['gr-planets'], sun: s['gr-teeth-a'], planet: s['gr-teeth-b'], ring: s['gr-teeth-a'] + 2 * s['gr-teeth-b'], rim: s['gr-ring-w'] } : null,
       toolNumber: bitToolNumber(),
       frame: { A: s['gr-frame-a'], B: s['gr-frame-b'] },
       origin: job === 'frame' ? 'center' : $('gr-origin').value, direction: $('gr-direction').value, gap: s['gr-gap'],
@@ -2834,6 +2964,7 @@ if (typeof module !== 'undefined' && module.exports) {
     applyRatio();
     var r = settings(), s = r.s, errs = r.errs;
     showSolutions(s, errs);
+    showPlanetOptions(s, errs);
     showStandard();
     if (s['gr-bit'] > 0) $('gr-gap').placeholder = show(GC.gapMinimum(s['gr-bit'])) + ' (least)';
     var minM = s['gr-bit'] > 0 ? G.minModule({ pressureDeg: Number($('gr-pa').value), bitRadius: s['gr-bit'] / 2, backlash: s['gr-backlash'] || 0,
@@ -2859,6 +2990,11 @@ if (typeof module !== 'undefined' && module.exports) {
       problems = gearProblems(o);
       var pr0 = o.gears.B.kind === 'ring' ? G.ringPair(o, o.gears.A.teeth, o.gears.B.teeth) : o.gears.B.kind === 'rack' ? {} : G.pair(o, o.gears.A.teeth, o.gears.B.teeth);
       if (pr0.problem) problems.push(friendlyProblems([pr0.problem], o)[0]);
+      if (o.planetary) {
+        if (!errs['gr-planets'] && !errs['gr-ring-w']) G.planetary(o, o.gears.A.teeth, o.gears.B.teeth, o.planetary.planets).problems.forEach(function (t) { problems.push(t); });
+        var Rg = ringOf(o);
+        if (Rg.problem && !/ring needs at least/.test(problems.join())) problems.push('The ring: ' + Rg.problem);
+      }
     }
     last = { s: s, errs: errs, o: o, problems: problems };
     // A problem about one field shows under it too.
@@ -2961,19 +3097,26 @@ if (typeof module !== 'undefined' && module.exports) {
   // Ratio A:B: Gear B's teeth to the nearest whole tooth, written into its
   // field (hidden), and the ratio they really make.
   function applyRatio() {
-    var rack = isRack(), ring = isRing();
+    var rack = isRack(), ring = isRing(), planet = isPlanet();
+    ROOT.classList.toggle('gr-is-planet', planet);
+    $('gr-teeth-a-label').textContent = planet ? 'Sun Teeth (Gear A)' : 'Gear A Teeth';
+    ['ring', 'carrier'].forEach(function (v) { ROOT.querySelector('#gr-job option[value="' + v + '"]').hidden = !planet; });
+    if (!planet && /^(ring|carrier)$/.test($('gr-job').value)) $('gr-job').value = 'both';
     // The Kind buttons, the tab's title and line, and Gear B's label (a menu only for two gears).
     ROOT.querySelectorAll('.gr-kind-btn').forEach(function (b) { var on = b.dataset.kind === (rack ? 'rack' : ring ? 'ring' : 'pair'); b.classList.toggle('gr-on', on); b.setAttribute('aria-checked', String(on)); });
-    $('gr-pair-title').textContent = rack ? 'Rack and Pinion' : ring ? 'Ring and Pinion' : 'Gear Pair';
+    if (planet) ROOT.querySelectorAll('.gr-kind-btn').forEach(function (b) { var on = b.dataset.kind === 'planet'; b.classList.toggle('gr-on', on); b.setAttribute('aria-checked', String(on)); });
+    $('gr-pair-title').textContent = planet ? 'Planetary Set' : rack ? 'Rack and Pinion' : ring ? 'Ring and Pinion' : 'Gear Pair';
     $('gr-pair-sub').textContent = rack ? 'A pinion (Gear A) and a straight rack: turning becomes sliding. Pick the teeth, see it roll, and cut the pinion, the rack or both.'
       : ring ? 'A pinion (Gear A) turning inside a ring with its teeth inside, the same way round. Pick the teeth, see them turn, and cut the pinion, the ring or both.'
       : 'Two spur gears that mesh: pick the teeth, see them turn, and cut one, the other or both.';
-    $('gr-b-mode').disabled = rack || ring;
+    if (planet) $('gr-pair-sub').textContent = 'A sun (Gear A) in the middle, planets (Gear B) round it on a carrier, a ring round them all: a big reduction in a small space. Pick the teeth, see it turn, and cut it all, nested to save stock.';
+    $('gr-b-mode').disabled = rack || ring || planet;
     ROOT.classList.toggle('gr-is-rack', rack);
     ROOT.classList.toggle('gr-is-ring', ring);
     $('gr-job-b').textContent = rack ? 'Rack' : ring ? 'Ring' : 'Gear B';
-    ROOT.querySelector('#gr-job option[value="both"]').textContent = rack ? 'Pinion and Rack' : ring ? 'Pinion and Ring' : 'Both Gears';
-    ROOT.querySelector('#gr-job option[value="A"]').textContent = rack || ring ? 'Pinion (Gear A)' : 'Gear A';
+    ROOT.querySelector('#gr-job option[value="both"]').textContent = planet ? 'Everything, Nested' : rack ? 'Pinion and Rack' : ring ? 'Pinion and Ring' : 'Both Gears';
+    ROOT.querySelector('#gr-job option[value="A"]').textContent = planet ? 'The Sun' : rack || ring ? 'Pinion (Gear A)' : 'Gear A';
+    if (planet) $('gr-job-b').textContent = 'One Planet';
     var by = $('gr-b-mode').value === 'ratio';
     $('gr-teeth-b').hidden = by; $('gr-ratio').hidden = !by;
     var hint = $('gr-ratio-hint');
@@ -2998,7 +3141,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var byRatio = $('gr-design-by').value === 'ratio';
     $('gr-design-ratio').hidden = !byRatio; $('gr-design-od').hidden = byRatio;
     var box = $('gr-solutions');
-    if (isRack() || isRing()) { box.innerHTML = ''; state.autoPick = false; return; }
+    if (isRack() || isRing() || isPlanet()) { box.innerHTML = ''; state.autoPick = false; return; }
     if (standardOn()) { showStandardOptions(s, errs, byRatio); return; }
     var given = byRatio ? 'gr-design-ratio' : 'gr-design-od';
     if (errs['gr-cd'] || errs[given]) { box.innerHTML = ''; state.autoPick = false; return; }
@@ -3065,6 +3208,119 @@ if (typeof module !== 'undefined' && module.exports) {
         '<span class="gr-solution-more">' + turn(zk / o.teeth) + ', &Oslash;' + show(m * (o.teeth + 2)) + u + ' outside' + (o.teeth < undercutBelow ? '; its teeth are undercut (thin at the root)' : '') + '</span></button>';
     }).join('') + '<span class="gr-hint">The one picked becomes Gear B (' + (kept === 'B' ? 'Gear B&rsquo;s settings move to Gear A' : 'Gear A stays') + ') and Cut is set to Gear B only.</span>';
     box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { applyAdd(opts[i], kept); }); });
+  }
+  // ---------- Planetary set ----------
+  // A sun (Gear A, its bore and holes), planets (Gear B's), a ring round
+  // them with the Rim Width; the planets' count on the Teeth card.
+  function ringOf(o) {
+    var pl = o.planetary;
+    return gearInfo(Object.assign({}, o, { gears: { A: o.gears.B, B: { kind: 'ring', teeth: pl.ring, rim: pl.rim } } }), 'B');
+  }
+  function ringBody(o) { return { kind: 'ring', teeth: o.planetary.ring, rim: o.planetary.rim, bore: 0, holes: 0, boreShape: 'round', holeStyle: 'round' }; }
+  // The program's settings for a Cut choice: everything (the sun and
+  // planets nested inside the ring's opening where they fit, the rest beside
+  // it, the ring last), the sun, one planet, the ring, or the carrier plate.
+  function planetOpts(s, job) {
+    if (job === 'carrier') {
+      var oc = opts(s, 'frame'), pc = oc.planetary, a = oc.module * (pc.sun + pc.planet) / 2;
+      oc.planetary = pc;
+      oc.axles = [{ x: 0, y: 0, diameter: s['gr-frame-a'] || GC.frameHole(oc.gears.A) }];
+      for (var k = 0; k < pc.planets; k++) oc.axles.push({ x: a * Math.cos(k * 2 * Math.PI / pc.planets), y: a * Math.sin(k * 2 * Math.PI / pc.planets), diameter: s['gr-frame-b'] || GC.frameHole(oc.gears.B) });
+      return oc;
+    }
+    if (job === 'ring') { var orr = opts(s, 'B'); orr.gears = { A: orr.gears.B, B: ringBody(orr) }; return orr; }
+    if (job !== 'both') return opts(s, job);
+    var o = opts(s, 'all'), pl = o.planetary, S = gearInfo(o, 'A'), P = gearInfo(o, 'B'), R = ringOf(o), gap = s['gr-gap'] > 0 ? s['gr-gap'] : GC.gapMinimum(s['gr-bit']);
+    var pieces = [{ key: 'S', label: 'Sun', body: o.gears.A, ra: S.basics.ra }];
+    for (var j = 0; j < pl.planets; j++) pieces.push({ key: 'P' + (j + 1), label: 'Planet ' + (j + 1), body: o.gears.B, ra: P.basics.ra });
+    var nest = G.nestInRing(pieces, R.basics && R.basics.ri, gap), at = {};
+    nest.inside.forEach(function (q) { at[q.key] = q; });
+    // Those that don't fit inside: packed beside the ring.
+    var outside = pieces.filter(function (q) { return !at[q.key]; }), ringAt = { x: 0, y: 0 };
+    if (outside.length && R.basics) {
+      var packed = GC.packCircles([{ key: 'R', ra: R.basics.rOut }].concat(outside.map(function (q) { return { key: q.key, ra: q.ra }; })), gap, s['gr-bit'],
+        state.travel ? state.travel.x - 2 * s['gr-bit'] : null, state.travel ? state.travel.y - 2 * s['gr-bit'] : null);
+      packed.forEach(function (q) { if (q.key === 'R') ringAt = q; else at[q.key] = q; });
+      nest.inside.forEach(function (q) { at[q.key] = { x: q.x + ringAt.x, y: q.y + ringAt.y }; });
+    }
+    o.many = pieces.map(function (q) { var w = at[q.key] || { x: 0, y: 0 }; return { label: q.label, body: q.body, x: w.x, y: w.y }; })
+      .concat([{ label: 'Ring', body: ringBody(o), x: ringAt.x, y: ringAt.y }]);
+    o.manyTitle = 'a planetary set';
+    o.nested = { inside: nest.inside.length, outside: outside.length };
+    return o;
+  }
+  // Find a Planetary Set: by ratio, the sets that make it at these teeth
+  // (typing picks the first); by teeth, the Teeth card is typed in.
+  var plSolved = { k: null, r: null };
+  function showPlanetOptions(s, errs) {
+    var box = $('gr-pl-solutions'), byRatio = $('gr-pl-by').value === 'ratio';
+    $('gr-pl-ratio-row').hidden = !byRatio;
+    if (!isPlanet()) { box.innerHTML = ''; return; }
+    var u = ' ' + state.unit, m = s.module;
+    if (!byRatio) { box.innerHTML = '<span class="gr-hint">Type the sun&rsquo;s and the planets&rsquo; teeth and how many planets in the Teeth card; the ring has the sun&rsquo;s teeth and two planets&rsquo;. What&rsquo;s wrong with them shows under the picture, with the nearest teeth that work.</span>'; return; }
+    var auto = state.plAutoPick; state.plAutoPick = false;
+    if (!(s['gr-pl-ratio'] > 0) || errs['gr-pl-ratio'] || errs['gr-planets']) { box.innerHTML = '<span class="gr-hint">Type the Ratio: turns of the sun for one of the carrier, with the ring held (more than 2; 4 for 4:1).</span>'; return; }
+    var t = { ratio: s['gr-pl-ratio'], planets: s['gr-planets'], minTeeth: 8, maxTeeth: 72, pressureDeg: Number($('gr-pa').value) }, k = JSON.stringify(t);
+    if (plSolved.k !== k) plSolved = { k: k, r: G.solvePlanetary(t) };
+    var r = plSolved.r;
+    if (r.problem) { box.innerHTML = '<span class="gr-hint">' + esc(r.problem.charAt(0).toUpperCase() + r.problem.slice(1)) + '.</span>'; return; }
+    var same = function (o) { return s['gr-teeth-a'] === o.sun && s['gr-teeth-b'] === o.planet; };
+    if (auto && !r.options.some(same)) { write('gr-teeth-a', r.options[0].sun); write('gr-teeth-b', r.options[0].planet); touch(); return; }
+    box.innerHTML = r.options.map(function (o, i) {
+      return '<button type="button" class="gr-solution' + (same(o) ? ' gr-picked' : '') + '">' +
+        '<span class="gr-solution-kind">' + (i ? 'Bigger sun' : 'Smallest') + '</span>' +
+        '<span><b>Sun ' + o.sun + ', ' + o.planets + ' planets of ' + o.planet + ', ring ' + o.ring + '</b></span>' +
+        '<span class="gr-solution-more">' + parseFloat(o.ratio.toFixed(4)) + ':1' + (o.error === 0 ? ' exactly' : ' (' + parseFloat((o.error * 100).toFixed(2)) + '% off)') + (m > 0 ? ', ring &Oslash;' + show(m * o.ring) + u + ' at the teeth' : '') + '</span></button>';
+    }).join('') + '<span class="gr-hint">Teeth from 8 to 72 (the ring may have more). The one picked fills in the Teeth card; tap another to change it.</span>';
+    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { write('gr-teeth-a', r.options[i].sun); write('gr-teeth-b', r.options[i].planet); touch(); }); });
+  }
+  // The set turning: the ring held, the sun by the slider, the carrier and
+  // planets following (planetPhase).
+  function drawPlanet(o, S, P) {
+    var svg = $('gr-preview'), pl = o.planetary, R = ringOf(o), job = $('gr-job').value;
+    if (S.problem || P.problem || R.problem) {
+      svg.setAttribute('viewBox', '-100 -60 200 120');
+      svg.innerHTML = '<text class="gr-bad-text" x="0" y="0" text-anchor="middle" font-size="6">' + (S.problem ? 'The sun' : P.problem ? 'The planets' : 'The ring') + ' can’t be cut</text>';
+      return;
+    }
+    var b = R.basics, a = o.module * (pl.sun + pl.planet) / 2, pad = Math.max(o.bitDiameter * 2 + 4, 0.06 * b.rOut), w = b.rOut + pad, fs = 2 * w / 45, out = [];
+    svg.setAttribute('viewBox', (-w) + ' ' + (-w) + ' ' + 2 * w + ' ' + 2 * w);
+    var cutting = function (k) { return job === 'both' || job === k; };
+    var holeD = function (q) { var r = q.diameter / 2; return q.shape && q.shape !== 'round' ? ' M' + GC.boreOutline(q).map(function (c) { return (q.dx + c.x).toFixed(3) + ' ' + (-q.dy - c.y).toFixed(3); }).join(' L') + ' Z' : ' M' + (q.dx + r).toFixed(3) + ' ' + (-q.dy).toFixed(3) + ' a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0'; };
+    out.push('<path class="gr-body gr-b' + (cutting('ring') ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(R.draw) + ' ' + d(R.drawOpening) + '"/>');
+    out.push('<g class="gr-carrier"><circle class="gr-pitch" cx="0" cy="0" r="' + a.toFixed(3) + '"/></g>');
+    var sh = GC.gearHoles(o.gears.A, S, o, 'Sun').holes, ph = GC.gearHoles(o.gears.B, P, o, 'Planet').holes;
+    out.push('<g class="gr-gear" data-gear="S"><g class="gr-spin"><path class="gr-body' + (cutting('A') ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(S.draw) + sh.map(holeD).join('') + '"/>' +
+      '<circle class="gr-mark" cx="' + S.basics.rp.toFixed(3) + '" cy="0" r="' + (o.module * 0.35).toFixed(3) + '"/></g></g>');
+    for (var k = 0; k < pl.planets; k++) {
+      out.push('<g class="gr-gear gr-planet" data-planet="' + k + '"><line class="gr-dim gr-arm" x1="0" y1="0" x2="0" y2="0"/><g class="gr-spin"><path class="gr-body' + (cutting('B') && (job !== 'B' || k === 0) ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(P.draw) + ph.map(holeD).join('') + '"/>' +
+        '<circle class="gr-mark" cx="' + P.basics.rp.toFixed(3) + '" cy="0" r="' + (o.module * 0.35).toFixed(3) + '"/></g></g>');
+    }
+    out.push('<text x="0" y="' + (b.rOut + pad * 0.7).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">Sun ' + pl.sun + ' · ' + pl.planets + ' planets of ' + pl.planet + ' · ring ' + pl.ring + '</text>');
+    svg.innerHTML = out.join('');
+    spin();
+  }
+  function spinPlanet(o) {
+    var pl = o.planetary, ph = G.planetPhase(pl.sun, pl.planet, pl.planets, state.turn), a = o.module * (pl.sun + pl.planet) / 2;
+    var gs = ROOT.querySelector('#gr-preview [data-gear="S"] .gr-spin');
+    if (gs) gs.setAttribute('transform', 'rotate(' + (-ph.sun).toFixed(3) + ')');
+    ROOT.querySelectorAll('#gr-preview [data-planet]').forEach(function (g) {
+      var q = ph.planets[+g.dataset.planet]; if (!q) return;
+      var x = a * Math.cos(q.at * Math.PI / 180), y = a * Math.sin(q.at * Math.PI / 180);
+      g.querySelector('.gr-spin').setAttribute('transform', 'translate(' + x.toFixed(3) + ' ' + (-y).toFixed(3) + ') rotate(' + (-q.angle).toFixed(3) + ')');
+      var arm = g.querySelector('.gr-arm'); arm.setAttribute('x2', x.toFixed(3)); arm.setAttribute('y2', (-y).toFixed(3));
+    });
+  }
+  function planetFacts(o, S, P) {
+    var pl = o.planetary, R = ringOf(o), u = ' ' + state.unit, ps = G.planetary(o, pl.sun, pl.planet, pl.planets), q = ps.ratios, f = function (x) { return parseFloat(x.toFixed(3)); };
+    var parts = ['Ring held: <b>' + f(q.ringHeld) + ':1</b> (the sun turns ' + f(q.ringHeld) + ' times for one of the carrier, the same way)',
+      'Carrier held: <b>' + f(q.carrierHeld) + ':1</b> backwards (sun to ring)', 'Sun held: <b>' + f(q.sunHeld) + ':1</b> (ring to carrier)',
+      'Ring <b>' + pl.ring + ' teeth</b>' + (R.basics && R.basics.rOut ? ', Ø<b>' + show(2 * R.basics.rOut) + u + '</b>' : ''),
+      'Planets&rsquo; axles on a circle Ø<b>' + show(2 * ps.carrierRadius) + u + '</b> on the carrier'];
+    var o2 = planetOpts(last.s, 'both');
+    if (o2.nested) parts.push(o2.nested.outside ? o2.nested.inside + ' of the ' + (pl.planets + 1) + ' pieces nest inside the ring to cut; ' + o2.nested.outside + ' beside it' : 'The sun and all the planets nest inside the ring to cut');
+    [['Sun', S], ['Planets', P]].forEach(function (x) { (x[1].notes || []).forEach(function (n) { parts.push(x[0] + ': ' + esc(n)); }); });
+    $('gr-facts').innerHTML = parts.map(function (t) { return '<span>' + t + '</span>'; }).join('');
   }
   // ---------- Shop standard ----------
   // One tooth size and pressure angle the shop keeps, so every gear it cuts
@@ -3183,7 +3439,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // Under the Center Distance: the gears' own, and Fit Tooth Size to mesh
   // at exactly the one typed (or why it can't, with the bit).
   function distanceHint(s, errs, minM) {
-    if (isRack() || isRing()) { $('gr-cd-hint').textContent = ''; return; }
+    if (isRack() || isRing() || isPlanet()) { $('gr-cd-hint').textContent = ''; return; }
     var el = $('gr-cd-hint'), zs = s['gr-teeth-a'] + s['gr-teeth-b'], cd = s['gr-cd'], u = ' ' + state.unit;
     if (!(s.module > 0) || !(zs > 0) || errs['gr-teeth-a'] || errs['gr-teeth-b']) { el.textContent = ''; return; }
     var own = s.module * zs / 2;
@@ -3214,6 +3470,7 @@ if (typeof module !== 'undefined' && module.exports) {
   function facts() {
     if (!last || !last.o) { $('gr-facts').innerHTML = ''; return; }
     var o = last.o, A = gearInfo(o, 'A'), B = gearInfo(o, 'B'), u = ' ' + state.unit;
+    if (o.planetary) { planetFacts(o, A, B); return; }
     if (o.gears.B.kind === 'ring') {
       var gq = G.ringPair(o, o.gears.A.teeth, o.gears.B.teeth), gb = B.basics || {}, gparts = ['Ratio <b>' + parseFloat(gq.ratio.toFixed(3)) + ':1</b> (the pinion turns ' + parseFloat(gq.ratio.toFixed(3)) + ' times a turn of the ring, the same way)',
         'The pinion’s axle <b>' + show(gq.centerDistance) + u + '</b> from the ring’s center',
@@ -3247,6 +3504,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var o = last.o, A = gearInfo(o, 'A'), B = gearInfo(o, 'B');
     if (o.gears.B.kind === 'rack') { drawRack(o, A, B); return; }
     if (o.gears.B.kind === 'ring') { drawRing(o, A, B); return; }
+    if (o.planetary) { drawPlanet(o, A, B); return; }
     var cd = G.pair(o, o.gears.A.teeth, o.gears.B.teeth).centerDistance;
     var raA = A.basics.ra, raB = B.basics.ra, pad = Math.max(o.bitDiameter * 2 + 4, 0.06 * (raA + raB + cd));
     var x0 = -raA - pad, x1 = cd + raB + pad, h = 2 * Math.max(raA, raB) + 2 * pad;
@@ -3433,6 +3691,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var o = last.o, zA = o.gears.A.teeth, zB = o.gears.B.teeth, a = state.turn;
     var gA = ROOT.querySelector('#gr-preview [data-gear="A"] .gr-spin'), gB = ROOT.querySelector('#gr-preview [data-gear="B"] .gr-spin');
     var slide = ROOT.querySelector('#gr-preview [data-gear="B"] .gr-slide');
+    if (o.planetary) { spinPlanet(o); return; }
     if (o.gears.B.kind === 'ring') {
       // Inside a ring both turn the same way, the ring slower by the ratio.
       if (gA) gA.setAttribute('transform', 'rotate(' + (-a).toFixed(3) + ')');
@@ -3466,6 +3725,12 @@ if (typeof module !== 'undefined' && module.exports) {
   function drawFrame() {
     var r = settings(), s = r.s, svg = $('gr-frame-preview');
     showErrors(r.errs, false);
+    if (isPlanet()) {
+      svg.innerHTML = '';
+      $('gr-frame-facts').innerHTML = '<span>Frame Holes is for two gears. For a planetary set, the Gear Pair tab&rsquo;s Cut › <b>The Carrier Plate</b> drills the sun&rsquo;s axle and each planet&rsquo;s, at the exact radius.</span>';
+      scheduleNote();
+      return;
+    }
     if (isRing()) {
       svg.innerHTML = '';
       $('gr-frame-facts').innerHTML = s.module > 0 && s['gr-teeth-a'] > 0 && s['gr-teeth-b'] > 0 ? '<span>Frame Holes is for two gears. The pinion’s axle goes <b>' + show(s.module * (s['gr-teeth-b'] - s['gr-teeth-a']) / 2) + ' ' + state.unit + '</b> from the ring’s center.</span>' : '';
@@ -3876,8 +4141,12 @@ if (typeof module !== 'undefined' && module.exports) {
       : Object.keys(FIELDS).filter(function (id) { return !/frame|^gt-/.test(id) && ($('gr-tabs-on').checked || !/tab/.test(id)); }).concat(['gr-size']);
     var bad = ids.filter(function (id) { return r.errs[id]; });
     if (bad.length) return { bad: bad, errs: r.errs };
-    var o = opts(s, job), res = GC.generate(o);
+    var o = isPlanet() && view !== 'frame' ? planetOpts(s, job) : opts(s, job), res = GC.generate(o);
     if (res.problems.length) res = Object.assign({}, res, { problems: friendlyProblems(res.problems, o) });
+    if (o.planetary && !res.problems.length) {
+      var pp = G.planetary(o, s['gr-teeth-a'], s['gr-teeth-b'], s['gr-planets']).problems;
+      if (pp.length) res = Object.assign({}, res, { problems: pp.map(function (t) { return t.charAt(0).toUpperCase() + t.slice(1); }) });
+    }
     // Bigger than the machine's travel ($130, $131): it can't be cut.
     var e = res.extent, t = state.travel;
     if (!res.problems.length && e && t && (e.x1 - e.x0 > t.x + 1e-6 || e.y1 - e.y0 > t.y + 1e-6)) {
@@ -3988,7 +4257,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var res = p && p.res, s = settings().s;
     if (!res || !res.gcode || !res.extent) { svg.innerHTML = ''; svg.style.display = 'none'; say.textContent = ''; return; }
     svg.style.display = '';
-    var e = res.extent, bit = s['gr-bit'], depth = view === 'train' && $('gt-job').value === 'frame' ? s['gr-frame-depth'] : s['gr-depth'];
+    var e = res.extent, bit = s['gr-bit'], depth = (view === 'train' && $('gt-job').value === 'frame') || (view === 'pair' && $('gr-job').value === 'carrier') ? s['gr-frame-depth'] : s['gr-depth'];
     var w = e.x1 - e.x0, h = e.y1 - e.y0, pad = Math.max(w, h) * 0.08 + bit;
     var X0 = Math.min(e.x0, 0) - pad, X1 = Math.max(e.x1, 0) + pad, Y0 = Math.min(e.y0, 0) - pad, Y1 = Math.max(e.y1, 0) + pad, fs = Math.max(X1 - X0, (Y1 - Y0) * 2.5) / 40;
     svg.setAttribute('viewBox', X0 + ' ' + (-Y1) + ' ' + (X1 - X0) + ' ' + (Y1 - Y0 + fs * 1.5));
@@ -4071,6 +4340,7 @@ if (typeof module !== 'undefined' && module.exports) {
         : job === 'frame' ? 'Gears-TrainFrame_' + chain() + '_' + size
         : 'Gears-Train-S' + (+tj[1] + 1) + '_' + (tj[2] === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears.A.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg')
       : view === 'frame' ? 'Gears-FrameHoles_' + o.gears.A.teeth + '-' + o.gears.B.teeth + '_' + size
+      : o.planetary ? 'Gears-Planetary-' + ({ all: 'Set', A: 'Sun', B: 'Planet', frame: 'Carrier' }[o.job] || (o.gears.B.kind === 'ring' ? 'Ring' : 'Set')) + '_S' + o.planetary.sun + '-P' + o.planetary.planet + 'x' + o.planetary.planets + '-R' + o.planetary.ring + '_' + size + '_' + o.pressureDeg + 'deg'
       : o.gears.B.kind === 'ring' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Ring' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Ring' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
       : o.gears.B.kind === 'rack' ? 'Gears-' + (o.job === 'both' ? 'Pinion' + o.gears.A.teeth + '-Rack' + o.gears.B.teeth : o.job === 'A' ? 'Pinion' + o.gears.A.teeth : 'Rack' + o.gears.B.teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg'
       : 'Gears-' + (o.job === 'both' ? o.gears.A.teeth + '-' + o.gears.B.teeth : o.gears[o.job].teeth) + 'T_' + size + '_' + o.pressureDeg + 'deg';
@@ -4399,7 +4669,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var v = {};
       // A field as written keeps the exact value it was written from.
       Object.keys(FIELDS).forEach(function (id) { var w = state.written[id], x = w && w.text === $(id).value ? w.v : read(id); if (x != null && !isNaN(x)) v[id] = x; });
-      ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode', 'gr-hole-cut'].forEach(function (id) { v[id] = $(id).value; });
+      ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode', 'gr-hole-cut', 'gr-pl-by'].forEach(function (id) { v[id] = $(id).value; });
       ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { v[id] = $(id).checked; });
       v.module = moduleFromSize(); v.nested = true; v.gapSpace = true; v.feedsAuto = state.feedsAuto; v.cutTool = state.cutTool || null; v.view = state.view === 'help' ? 'pair' : state.view;
       v.saveFiles = $('gr-gen-pair').parentNode.querySelector('.gr-save-files').checked;
@@ -4423,7 +4693,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var f = FIELDS[id], x = v && v[id] != null ? v[id] : (state.imperial && imperialDefaults[id] != null ? imperialDefaults[id] : f[4]);
       write(id, x);
     });
-    ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode', 'gr-hole-cut'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
+    ['gr-size-mode', 'gr-pa', 'gr-material', 'gr-flutes', 'gr-job', 'gr-origin', 'gr-direction', 'gr-bore-shape-a', 'gr-bore-shape-b', 'gr-b-mode', 'gr-holes-style-a', 'gr-holes-style-b', 'gr-design-by', 'gr-design-mode', 'gr-hole-cut', 'gr-pl-by'].forEach(function (id) { if (v && v[id] != null) $(id).value = v[id]; });
     $('gt-hole-cut').value = $('gr-hole-cut').value;
     ['gr-mist', 'gr-flood', 'gr-tabs-on', 'gr-show-path'].forEach(function (id) { if (v && v[id] != null) $(id).checked = !!v[id]; });
     $('gt-stages').value = v && v['gt-stages'] != null ? v['gt-stages'] : '0';
@@ -4656,7 +4926,8 @@ if (typeof module !== 'undefined' && module.exports) {
       var cs = getComputedStyle(sel);
       labelMeasure.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
       var w = labelMeasure.measureText(opt.text).width + (parseFloat(cs.letterSpacing) || 0) * opt.text.length;
-      sel.style.width = Math.ceil(w + 16) + 'px';
+      sel.style.width = Math.ceil(w + 20) + 'px';
+      sel.style.maxWidth = '100%';
     });
   }
 
@@ -4684,6 +4955,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ROOT.addEventListener('input', function (e) {
       if (e.target.id === 'gr-turn' || e.target.id === 'gt-turn') { state.turn = +e.target.value; $('gr-turn').value = $('gt-turn').value = state.turn; spin(); return; }
       if (/^gt-(ratio|min|max)$/.test(e.target.id)) state.trainAutoPick = true;
+      if (e.target.id === 'gr-pl-ratio' || e.target.id === 'gr-planets') state.plAutoPick = true;
       // Add a Gear: typing lists the distances; the nearest is picked when the edit is done (change).
       if (/^gr-(cd|design-ratio|design-od)$/.test(e.target.id) && !(e.target.id === 'gr-cd' && $('gr-design-mode').value === 'add')) state.autoPick = true;
       if (/^gr-(rpm|feed|plunge|step|frame-step)$/.test(e.target.id) && e.isTrusted) state.feedsAuto = false;

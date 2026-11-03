@@ -24,8 +24,10 @@ HDPE, acrylic or aluminum.
 
 ## Racks and ring gears too
 
-Pick **Rack and Pinion** at the top of the Gear Pair tab for straight-line motion, or **Ring and Pinion**
-for planetary gears and compact reductions.
+Pick **Rack and Pinion** at the top of the Gear Pair tab for straight-line motion, **Ring and Pinion** for a
+compact reduction, or **Planetary** for a whole planetary set: a sun, planets on a carrier and a ring, found for
+your ratio, turning in the preview, and cut nested (the sun and planets inside the ring's opening) with the
+carrier plate drilled to match.
 
 <p align="center">
   <img src="docs/rack.png" width="380" alt="A pinion on a rack">
@@ -103,6 +105,11 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   pinion's root rounding; it has a **Rim Width** outside its teeth with screw holes (Gear B's Bore and
   Holes fields). It's cut from inside with tabs on its tooth tips, so the middle stays put until you
   cut them, then round its outside.
+- **Planetary sets:** the **Planetary** button makes a sun (Gear A), planets (Gear B, how many on the Teeth
+  card) and a ring (sun + two planets' teeth, with a Rim Width). Find a set by ratio (ring held, sun in, carrier
+  out) or type the teeth; it checks that the planets space evenly and clear each other, and gives all three
+  ratios. Cut everything nested (sun and planets inside the ring's opening where they fit), the sun, a planet,
+  the ring, or the carrier plate with the planets' axle holes at the exact radius.
 - **Ratio:** Gear B's field can take the ratio A:B instead of its teeth (3 for 3:1); Gear B's teeth
   are worked out to the nearest whole tooth and the real ratio shown.
 - **Center Distance:** blank is the gears' own. Type the distance the axles must be and either

@@ -198,3 +198,50 @@ test('at a shop standard: whole teeth nearest the distance, spread when it can, 
   assert.ok(G.solveStandard({ ...base, centerDistance: 20, ratio: 2 }).problem);
   assert.ok(G.solveStandard({ ...base, module: 1, centerDistance: 50, ratio: 2 }).tooSmall, 'a 1 mm module is too fine for a 1/8" bit');
 });
+
+test('a planetary set: the ring has the sun and two planets, the checks, the ratios, a solver', () => {
+  const ps = G.planetary({ module: 2, pressureDeg: 20 }, 12, 12, 3);
+  assert.deepStrictEqual([ps.ring, ps.carrierRadius, ps.problems.length], [36, 24, 0]);
+  assert.equal(ps.ratios.ringHeld, 4); assert.equal(ps.ratios.carrierHeld, 3); assert.ok(Math.abs(ps.ratios.sunHeld - 4 / 3) < 1e-12);
+  assert.match(G.planetary({ module: 2, pressureDeg: 20 }, 12, 13, 3).problems[0], /divide by 3/);
+  assert.match(G.planetary({ module: 2, pressureDeg: 20 }, 12, 30, 4).problems.join(), /touch each other/);
+  for (const [R, n] of [[4, 3], [5, 3], [3.5, 4], [7, 3]]) {
+    const o = G.solvePlanetary({ ratio: R, planets: n, minTeeth: 8, maxTeeth: 72, pressureDeg: 20 }).options[0];
+    assert.equal(o.error, 0);
+    assert.equal(o.ring, o.sun + 2 * o.planet);
+    assert.equal((o.sun + o.ring) % n, 0);
+    assert.equal(G.planetary({ module: 1, pressureDeg: 20 }, o.sun, o.planet, n).problems.length, 0);
+  }
+  assert.match(G.solvePlanetary({ ratio: 2, planets: 3 }).problem, /more than 2/);
+});
+
+test('a planetary set nested: the sun and planets cut inside the ring’s opening first, the gap from it, safe', () => {
+  const m = 3.5, zs = 15, zp = 15, base0 = { module: m, pressureDeg: 20, backlash: 0.3, bitRadius: 1.5875 };
+  const ring = G.makeRing({ ...base0, teeth: zs + 2 * zp, rim: 12 }), sun = G.gear({ ...base0, teeth: zs }), pl = G.gear({ ...base0, teeth: zp });
+  assert.equal(ring.problem, null);
+  const gap = GC.gapMinimum(3.175), items = [{ key: 'S', ra: sun.basics.ra }].concat([1, 2, 3].map((k) => ({ key: 'P' + k, ra: pl.basics.ra })));
+  const nest = G.nestInRing(items, ring.basics.ri, gap);
+  // Four equal gears need a circle 2.41 times their size: three fit this ring's opening, one goes outside.
+  assert.deepStrictEqual([nest.inside.length, nest.outside.length], [3, 1]);
+  for (const q of nest.inside) {
+    const ra = items.find((i) => i.key === q.key).ra;
+    assert.ok(Math.hypot(q.x, q.y) + ra + gap <= ring.basics.ri + 1e-6, q.key + ' clear of the ring’s tips');
+    for (const q2 of nest.inside) if (q2 !== q) assert.ok(Math.hypot(q.x - q2.x, q.y - q2.y) >= ra + items.find((i) => i.key === q2.key).ra + gap - 1e-6);
+  }
+  const body = (z, extra) => ({ teeth: z, bore: 8, holes: 0, ...extra });
+  const many = nest.inside.map((q) => ({ label: q.key === 'S' ? 'Sun' : 'Planet', body: body(zs), x: q.x, y: q.y }))
+    .concat([{ label: 'Ring', body: { teeth: zs + 2 * zp, kind: 'ring', rim: 12, holes: 0 }, x: 0, y: 0 }]);
+  const o = { job: 'all', module: m, pressureDeg: 20, backlash: 0.3, bitDiameter: 3.175, feedRate: 1000, plungeFeedRate: 300, spindleRpm: 18000, depth: 6, depthOfCut: 3,
+    tabs: { count: 3, width: 4, height: 1.5 }, gears: { A: body(zs), B: body(zp) }, origin: 'center', many, manyTitle: 'a planetary set' };
+  const r = GC.generate(o);
+  assert.deepStrictEqual(r.problems, []);
+  assert.match(r.gcode, /\(Gears: a planetary set, 4 gears/);
+  const order = r.gcode.split('\n').filter((l) => /teeth:/.test(l)).map((l) => l.replace(/^\((\w+).*/, '$1'));
+  assert.equal(order[order.length - 1], 'Ring', 'the parts inside first, the ring last');
+  // The stock is the ring's: nothing outside it.
+  assert.ok(Math.abs((r.extent.x1 - r.extent.x0) - 2 * (ring.basics.rOut + 3.175)) < 0.1);
+  const zs2 = r.gcode.split('\n').map((l) => /Z(-?[\d.]+)/.exec(l)).filter(Boolean).map((q) => +q[1]);
+  assert.ok(Math.min(...zs2) >= -6 - 1e-6);
+  // A piece too big for the opening is left outside.
+  assert.deepStrictEqual(G.nestInRing([{ key: 'X', ra: ring.basics.ri }], ring.basics.ri, gap).outside, ['X']);
+});

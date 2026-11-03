@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Planetary sets:** a **Planetary** button on the Gear Pair tab: a sun, planets on a carrier and a ring. Find a
+  set by ratio or type the teeth; the planets are checked for even spacing and clearance, with the nearest teeth
+  that work; the preview turns it all; the facts give the ring-held, carrier-held and sun-held ratios. Cut
+  everything nested (the sun and planets inside the ring's opening where they fit, the ring last), one part, or
+  the carrier plate. Help: "Planetary sets, plainly".
 - **Two Gears | Rack and Pinion | Ring and Pinion** buttons at the top of the Gear Pair tab, whose title follows them;
   the rack and ring were hidden in Gear B's label menu.
 - **Shop standard:** keep one tooth size and pressure angle for everything, so every gear you cut meshes with every

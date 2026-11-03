@@ -208,3 +208,25 @@ test('solvePairs: says what is missing, or that nothing fits', () => {
   assert.match(G.solvePairs({ centerDistance: 50, bitRadius: 1 }).problem, /ratio/);
   assert.match(G.solvePairs({ centerDistance: 12, ratio: 4, bitRadius: 3.175, backlash: 0.3 }).problem, /none fits/);
 });
+
+test('a planetary set turns in mesh: no planet overlaps the sun or the ring\u2019s teeth, the carrier at sun / (sun + ring)', () => {
+  for (const [zs, zp, n] of [[12, 12, 3], [15, 15, 3], [16, 12, 4], [12, 18, 3]]) {
+    const p = { module: 4, pressureDeg: 20, backlash: 0.3, bitRadius: 1.5875 }, zr = zs + 2 * zp, a = p.module * (zs + zp) / 2;
+    const S = G.gear({ ...p, teeth: zs }), P = G.gear({ ...p, teeth: zp }), R = G.makeRing({ ...p, teeth: zr, rim: 10 });
+    assert.equal(R.problem, null, String(R.problem));
+    const os = G.simplifyClosed(S.outline, 0.001), op = G.simplifyClosed(P.outline, 0.001), opening = G.simplifyClosed(R.opening, 0.001);
+    for (const sunDeg of [0, 7, 19, 33, 61]) {
+      const ph = G.planetPhase(zs, zp, n, sunDeg), rad = Math.PI / 180;
+      assert.ok(Math.abs(ph.carrier - (sunDeg * zs - 180 * (zp + 1)) / (zr + zs)) < 1e-9);
+      const sun = turn(os, sunDeg * rad);
+      ph.planets.forEach((q, k) => {
+        const cx = a * Math.cos(q.at * rad), cy = a * Math.sin(q.at * rad);
+        const pts = turn(op, q.angle * rad).map((v) => ({ x: v.x + cx, y: v.y + cy }));
+        const inSun = pts.filter((v) => Math.hypot(v.x, v.y) < S.basics.ra && inside(v, sun)).length;
+        const outOfRing = pts.filter((v) => Math.hypot(v.x, v.y) > R.basics.ri - 0.01 && !inside(v, opening)).length;
+        assert.equal(inSun, 0, `${zs}/${zp}/${n} at ${sunDeg}°: planet ${k} into the sun`);
+        assert.equal(outOfRing, 0, `${zs}/${zp}/${n} at ${sunDeg}°: planet ${k} into the ring`);
+      });
+    }
+  }
+});
