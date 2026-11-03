@@ -288,3 +288,21 @@ test('round-size pairs: at a distance without a standard, for a ratio alone, and
   assert.equal(G.measureGear(30, 3.2 * 25.4).nearDP.dp, 10);
   assert.ok(G.measureGear(3, 20).problem);
 });
+
+test('a ratio alone: the shop standard kept, small pairs (not 144:89), smaller pinions when asked, the bit the message gives fits', () => {
+  const b = { bitRadius: 3.175 / 2, backlash: 0.35, pressureDeg: 20, imperial: true };
+  const st = G.solveRatioPairs({ ...b, ratio: 2, sizes: [{ name: 'your standard', module: 25.4 / 5 }] });
+  assert.deepStrictEqual(st.options.map((o) => o.module), [25.4 / 5]);
+  for (const [R, most] of [[1.618, 40], [3.14, 60], [1.33, 30], [2, 30]]) for (const o of G.solveRatioPairs({ ...b, ratio: R }).options) {
+    assert.ok(o.teethA + o.teethB <= most, `${R}: ${o.teethA}/${o.teethB}`);
+    assert.ok(o.ratioError <= 0.005 + 1e-12);
+  }
+  assert.ok(G.solveRatioPairs({ ...b, ratio: 2, minTeeth: 6 }).options.every((o) => o.teethB === 6 && o.teethA === 12));
+  // Tip Clearance counts: a bigger one takes room the bit needed.
+  const dp8 = (cl) => G.suggestStandards({ bit: 3.175, imperial: true, backlash: 0.3, clearance: cl }).find((q) => q.name === 'DP 8');
+  assert.ok(dp8(undefined).ok); assert.ok(!dp8(1).ok || G.maxBitDiameter({ module: 25.4 / 8, pressureDeg: 20, backlash: dp8(1).backlash, clearance: 1 }) >= 3.175 - 1e-9);
+  // Too fine: the bit it says fits does.
+  const g = G.gear({ module: 25.4 / 20, teeth: 20, pressureDeg: 20, backlash: 0.35, bitRadius: 3.175 / 2 });
+  assert.ok(g.problem);
+  assert.ok(!G.gear({ module: 25.4 / 20, teeth: 20, pressureDeg: 20, backlash: 0.35, bitRadius: g.need.bit / 2 - 1e-6 }).problem);
+});
