@@ -871,6 +871,8 @@ var MM_PER_INCH = 25.4;
 // when it can't be read. QuickCut's parser (parseUnitQuantity), plus
 // simple math from Spoilboard Toolbox (parseUnitMath) when it isn't a single value.
 function parseUnitValue(text, isImperial, kind) {
+  // A decimal comma (1,5mm, ,25in) reads as a point
+  text = String(text == null ? '' : text).replace(/,/g, '.');
   var one = parseUnitQuantity(text, isImperial, kind);
   return one !== null ? one : parseUnitMath(text, isImperial, kind);
 }
@@ -3656,7 +3658,13 @@ if (typeof module !== 'undefined' && module.exports) {
       (noneFits ? '<span class="gr-warn">None fits that space with this bit (the bit sets the smallest teeth): a bigger space, a ratio nearer 1:1, or a smaller bit.</span> ' : '') +
       (s['gr-fit-w'] > 0 || s['gr-fit-h'] > 0 ? 'Must Fit is the board both gears are cut from, side by side. ' : '') +
       'All at round tooth sizes' + (standardOn() ? ' (your standard)' : ' this bit cuts') + ', so later gears can match. The one picked fills in the Teeth card below; tap another to change it.</span>';
-    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { state.designKind = r.options[i].kind; applySolution(r.options[i], byRatioMode ? null : C); }); });
+    // A list drawn for a distance since retyped (it waits while you type): the tap picks that kind at the new distance.
+    var drawnAt = $('gr-cd').value;
+    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () {
+      state.designKind = r.options[i].kind;
+      if (!byRatioMode && $('gr-cd').value !== drawnAt) { state.autoPick = true; touch(); flushTouch(); return; }
+      applySolution(r.options[i], byRatioMode ? null : C);
+    }); });
   }
   // Match a Gear I Have: its tooth size from its teeth and the diameter
   // across its tips, the nearest round module and DP to pick from (both, as
@@ -4001,7 +4009,11 @@ if (typeof module !== 'undefined' && module.exports) {
         '<span class="gr-solution-more">' + turn(o.ratio) + (byRatio && ratio && o.ratioError < 1e-9 ? ' exactly' : '') + ', &Oslash;' + show(o.outsideA) + ' and &Oslash;' + show(o.outsideB) + u +
         (o.undercut ? '; the smaller one&rsquo;s teeth are undercut (thin at the root)' : '') + '</span></button>';
     }).join('') + '<span class="gr-hint">The one picked fills in the Teeth card below; tap another to change it.</span>';
-    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () { applyStandard(r.options[i], C); }); });
+    var drawnAt = $('gr-cd').value;
+    box.querySelectorAll('.gr-solution').forEach(function (b, i) { b.addEventListener('click', function () {
+      if ($('gr-cd').value !== drawnAt) { state.autoPick = true; touch(); flushTouch(); return; }
+      applyStandard(r.options[i], C);
+    }); });
   }
   function applyStandard(o, cd) {
     if ($('gr-b-mode').value === 'ratio') { $('gr-b-mode').value = 'teeth'; fitLabelSelects(); }
@@ -5302,6 +5314,8 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   // ---------- Generate ----------
   async function generate(view) {
+    // A pick still waiting (a ratio typed a moment ago, a distance just left) is made first, so its pair is cut.
+    flushTouch();
     var had = bitToolNumber(), t0 = state.cutTool;
     await refreshTools();
     if (had && !bitToolNumber()) {
@@ -5957,10 +5971,18 @@ if (typeof module !== 'undefined' && module.exports) {
     if (view === 'help') { renderHelpFigs(); helpAnimate(true); } else helpAnimate(false);
   }
   var touchTimer = null;
+  // What a pending touch() would do, now: before Generate, or a tap on a list drawn for what the fields were.
+  function flushTouch() {
+    state.typing = false;
+    for (var n = 0; n < 3 && touchTimer; n++) {
+      clearTimeout(touchTimer); touchTimer = null;
+      if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair();
+    }
+  }
   function touch() {
     clearTimeout(touchTimer);
     // While typing, after a pause (or on leaving the field): redrawing between keys made typing lag on the Pi.
-    touchTimer = setTimeout(function () { if (state.dragging) { touch(); return; } if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, state.typing ? 700 : 120);
+    touchTimer = setTimeout(function () { touchTimer = null; if (state.dragging) { touch(); return; } if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, state.typing ? 700 : 120);
   }
   // Up / Down arrows step a number field, as in QuickCut (and Chrome
   // DevTools): plain 1, Shift 10, Alt (Option) 0.1, Ctrl (Command) 0.001,
