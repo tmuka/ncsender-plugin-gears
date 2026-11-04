@@ -3320,10 +3320,15 @@ if (typeof module !== 'undefined' && module.exports) {
       if (!el) return;
       // Ratio's errors are Gear B Teeth's, the field it stands in for.
       var msg = errs[el.id] || (el.id === 'gr-ratio' ? errs['gr-teeth-b'] : null), old = f.querySelector('.gr-error');
+      // While a field is being typed in, no new error shows anywhere and one showing keeps its words (it clears
+      // when fixed): half-typed values (1, 10, 100 on the way to 100mm) would flash errors and shift the page.
+      // Leaving the field, or Enter, shows them as they are.
+      if (state.typing && !all) msg = msg && el.dataset.err ? el.dataset.err : null;
       if (old) old.remove();
       if (el.id === 'gr-ratio' && $('gr-teeth-b').dataset.touched) el.dataset.touched = '1';
       var show = msg && (all || el.dataset.touched);
       el.classList.toggle('gr-bad', !!show);
+      if (show) el.dataset.err = msg; else delete el.dataset.err;
       var card = f.closest('.gr-card');
       if (!card) return;
       if (!byCard.has(card)) byCard.set(card, []);
@@ -3610,9 +3615,11 @@ if (typeof module !== 'undefined' && module.exports) {
     var box = $('gr-solutions');
     if (isRack() || isRing() || isPlanet()) { box.innerHTML = ''; state.autoPick = false; return; }
     if (matching) { showMatch(s, errs); return; }
+    // The distance is picked when its edit is done, so the list waits too: a half-typed one (1, 10, 100 on the way to 100mm) would reflow it each key.
+    if (state.typing && document.activeElement === $('gr-cd') && box.childElementCount) return;
     if (standardOn() && !byRatioMode) { showStandardOptions(s, errs, byRatio); return; }
     var given = byRatio ? 'gr-design-ratio' : 'gr-design-od';
-    if ((!byRatioMode && errs['gr-cd']) || errs[given]) { box.innerHTML = ''; state.autoPick = false; return; }
+    if ((!byRatioMode && errs['gr-cd']) || errs[given]) { if (!state.typing) box.innerHTML = ''; state.autoPick = false; return; }
     var nowRatio = s['gr-teeth-a'] > 0 && s['gr-teeth-b'] > 0 && !errs['gr-teeth-a'] && !errs['gr-teeth-b'] ? s['gr-teeth-a'] / s['gr-teeth-b'] : null;
     $('gr-design-ratio').placeholder = nowRatio ? parseFloat(nowRatio.toFixed(3)) + ' (the teeth now)' : '';
     var ratio = byRatio ? (s['gr-design-ratio'] > 0 ? s['gr-design-ratio'] : nowRatio) : null;
@@ -3964,7 +3971,7 @@ if (typeof module !== 'undefined' && module.exports) {
   function showStandardOptions(s, errs, byRatio) {
     state.designErr = null;
     var box = $('gr-solutions'), st = state.standard, u = ' ' + state.unit, given = byRatio ? 'gr-design-ratio' : 'gr-design-od';
-    if (errs['gr-cd'] || errs[given]) { box.innerHTML = ''; state.autoPick = false; return; }
+    if (errs['gr-cd'] || errs[given]) { if (!state.typing) box.innerHTML = ''; state.autoPick = false; return; }
     var nowRatio = s['gr-teeth-a'] > 0 && s['gr-teeth-b'] > 0 && !errs['gr-teeth-a'] && !errs['gr-teeth-b'] ? s['gr-teeth-a'] / s['gr-teeth-b'] : null;
     $('gr-design-ratio').placeholder = nowRatio ? parseFloat(nowRatio.toFixed(3)) + ' (as now)' : '';
     var ratio = byRatio ? (s['gr-design-ratio'] > 0 ? s['gr-design-ratio'] : nowRatio) : null;
@@ -5993,7 +6000,12 @@ if (typeof module !== 'undefined' && module.exports) {
     ROOT.querySelectorAll('.gr-nav-btn').forEach(function (b) { b.addEventListener('click', function () { showView(b.dataset.view); }); });
     $('gr-help-back').addEventListener('click', function () { showView(lastView); });
     $('gr-close').addEventListener('click', function () { save(true); window.postMessage({ type: 'close-plugin-dialog' }, '*'); });
+    // Typing (see showErrors): from a keystroke in a text field until it's left or Enter commits it.
+    var typed = function () { if (state.typing) { state.typing = false; touch(); } };
+    ROOT.addEventListener('focusout', typed);
+    ROOT.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('gr-input')) typed(); });
     ROOT.addEventListener('input', function (e) {
+      if (e.isTrusted && e.target.classList && e.target.classList.contains('gr-input') && e.target.type !== 'range') state.typing = true;
       if (e.target.id === 'gr-turn' || e.target.id === 'gt-turn') { state.turn = +e.target.value; $('gr-turn').value = $('gt-turn').value = state.turn; spin(); return; }
       if (/^gt-(ratio|min|max)$/.test(e.target.id)) state.trainAutoPick = true;
       if (e.target.id === 'gr-pl-ratio' || e.target.id === 'gr-planets') state.plAutoPick = true;
@@ -6007,6 +6019,7 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     ROOT.addEventListener('change', function (e) {
       var id = e.target.id;
+      state.typing = false;
       if (FIELDS[id]) {
         e.target.dataset.touched = '1';
         var f = FIELDS[id];
