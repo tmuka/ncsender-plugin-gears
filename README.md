@@ -207,7 +207,9 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   the machine's max feed and spindle range.
 - **Ø means diameter** (Axle Ø, Outside Ø across the tooth tips); a zero with a slash or dot in the number boxes
   is just 0.
-- **Units:** follows ncSender's (mm or inches); module is in mm either way. Programs are written in mm,
+- **Units:** follows ncSender's (mm or inches); module is in mm either way. Any length or feed field takes
+  either unit and simple math: `1/4"`, `6.35mm`, `1-1/2 in`, `1in+4mm`, `(1/4"+2mm)/2`, `100ipm`
+  ([ncsender-unit-input](https://github.com/tmuka/ncsender-unit-input)). Programs are written in mm,
   and an inch machine gets G20 back at the end.
 
 ## The fine print
@@ -230,13 +232,15 @@ From ncSender's Plugin Manager, or download the zip from
 ## Development
 
 ```
+npm install     # the unit-input library (a dev dependency)
 npm test        # the inline copies are current, then node --test tests/*.cjs
-npm run inline  # copy lib/*.cjs into config.html after changing them
+npm run inline  # copy lib/*.cjs and the library into config.html after changing them
 npm run build   # dist/com.tmuka.gears_v<version>.zip from the last commit
 ```
 
 `config.html` is the dialog; ncSender runs it inline, so `lib/*.cjs` are copied into it between
-markers by `.scripts/inline.cjs`. See CLAUDE.md for how it's built and tested.
+markers by `.scripts/inline.cjs`, as is [ncsender-unit-input](https://github.com/tmuka/ncsender-unit-input)'s
+browser build. See CLAUDE.md for how it's built and tested.
 
 ## License
 

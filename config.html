@@ -801,7 +801,7 @@
           <li><b>The diagrams</b> follow what you type. Under the Teeth card, where the teeth meet, close up: a tooth of Gear B in a space of Gear A, their pitch circles touching at the pitch point, the line of action at the pressure angle, the backlash beside the tooth, the tip clearance under it, and the bit in A&rsquo;s root. Under the Depth card, the cut from the side: Z0, the floor of each pass, a tab left standing, Total Depth into the wasteboard. Under the Cut card, the stock from above as the program will cut it, read back from the program itself: each cut through the stock the bit&rsquo;s width, the holding tabs as orange dots, X0 Y0 in red, and the stock&rsquo;s size.</li>
           <li><b>Both Gears</b> puts Gear B beside Gear A, turned so its teeth face Gear A&rsquo;s spaces, <b>Gap Between</b> apart where they come closest, which saves stock. Blank, the gap is the least the bit allows: its diameter and a tenth, so the bit never cuts into the other gear. Make it more for room for a screw or clamp between the gears, or a sturdier strip for their tabs (with them that close, the tabs on the facing sides hold to very little). A rack sits the same gap from Gear A; with Ring and Pinion, the Cut menu&rsquo;s <b>Pinion and Ring</b> cuts the pinion inside the ring&rsquo;s opening, on the same center (the middle is waste otherwise), then the ring; beside it only when the pinion and the Gap Between don&rsquo;t fit inside the opening. The <b>Frame Holes</b> tab drills the axles exactly the center distance apart; left blank, a hole is the gear's bore, or for a hex bore the hex's corners, so the shaft turns in it.</li>
           <li><b>&Oslash;</b> means <b>diameter</b> (the drafting symbol, not a zero): Axle &Oslash; and Tube &Oslash; are the shaft&rsquo;s and the tube&rsquo;s, a gear&rsquo;s &ldquo;Outside &Oslash;&rdquo; is across its tooth tips, Screw Hole &Oslash; the holes&rsquo;. The number boxes draw a zero with a slash or dot through it, so it can&rsquo;t be taken for the letter O: that&rsquo;s just 0.</li>
-          <li><b>Up and Down arrows</b> step a number field, as in QuickCut: 1 a press, <b>Shift</b> 10, <b>Alt</b> (Option) 0.1, <b>Ctrl</b> (Command) 0.001, in the field&rsquo;s units (a typed 1/4&quot; is read first). Teeth and counts step in whole numbers, and a field never steps below its least (it stops at it, or short of it when the least isn&rsquo;t a whole number).</li>
+          <li><b>Up and Down arrows</b> step a number field, as in QuickCut: 1 a press, <b>Shift</b> 10, <b>Alt</b> (Option) 0.1, <b>Ctrl</b> (Command) 0.001, in the field&rsquo;s units (a typed 1/4&quot; is read first). Length and feed fields take either unit and simple math: <b>1/4&quot;</b>, <b>6.35mm</b>, <b>1-1/2 in</b>, <b>1in+4mm</b>, <b>(1/4&quot;+2mm)/2</b>, <b>100ipm</b>. Teeth and counts step in whole numbers, and a field never steps below its least (it stops at it, or short of it when the least isn&rsquo;t a whole number).</li>
           <li>Programs are in mm; on an inch machine the program ends with G20 to put it back in inches.</li>
         </ul></div>
         <div class="gr-card"><h3>Planetary sets, plainly</h3><div class="gr-help-figs"><figure><svg class="gr-preview gr-help-fig" data-fig="planet" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The ring held still"></svg><figcaption>The ring held still: the sun (green, middle) turns the planets, which roll round inside the ring and carry the carrier (the arms) round, slower than the sun by 1 + ring &divide; sun.</figcaption></figure></div><ul>
@@ -842,25 +842,124 @@
   </div>
 </div>
 
-<script>/* BEGIN lib/unit-input.cjs */
-// Copied from QuickCut (GPL-3.0, siganberg/ncsender-plugin-quickcut) lib/unit-input.cjs; keep in step with it.
+<script>/* BEGIN ncsender-unit-input */
+// Generated from src/unit-input.js by build.mjs: edit that, then npm run build.
+var NcUnitInput = (function () {
 /**
- * QuickCut unit-aware field parsing.
+ * Unit-aware number fields for ncSender plugins (from QuickCut).
  *
- * MUST STAY IN SYNC WITH the inline parseUnitValue inside config.html
- * (same reason as lib/quickcut-gcode.cjs: the dialog can't load
- * external JS, so this is the Node-loadable twin used by tests).
- *
- * Turns what an operator types into a length or feed field into a plain
- * number in the active units (inches when isImperial, else mm):
- *   6.35        → 6.35 (no unit: already in active units, untouched)
+ * Plugins keep lengths in mm and show them in the machine's units (inches
+ * when ncSender's unitsPreference is 'imperial'). An operator can type a
+ * value in either unit and it is converted:
+ *   6.35        -> 6.35 (no unit: already in the machine's units)
+ *   math too: 8mm*2  4+6  1in+4mm  (1/4"+2mm)/2
  *   .25in  .25"  1/4"  1-1/2"  1 1/2 in  6.35mm  0.635cm
  *   feeds also: 100ipm  100 in/min  2540 mm/min  1500mm/m
- *               42.333mm/s  1.667ips  (per second → per minute)
- * Converted values are rounded like roundDisplay (4 dp inch, 3 dp mm).
- * Returns null when the text can't be read as a value.
+ *               42.333mm/s  1.667ips  (per second -> per minute)
+ *
+ * Written as plain ES5 functions so the same text can be pasted into a
+ * plugin's config.html (dist/unit-input.global.js), required from Node
+ * (dist/unit-input.cjs) or imported and bundled (this file).
  */
+
+var MM_PER_INCH = 25.4;
+
+// What's typed into a length or feed field, in mm or inches whatever the
+// machine uses, as a number in the machine's units (inches when imperial,
+// else mm): 6.35, 1/4", 1-1/2 in, 6.35mm, 0.635cm; feeds also 100ipm,
+// 2540 mm/min, 1.667ips. No unit means the machine's units already. null
+// when it can't be read. QuickCut's parser (parseUnitQuantity), plus
+// simple math from Spoilboard Toolbox (parseUnitMath) when it isn't a single value.
 function parseUnitValue(text, isImperial, kind) {
+  var one = parseUnitQuantity(text, isImperial, kind);
+  return one !== null ? one : parseUnitMath(text, isImperial, kind);
+}
+// mm per unit (per minute for feeds) of the units a field takes.
+function unitMmPer(kind) {
+  var MM_PER = { mm: 1, cm: 10, 'in': 25.4, inch: 25.4, inches: 25.4, '"': 25.4 };
+  if (kind === 'feed') {
+    // Per minute (what G94 feeds use); "/m" is read as per minute.
+    MM_PER['mm/min'] = 1;
+    MM_PER['mm/m'] = 1;
+    MM_PER['in/min'] = 25.4;
+    MM_PER['in/m'] = 25.4;
+    MM_PER['inch/min'] = 25.4;
+    MM_PER.ipm = 25.4;
+    // Per second, scaled to per minute.
+    MM_PER['mm/s'] = 60;
+    MM_PER['mm/sec'] = 60;
+    MM_PER['in/s'] = 25.4 * 60;
+    MM_PER['in/sec'] = 25.4 * 60;
+    MM_PER.ips = 25.4 * 60;
+  }
+  return MM_PER;
+}
+// Simple math in a field, as CAD tools allow: + - * / and brackets, each
+// number with or without a unit: 8mm*2, 4+6, 1in+4mm, (1/4"+2mm)/2. A
+// number without a unit is in the machine's units when added or
+// subtracted, else a plain factor. null when it can't be read, or for a
+// length times a length or anything divided by a length or by 0.
+function parseUnitMath(text, isImperial, kind) {
+  var s = String(text == null ? '' : text).trim().toLowerCase().replace(/[”″]/g, '"').replace(/''/g, '"');
+  var per = unitMmPer(kind), k = isImperial ? 25.4 : 1, i = 0;
+  var ws = function() { while (s[i] === ' ') i++; };
+  // A number, a fraction (1/4) and a unit: { v: mm, or the bare number;
+  // d: 1 for a length (or feed), 0 for a plain number }.
+  var quantity = function() {
+    var m = /^(?:(\d+)\/(\d+)(?![\d.])|(\d+(?:\.\d*)?|\.\d+))\s*([a-z"]+(?:\/[a-z]+)?)?/.exec(s.slice(i));
+    if (!m || +m[2] === 0) return null;
+    i += m[0].length;
+    var v = m[1] != null ? m[1] / m[2] : parseFloat(m[3]);
+    if (!m[4]) return { v: v, d: 0 };
+    return Object.prototype.hasOwnProperty.call(per, m[4]) ? { v: v * per[m[4]], d: 1 } : null;
+  };
+  var expr;
+  var factor = function(signed) {
+    ws();
+    if (!signed && (s[i] === '-' || s[i] === '+')) {
+      var neg = s[i++] === '-', f = factor(true);
+      return f && { v: neg ? -f.v : f.v, d: f.d };
+    }
+    if (s[i] !== '(') return quantity();
+    i++;
+    var e = expr();
+    ws();
+    if (!e || s[i] !== ')') return null;
+    i++;
+    return e;
+  };
+  var term = function() {
+    var a = factor();
+    for (;;) {
+      ws();
+      var op = s[i];
+      if (op !== '*' && op !== '/') return a;
+      i++;
+      var b = factor();
+      if (!a || !b) return null;
+      if (op === '*') { if (a.d + b.d > 1) return null; a = { v: a.v * b.v, d: a.d + b.d }; }
+      else { if (b.d || b.v === 0) return null; a = { v: a.v / b.v, d: a.d }; }
+    }
+  };
+  expr = function() {
+    var a = term();
+    for (;;) {
+      ws();
+      var op = s[i];
+      if (op !== '+' && op !== '-') return a;
+      i++;
+      var b = term();
+      if (!a || !b) return null;
+      if (a.d !== b.d) { if (a.d) b = { v: b.v * k, d: 1 }; else a = { v: a.v * k, d: 1 }; }
+      a = { v: op === '+' ? a.v + b.v : a.v - b.v, d: a.d };
+    }
+  };
+  var r = expr();
+  ws();
+  if (!r || i < s.length || !isFinite(r.v)) return null;
+  return parseFloat((r.d ? r.v / k : r.v).toFixed(isImperial ? 4 : 3));
+}
+function parseUnitQuantity(text, isImperial, kind) {
   var t = String(text == null ? '' : text).trim().toLowerCase()
     .replace(/[”″]/g, '"').replace(/''/g, '"');
   var m = t.match(/^([+-])?\s*(\d+(?:\.\d*)?|\.\d+)(?:(?:\s+|-)(\d+)\/(\d+)|\/(\d+))?\s*([a-z"/]*)$/);
@@ -880,22 +979,7 @@ function parseUnitValue(text, isImperial, kind) {
   }
   if (m[1] === '-') value = -value;
 
-  var MM_PER = { mm: 1, cm: 10, 'in': 25.4, inch: 25.4, inches: 25.4, '"': 25.4 };
-  if (kind === 'feed') {
-    // Per minute (what G94 feeds use); "/m" is read as per minute.
-    MM_PER['mm/min'] = 1;
-    MM_PER['mm/m'] = 1;
-    MM_PER['in/min'] = 25.4;
-    MM_PER['in/m'] = 25.4;
-    MM_PER['inch/min'] = 25.4;
-    MM_PER.ipm = 25.4;
-    // Per second, scaled to per minute.
-    MM_PER['mm/s'] = 60;
-    MM_PER['mm/sec'] = 60;
-    MM_PER['in/s'] = 25.4 * 60;
-    MM_PER['in/sec'] = 25.4 * 60;
-    MM_PER.ips = 25.4 * 60;
-  }
+  var MM_PER = unitMmPer(kind);
   var unit = m[6];
   if (!unit) return value;
   if (!Object.prototype.hasOwnProperty.call(MM_PER, unit)) return null;
@@ -904,10 +988,125 @@ function parseUnitValue(text, isImperial, kind) {
   return parseFloat(out.toFixed(isImperial ? 4 : 3));
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { parseUnitValue: parseUnitValue };
+/** Rounds for showing: 4 decimals in inches (sub-thou), 3 in mm. */
+function roundDisplay(v, isImperial) {
+  return parseFloat(v.toFixed(isImperial ? 4 : 3));
 }
-/* END lib/unit-input.cjs */</script>
+
+/** mm to the active units (not rounded). */
+function mmToDisplay(mm, isImperial) {
+  return isImperial ? mm / MM_PER_INCH : mm;
+}
+
+/**
+ * The active units back to mm. In inches it gives the shortest mm number
+ * that shows as the same inches, so a value that started in mm comes back
+ * as it was (6 mm shows as 0.2362 in and returns as 6, not 5.99948), and
+ * a real inch value stays exact (0.25 in is 6.35).
+ */
+function displayToMm(val, isImperial) {
+  if (!isImperial) return val;
+  var mm = val * MM_PER_INCH, shown = roundDisplay(val, true);
+  for (var d = 0; d <= 4; d++) {
+    var r = parseFloat(mm.toFixed(d));
+    if (roundDisplay(r / MM_PER_INCH, true) === shown) return r;
+  }
+  return mm;
+}
+
+/** A mm value as field text in the active units: 6 -> "6" or "0.2362". */
+function formatMm(mm, isImperial) {
+  return String(roundDisplay(mmToDisplay(mm, isImperial), isImperial));
+}
+
+/**
+ * Typed text to mm (lengths) or mm/min (feeds), whatever unit was typed;
+ * a plain number is in the active units. null when unreadable.
+ */
+function textToMm(text, isImperial, kind) {
+  var v = parseUnitValue(text, isImperial, kind);
+  return v == null ? null : displayToMm(v, isImperial);
+}
+
+/**
+ * A default given in mm, snapped to a round inch size for an imperial
+ * machine: 0.005 under 1/16, then 1/16 under 1, 1/8 under 4, 1/2 above
+ * (so 3 mm shows as 0.125, not 0.1181).
+ */
+function roundInches(inch) {
+  var a = Math.abs(inch), step = a < 0.0625 ? 0.005 : a < 1 ? 1 / 16 : a < 4 ? 1 / 8 : 1 / 2;
+  return a ? Math.sign(inch) * Math.max(step, Math.round(a / step) * step) : 0;
+}
+
+/**
+ * Makes every field under `root` that has a data-unit attribute
+ * ("length" or "feed") work like QuickCut's:
+ * - Leaving it (or Enter) rewrites what was typed as a plain number in the
+ *   active units ("6mm" -> 0.2362 on an inch machine) and fires `input`.
+ *   It runs in the capture phase on root, so the plugin's own focusout,
+ *   blur and Enter handlers see the plain number.
+ * - Up / Down step the value like Chrome DevTools: 1, Shift 10, Alt
+ *   (Option) 0.1, Ctrl (Command) 0.001, in the field's units. A step never
+ *   goes under the field's min (data-min or min): it stops at a whole
+ *   minimum and doesn't move for an odd one. data-integer steps by 1 or
+ *   more. Each step fires `input`, then calls opts.onStep(el).
+ * Fields should be type="text" (a number input drops 1/4" before JS sees
+ * it). opts.imperial: a boolean, or a function read each time.
+ * Returns a function that removes the listeners.
+ */
+function wireUnitFields(root, opts) {
+  opts = opts || {};
+  function imperial() {
+    return typeof opts.imperial === 'function' ? !!opts.imperial() : !!opts.imperial;
+  }
+  function unitField(el) {
+    return el && el.getAttribute && el.tagName === 'INPUT' && el.getAttribute('data-unit') ? el : null;
+  }
+  function normalize(el) {
+    var v = parseUnitValue(el.value, imperial(), el.getAttribute('data-unit'));
+    if (v == null || String(v) === el.value.trim()) return;
+    el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  function onFocusOut(evt) {
+    var el = unitField(evt.target);
+    if (el) normalize(el);
+  }
+  function onKeyDown(evt) {
+    var el = unitField(evt.target);
+    if (!el || el.disabled || el.readOnly) return;
+    if (evt.key === 'Enter') { normalize(el); return; }
+    if (opts.arrows === false || (evt.key !== 'ArrowUp' && evt.key !== 'ArrowDown')) return;
+    var imp = imperial();
+    var current = parseUnitValue(el.value, imp, el.getAttribute('data-unit'));
+    if (current == null || !isFinite(current)) current = 0;
+    var step = evt.ctrlKey || evt.metaKey ? 0.001 : (evt.shiftKey ? 10 : (evt.altKey ? 0.1 : 1));
+    if (el.hasAttribute('data-integer')) step = Math.max(1, step);
+    var next = current + (evt.key === 'ArrowUp' ? step : -step);
+    var min = parseFloat(el.getAttribute('data-min') != null ? el.getAttribute('data-min') : el.getAttribute('min'));
+    if (isFinite(min) && next < min) {
+      if (!Number.isInteger(min)) { evt.preventDefault(); return; }
+      next = min;
+    }
+    next = parseFloat(next.toFixed(imp ? 4 : 3));
+    evt.preventDefault();
+    if (String(next) === el.value) return;
+    el.value = next;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    if (opts.onStep) opts.onStep(el);
+  }
+  root.addEventListener('focusout', onFocusOut, true);
+  root.addEventListener('keydown', onKeyDown, true);
+  return function unwire() {
+    root.removeEventListener('focusout', onFocusOut, true);
+    root.removeEventListener('keydown', onKeyDown, true);
+  };
+}
+
+return { MM_PER_INCH: MM_PER_INCH, parseUnitValue: parseUnitValue, unitMmPer: unitMmPer, parseUnitMath: parseUnitMath, parseUnitQuantity: parseUnitQuantity, roundDisplay: roundDisplay, mmToDisplay: mmToDisplay, displayToMm: displayToMm, formatMm: formatMm, textToMm: textToMm, roundInches: roundInches, wireUnitFields: wireUnitFields };
+})();
+if (typeof window !== 'undefined') window.NcUnitInput = NcUnitInput;
+/* END ncsender-unit-input */</script>
 <script>/* BEGIN lib/starting-feeds.cjs */
 // Copied from QuickCut (GPL-3.0, siganberg/ncsender-plugin-quickcut) lib/starting-feeds.cjs; keep in step with it.
 /**
@@ -2940,6 +3139,8 @@ if (typeof module !== 'undefined' && module.exports) {
   var PLUGIN = 'com.tmuka.gears';
   var G = window.GearGeometry, GC = window.GearGcode;
   var $ = function (id) { return document.getElementById(id); };
+  // Unit-aware fields (1/4", 6.35mm, 1in+4mm): the ncsender-unit-input library, taken as this dialog loaded it.
+  var parseUnitValue = NcUnitInput.parseUnitValue;
   var ROOT = document.querySelector('.gr-wrapper');
 
   var state = { imperial: false, unit: 'mm', safeZHeightMm: null, maxFeedMm: null, spindleMax: null, spindleMin: null,

@@ -19,6 +19,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install the unit-input library
+        run: npm ci
+
       - name: Run tests
         run: npm test
 
