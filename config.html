@@ -5060,7 +5060,8 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // ---------- Run note ----------
   var noteTimer = null;
-  function scheduleNote() { clearTimeout(noteTimer); noteTimer = setTimeout(updateNote, 300); }
+  // The note writes the whole program: while typing, only after a longer pause.
+  function scheduleNote() { clearTimeout(noteTimer); noteTimer = setTimeout(updateNote, state.typing ? 1500 : 300); }
   function programFor(view) {
     if (view === 'train') return trainProgram();
     var r = settings(), s = r.s, job = view === 'frame' ? 'frame' : $('gr-job').value;
@@ -5958,7 +5959,8 @@ if (typeof module !== 'undefined' && module.exports) {
   var touchTimer = null;
   function touch() {
     clearTimeout(touchTimer);
-    touchTimer = setTimeout(function () { if (state.dragging) { touch(); return; } if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, 120);
+    // While typing, after a pause (or on leaving the field): redrawing between keys made typing lag on the Pi.
+    touchTimer = setTimeout(function () { if (state.dragging) { touch(); return; } if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, state.typing ? 700 : 120);
   }
   // Up / Down arrows step a number field, as in QuickCut (and Chrome
   // DevTools): plain 1, Shift 10, Alt (Option) 0.1, Ctrl (Command) 0.001,
