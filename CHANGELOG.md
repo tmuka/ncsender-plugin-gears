@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.1: Units and math in every field
+
+- **Fields take either unit and simple math** (`1/4"`, `6.35mm`, `1,5mm`, `1in+4mm`, `(1/4"+2mm)/2`, `100ipm`), from
+  the new shared [ncsender-unit-input](https://github.com/tmuka/ncsender-unit-input) library instead of a copy.
+- **Typing doesn't lag or jump:** while a field is typed in, the preview and run note wait for a pause, no error
+  flashes for a half-typed value (1, 10, 100 on the way to 100mm), and the pairs list waits for the distance;
+  leaving the field or Enter shows everything at once.
+- **Fixes:** Generate right after typing a ratio or distance cuts the pair shown (it could cut the one before); a
+  pair tapped while the distance is still being typed is picked at the new distance.
+
 ## 0.7.0: First cut without knowing gears
 
 - **Your First Cut:** on a first open, a card asks the board's thickness and sets up a small 2:1 test pair for your
