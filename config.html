@@ -6095,6 +6095,8 @@ if (typeof module !== 'undefined' && module.exports) {
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
   }
+  // How long a pause in typing counts as done, for an error typing more can't fix.
+  var TYPING_PAUSE_MS = 1000;
   function wire() {
     wireArrowKeySteps();
     ROOT.querySelectorAll('.gr-nav-btn').forEach(function (b) { b.addEventListener('click', function () { showView(b.dataset.view); }); });
@@ -6104,6 +6106,15 @@ if (typeof module !== 'undefined' && module.exports) {
     var typed = function () { if (state.typing) { state.typing = false; touch(); } };
     ROOT.addEventListener('focusout', typed);
     ROOT.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('gr-input')) typed(); });
+    // A refused 1,000 (more typing can't fix it) shows after a second's pause, the field still focused.
+    var pause = null;
+    ROOT.addEventListener('input', function (e) {
+      clearTimeout(pause);
+      var el = e.target;
+      if (!el.hasAttribute || !el.hasAttribute('data-unit') || !NcUnitInput.unitValueProblem(el.value)) return;
+      var v = el.value;
+      pause = setTimeout(function () { if (document.activeElement === el && el.value === v) typed(); }, TYPING_PAUSE_MS);
+    });
     ROOT.addEventListener('input', function (e) {
       if (e.isTrusted && e.target.classList && e.target.classList.contains('gr-input') && e.target.type !== 'range') state.typing = true;
       if (e.target.id === 'gr-turn' || e.target.id === 'gt-turn') { state.turn = +e.target.value; $('gr-turn').value = $('gt-turn').value = state.turn; spin(); return; }
