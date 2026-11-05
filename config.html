@@ -5908,7 +5908,8 @@ if (typeof module !== 'undefined' && module.exports) {
     closeToolPop();
     if (!v) return;
     var t = (state.tools || []).filter(function (x) { return String(x.n) === v; })[0];
-    if (t) { flutesFromTool(t); write('gr-bit', t.mm); state.cutTool = { n: t.n, mm: t.mm, name: t.name }; if (state.feedsAuto) fillFeeds(true); }
+    // A bit picked from the tool table gets its own starting feeds, even over ones typed by hand.
+    if (t) { flutesFromTool(t); write('gr-bit', t.mm); state.cutTool = { n: t.n, mm: t.mm, name: t.name }; fillFeeds(false); }
     else state.cutTool = null;
     showBitTool();
     touch();
@@ -6095,7 +6096,7 @@ if (typeof module !== 'undefined' && module.exports) {
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
   }
-  // How long a pause in typing counts as done, for an error typing more can't fix.
+  // How long a pause in typing counts as done: then the errors held show.
   var TYPING_PAUSE_MS = 1000;
   function wire() {
     wireArrowKeySteps();
@@ -6106,12 +6107,12 @@ if (typeof module !== 'undefined' && module.exports) {
     var typed = function () { if (state.typing) { state.typing = false; touch(); } };
     ROOT.addEventListener('focusout', typed);
     ROOT.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('gr-input')) typed(); });
-    // A refused 1,000 (more typing can't fix it) shows after a second's pause, the field still focused.
+    // Errors held while typing show after a second's pause, the field still focused.
     var pause = null;
     ROOT.addEventListener('input', function (e) {
       clearTimeout(pause);
       var el = e.target;
-      if (!el.hasAttribute || !el.hasAttribute('data-unit') || !NcUnitInput.unitValueProblem(el.value)) return;
+      if (!el.classList || !el.classList.contains('gr-input')) return;
       var v = el.value;
       pause = setTimeout(function () { if (document.activeElement === el && el.value === v) typed(); }, TYPING_PAUSE_MS);
     });
