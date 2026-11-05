@@ -115,6 +115,21 @@
   }
   .gr-card-title .gr-label-select { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); letter-spacing: 0; background-position: right 1px center; }
   .gr-label-select option { background: var(--color-surface); color: var(--color-text-primary); font-size: 0.9rem; }
+  /* A taller tap area on a touchscreen without moving the layout; no focus
+     box (the browser's ring drew round the whole tap area, over the field
+     below): focused, the label takes the accent colour instead. As QuickCut's. */
+  .gr-label-select, button#gr-bit-tool { padding-top: 9px !important; padding-bottom: 9px !important; margin-top: -9px !important; margin-bottom: -9px !important; }
+  .gr-label-select:focus, .gr-label-select:focus-visible, button#gr-bit-tool:focus, button#gr-bit-tool:focus-visible { outline: none !important; box-shadow: none !important; }
+  .gr-label-select:focus-visible, button#gr-bit-tool:focus-visible { color: color-mix(in srgb, var(--color-accent) 55%, var(--color-text-primary)) !important; }
+  /* The tool picked from the tool table, after the Tool card's title: as named,
+     on one line; with the tool menu it opens it, and reads No tool change
+     when none is picked. */
+  #gr-tool-title { display: flex; align-items: baseline; min-width: 0; }
+  .gr-tool-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .gr-tool-name:not(:empty)::before { content: '\00b7'; padding: 0 0.45em; color: var(--color-text-secondary); }
+  .gr-tool-name.gr-tool-none { color: var(--color-text-secondary); }
+  .gr-tool-name-link { cursor: pointer; border-radius: 4px; outline: none; }
+  .gr-tool-name-link:hover, .gr-tool-name-link:focus-visible { color: color-mix(in srgb, var(--color-accent) 55%, var(--color-text-primary)); }
   .gr-error { color: #ff6b6b; font-size: 0.78rem; font-weight: 500; line-height: 1.3; }
   .gr-card-errors { display: flex; flex-direction: column; gap: 2px; margin: 2px 0 10px; padding: 6px 10px; border-radius: 6px; border: 1px solid color-mix(in srgb, #ff6b6b 45%, transparent);
     background: color-mix(in srgb, #ff6b6b 10%, transparent); color: #ff6b6b; font-size: 0.8rem; font-weight: 500; line-height: 1.35; }
@@ -603,7 +618,7 @@
         </div>
 
         <div class="gr-card" id="gr-tool-card">
-          <div class="gr-card-head"><h4 class="gr-card-title">Tool</h4></div>
+          <div class="gr-card-head"><h4 class="gr-card-title" id="gr-tool-title">Tool<span class="gr-tool-name" id="gr-tool-name"></span></h4></div>
           <div class="gr-row gr-row-5">
             <div class="gr-field"><label for="gr-bit" id="gr-bit-label" class="gr-label-link" tabindex="0" role="button" title="Click to use the loaded tool's diameter from ncSender's tool table.">Bit Diameter</label><input class="gr-input" id="gr-bit" data-unit="length" title="The end mill's diameter. The tooth spaces are rounded at the bottom to fit it, so it sets the smallest teeth you can cut."></div>
             <div class="gr-field"><label for="gr-feed">Feed Rate</label><input class="gr-input" id="gr-feed" data-unit="feed" title="For moves in X and Y."></div>
@@ -5802,7 +5817,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var toolPop = { open: false, active: 0, items: [] };
   function openToolPop() {
     var btn = $('gr-bit-tool'), pop = $('gr-tool-pop');
-    toolPop.open = true; toolPop.active = 0;
+    toolPop.open = true; toolPop.active = 0; toolPop.from = btn;
     $('gr-tool-filter').value = '';
     pop.hidden = false;
     btn.setAttribute('aria-expanded', 'true');
@@ -5812,8 +5827,14 @@ if (typeof module !== 'undefined' && module.exports) {
     var below = r.bottom - w.top + 4, room = w.height - below - 8;
     pop.style.top = (room >= Math.min(pop.offsetHeight, 240) ? below : Math.max(8, r.top - w.top - pop.offsetHeight - 4)) + 'px';
     renderToolList();
+    // Opened, the picked tool, else the first tool (past No tool change), so
+    // Enter doesn't pick No tool change by accident.
+    var n = bitToolNumber(), at = toolPop.items.map(function (it) { return it.t ? it.t.n : null; }).indexOf(n);
+    toolPop.active = n && at >= 0 ? at : firstToolActive();
+    renderToolList();
     $('gr-tool-filter').focus();
   }
+  function firstToolActive() { return toolPop.items.length > 1 && toolPop.items[0].value === 'none' ? 1 : 0; }
   function closeToolPop() { toolPop.open = false; $('gr-tool-pop').hidden = true; $('gr-bit-tool').setAttribute('aria-expanded', 'false'); }
   function moveToolActive(step) {
     var n = toolPop.items.length;
@@ -5837,17 +5858,19 @@ if (typeof module !== 'undefined' && module.exports) {
     var tools = every ? all : all.filter(function (t) { return t.gear || t.n === n; });
     var mNow = moduleFromSize(), maxBit = mNow > 0 ? G.maxBitDiameter({ module: mNow, pressureDeg: Number($('gr-pa').value), backlash: read('gr-backlash') || 0 }) : Infinity;
     toolPop.items = tools.map(function (t) { return { value: String(t.n), t: t }; });
-    if (n) toolPop.items.push({ value: 'none' });
+    // No tool change first, above the tools (only while one is picked).
+    if (n) toolPop.items.unshift({ value: 'none' });
     var hidden = others.filter(function (t) { return tools.indexOf(t) < 0; }).length;
     if (!words.length && gearOnes.length && (toolPop.showAll ? others.length : hidden)) toolPop.items.push({ more: true });
     toolPop.active = Math.min(toolPop.active, Math.max(0, toolPop.items.length - 1));
     var html = !state.tools ? '<div class="gr-tool-empty">Reading the tool table…</div>' : !state.tools.length ? '<div class="gr-tool-empty">No tools with a diameter in the tool table.</div>'
-      : !tools.length ? '<div class="gr-tool-empty">No tool matches “' + esc(f) + '”.</div>' : '<div class="gr-tool-head">Tool change to</div>';
+      : !tools.length ? '<div class="gr-tool-empty">No tool matches “' + esc(f) + '”.</div>' : '';
+    var head = tools.length ? '<div class="gr-tool-head">Tool change to</div>' : '';
     html += toolPop.items.map(function (it, i) {
       if (it.more) return '<button type="button" class="gr-tool-item gr-tool-more' + (i === toolPop.active ? ' gr-active' : '') + '" data-more="1">' + (toolPop.showAll ? 'End mills only' : 'Show all tools (' + hidden + ' more: V-bits, drills, surfacing…)') + '</button>';
       var t = it.t, text = t ? (t.n === n ? '✓ ' : '') + 'T' + t.n + (t.name ? ' ' + esc(t.name) : '') + ' <span class="gr-tool-size">' + show(t.mm) + u + (t.n === state.loadedTool ? ', in the spindle' : '') +
         (!t.gear ? ', not an end mill for gears' : t.mm > maxBit + 1e-6 ? ', too big for these teeth (up to ' + show(maxBit) + u + ')' : '') + '</span>' : 'No tool change';
-      return '<button type="button" class="gr-tool-item' + (i === toolPop.active ? ' gr-active' : '') + '" role="option" aria-selected="' + !!(t && t.n === n) + '" data-v="' + it.value + '">' + text + '</button>';
+      return (t && (i === 0 || !toolPop.items[i - 1].t) ? head : '') + '<button type="button" class="gr-tool-item' + (i === toolPop.active ? ' gr-active' : '') + '" role="option" aria-selected="' + !!(t && t.n === n) + '" data-v="' + it.value + '">' + text + '</button>';
     }).join('');
     list.innerHTML = html;
     list.querySelectorAll('.gr-tool-item').forEach(function (b) { b.addEventListener('click', function () { if (b.dataset.more) { toolPop.showAll = !toolPop.showAll; renderToolList(); return; } pickBitTool(b.getAttribute('data-v')); }); });
@@ -5857,6 +5880,18 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!btn) return;
     var n = bitToolNumber();
     btn.textContent = n ? 'Bit · T' + n + ' (' + state.unit + ')' : 'Bit Diameter (' + state.unit + ')';
+    // The tool's name after the card's title; with no tool picked, No tool
+    // change, to click.
+    var t = n ? (state.tools || []).filter(function (x) { return x.n === n; })[0] : null, name = $('gr-tool-name');
+    name.classList.toggle('gr-tool-none', !n);
+    name.textContent = !n ? 'No tool change' : t ? (t.name || 'T' + n) : '';
+    name.title = !n ? 'No tool change: the program cuts with the bit in the spindle. Click to pick a tool from the tool table.' : t ? 'T' + n + (t.name ? ': ' + t.name : '') + '. Click to pick another tool.' : '';
+    // A tool whose tool table entry gives its flutes fixes them; guessed from
+    // its name (or 2 when nothing says), they stay yours to change.
+    var flutes = $('gr-flutes'), fixed = !!(t && t.flutes > 0);
+    if (flutes.dataset.tip == null) flutes.dataset.tip = flutes.title || '';
+    flutes.disabled = fixed;
+    flutes.title = fixed ? 'From T' + n + '\u2019s flutes in the tool table. Pick No tool change, or type a diameter, to set them yourself.' : flutes.dataset.tip;
     if (toolPop.open) renderToolList();
     toolNote();
   }
@@ -5895,16 +5930,31 @@ if (typeof module !== 'undefined' && module.exports) {
     ROOT.appendChild(pop);
     btn.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); openToolPop(); } });
     btn.addEventListener('click', function () { if (toolPop.open) closeToolPop(); else openToolPop(); });
+    // The tool's name after the card's title opens the same menu.
+    var nameEl = $('gr-tool-name');
+    nameEl.classList.add('gr-tool-name-link');
+    nameEl.setAttribute('role', 'button');
+    nameEl.tabIndex = 0;
+    nameEl.addEventListener('click', function () { if (toolPop.open) closeToolPop(); else { openToolPop(); toolPop.from = nameEl; } });
+    nameEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); openToolPop(); toolPop.from = nameEl; } });
     var filter = $('gr-tool-filter');
-    filter.addEventListener('input', function (e) { e.stopPropagation(); toolPop.active = 0; renderToolList(); });
+    filter.addEventListener('input', function (e) { e.stopPropagation(); toolPop.active = 0; renderToolList(); toolPop.active = firstToolActive(); renderToolList(); });
     filter.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); moveToolActive(e.key === 'ArrowDown' ? 1 : -1); }
       else if (e.key === 'Enter') { e.preventDefault(); var it = toolPop.items[toolPop.active]; if (it && it.more) { toolPop.showAll = !toolPop.showAll; renderToolList(); } else if (it) pickBitTool(it.value); }
-      else if (e.key === 'Escape') { e.preventDefault(); closeToolPop(); btn.focus(); }
     });
+    // Esc closes the menu, not Gears: ncSender closes the dialog from a window
+    // keydown listener (bubble phase), so this one runs first in the capture
+    // phase and stops it. Page-wide, so it goes once the dialog has.
+    window.addEventListener('keydown', function onEsc(e) {
+      if (!document.body.contains(ROOT)) { window.removeEventListener('keydown', onEsc, true); return; }
+      if (e.key !== 'Escape' || !toolPop.open) return;
+      e.preventDefault(); e.stopPropagation();
+      closeToolPop(); (toolPop.from || btn).focus();
+    }, true);
     document.addEventListener('pointerdown', function onDown(e) {
       if (!document.body.contains(ROOT)) { document.removeEventListener('pointerdown', onDown, true); return; }
-      if (toolPop.open && !pop.contains(e.target) && e.target !== btn) closeToolPop();
+      if (toolPop.open && !pop.contains(e.target) && e.target !== btn && !nameEl.contains(e.target)) closeToolPop();
     }, true);
     showBitTool();
     try { await readTools(); } catch (e) { state.tools = []; }
