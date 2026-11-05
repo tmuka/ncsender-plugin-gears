@@ -3288,6 +3288,15 @@ if (typeof module !== 'undefined' && module.exports) {
       if (f[0] === 'whole' && Math.round(v) !== v) errs[id] = f[3] + ' must be a whole number';
       else if (shown < lo - 1e-9) errs[id] = f[3] + ' must be at least ' + lo + u;
       else if (shown > hi + 1e-9) errs[id] = f[3] + ' must not exceed ' + hi + u;
+      else {
+        // The machine's own limits, when the controller reports them: max rates
+        // ($110/$111, $112), Z travel ($132), the spindle's range ($30/$31; 0 starts none).
+        var lim = id === 'gr-feed' ? [state.maxFeedMm, 'the machine\u2019s max feed ($110/$111)'] : id === 'gr-plunge' ? [state.maxPlungeMm, 'the machine\u2019s max Z rate ($112)']
+          : id === 'gr-depth' ? [state.zTravelMm, 'the machine\u2019s Z travel ($132)'] : null;
+        if (lim && lim[0] > 0 && v > lim[0] + 0.5) errs[id] = f[3] + ' is more than ' + lim[1] + ', ' + (f[0] === 'feed' ? +(lim[0] / K()).toFixed(state.imperial ? 1 : 0) : round(lim[0] / K())) + u;
+        if (id === 'gr-rpm' && v > 0 && state.spindleMax > 0 && v > state.spindleMax) errs[id] = f[3] + ' is more than the spindle\u2019s max ($30), ' + state.spindleMax;
+        else if (id === 'gr-rpm' && v > 0 && state.spindleMin > 0 && v < state.spindleMin) errs[id] = f[3] + ' is less than the spindle\u2019s min ($31), ' + state.spindleMin + ' (0: no spindle)';
+      }
     });
     var m = moduleFromSize();
     var sizeName0 = SIZE_NAMES[$('gr-size-mode').value], st = String($('gr-size').value).trim();
@@ -6219,6 +6228,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var n = function (k) { return parseFloat(fw[k] && fw[k].value); };
       if (n('110') > 0 && n('111') > 0) state.maxFeedMm = Math.min(n('110'), n('111'));
       if (n('112') > 0) state.maxPlungeMm = n('112');
+      if (n('132') > 0) state.zTravelMm = n('132');
       if (n('30') >= 5000) state.spindleMax = n('30');
       if (n('31') > 0) state.spindleMin = n('31');
       if (n('130') > 0 && n('131') > 0) state.travel = { x: n('130'), y: n('131') };
