@@ -899,6 +899,15 @@ function parseUnitValue(text, isImperial, kind) {
   var one = parseUnitQuantity(text, isImperial, kind);
   return one !== null ? one : parseUnitMath(text, isImperial, kind);
 }
+// Why parseUnitValue can't read text, when it's a comma before exactly three
+// digits: a message to show the operator, e.g. "1,000 could be 1000 or
+// 1.000: write 1000, or 1,0 for a decimal". null otherwise.
+function unitValueProblem(text) {
+  var m = /(\d+),(\d{3})(?!\d)/.exec(String(text == null ? '' : text));
+  if (!m) return null;
+  return m[0] + ' could be ' + m[1] + m[2] + ' or ' + m[1] + '.' + m[2] + ': write ' + m[1] + m[2] + ', or ' +
+    m[1] + ',' + (m[2].replace(/0+$/, '') || '0') + ' for a decimal';
+}
 // mm per unit (per minute for feeds) of the units a field takes.
 function unitMmPer(kind) {
   var MM_PER = { mm: 1, cm: 10, 'in': 25.4, inch: 25.4, inches: 25.4, '"': 25.4 };
@@ -1129,7 +1138,7 @@ function wireUnitFields(root, opts) {
   };
 }
 
-return { MM_PER_INCH: MM_PER_INCH, parseUnitValue: parseUnitValue, unitMmPer: unitMmPer, parseUnitMath: parseUnitMath, parseUnitQuantity: parseUnitQuantity, roundDisplay: roundDisplay, mmToDisplay: mmToDisplay, displayToMm: displayToMm, formatMm: formatMm, textToMm: textToMm, roundInches: roundInches, wireUnitFields: wireUnitFields };
+return { MM_PER_INCH: MM_PER_INCH, parseUnitValue: parseUnitValue, unitValueProblem: unitValueProblem, unitMmPer: unitMmPer, parseUnitMath: parseUnitMath, parseUnitQuantity: parseUnitQuantity, roundDisplay: roundDisplay, mmToDisplay: mmToDisplay, displayToMm: displayToMm, formatMm: formatMm, textToMm: textToMm, roundInches: roundInches, wireUnitFields: wireUnitFields };
 })();
 if (typeof window !== 'undefined') window.NcUnitInput = NcUnitInput;
 /* END ncsender-unit-input */</script>
@@ -3272,7 +3281,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (km && !(sp && km[2] === 'b') && km[1] === 'bore') nm = nm.replace('Bore', { round: 'Bore', hex: 'Hex Bore', dflat: 'D Bore', keyway: 'Keyed Bore' }[$('gr-bore-shape-' + km[2]).value] || 'Bore');
       f = [f[0], f[1], f[2], nm, f[4]];
       if (v === null) { if (!optional) errs[id] = f[3] + ' is needed'; return; }
-      if (isNaN(v)) { errs[id] = f[3] + ' must be a number'; return; }
+      if (isNaN(v)) { errs[id] = f[3] + (NcUnitInput.unitValueProblem($(id).value) ? ': ' + NcUnitInput.unitValueProblem($(id).value) : ' must be a number'); return; }
       var shown = f[0] === 'length' || f[0] === 'feed' ? v / K() : v;
       var lo = f[0] === 'length' || f[0] === 'feed' ? round(f[1] / K()) : f[1], hi = f[0] === 'length' || f[0] === 'feed' ? round(f[2] / K()) : f[2];
       var u = f[0] === 'length' ? ' ' + state.unit : f[0] === 'feed' ? ' ' + state.unit + '/min' : '';
