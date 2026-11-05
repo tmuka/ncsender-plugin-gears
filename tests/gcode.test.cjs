@@ -443,3 +443,10 @@ test('pinion and ring nested: the pinion cut first inside the ring on its center
   assert.deepStrictEqual(wide.problems, []);
   assert.ok(wide.parts.some((q) => Math.abs(q.x) > 1), 'beside the ring');
 });
+
+test("the controller's spindle delay ($394) replaces the G4 wait", () => {
+  assert.match(GC.generate(base).gcode, /^G4 P2$/m);
+  const gcode = GC.generate({ ...base, firmwareSpindleDelay: 3 }).gcode;
+  assert.doesNotMatch(gcode, /^G4 /m);
+  assert.match(gcode, /^M3 S18000\n; The controller waits 3 s \(\$394\)$/m);
+});

@@ -3098,7 +3098,7 @@ if (typeof module !== 'undefined' && module.exports) {
     if (o.toolNumber > 0) { L.push('M6 T' + o.toolNumber + ' ; Tool change'); L.push('G21 G90'); L.push(safe); }
     if (o.mist) L.push('M7');
     if (o.flood) L.push('M8');
-    if (o.spindleRpm > 0) { L.push('M3 S' + o.spindleRpm); if (o.spindleDelay > 0) L.push('G4 P' + o.spindleDelay); }
+    if (o.spindleRpm > 0) { L.push('M3 S' + o.spindleRpm); if (o.firmwareSpindleDelay > 0) L.push('; The controller waits ' + o.firmwareSpindleDelay + ' s ($394)'); else if (o.spindleDelay > 0) L.push('G4 P' + o.spindleDelay); }
     var oo = Object.assign({}, o);
     holes.forEach(function (h) { hole(L, Object.assign({}, h, { x: h.x + sx, y: h.y + sy }), oo); });
     placed.forEach(function (pl) {
@@ -3269,6 +3269,7 @@ if (typeof module !== 'undefined' && module.exports) {
       // center distance worked out to the tooth, shown rounded).
       var f = FIELDS[id], w = state.written[id], v = w && w.text === $(id).value ? w.v : read(id);
       s[id] = v;
+      if (id === 'gr-delay' && state.spindleOnDelayS) return;
       var optional = /^gr-(clearance|gap|frame-[ab]|flat-[ab]|keyw-[ab]|keyd-[ab]|cd|spoke-w|design-ratio|design-od|pl-ratio|match-teeth|match-od|fit-w|fit-h|board)$|^gt-ratio$/.test(id) || (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio');
       if (id === 'gr-ratio' && $('gr-b-mode').value !== 'ratio') { s[id] = v; return; }
       // Named as the menus on their labels say: Gear A Spokes, Gear A D Bore...
@@ -3346,7 +3347,7 @@ if (typeof module !== 'undefined' && module.exports) {
       job: job, module: s.module, pressureDeg: Number($('gr-pa').value), backlash: s['gr-backlash'],
       clearance: s['gr-clearance'] != null ? s['gr-clearance'] : null,
       bitDiameter: s['gr-bit'], feedRate: Math.round(s['gr-feed']), plungeFeedRate: Math.round(s['gr-plunge']),
-      spindleRpm: Math.round(s['gr-rpm']), spindleDelay: s['gr-delay'], mist: $('gr-mist').checked, flood: $('gr-flood').checked,
+      spindleRpm: Math.round(s['gr-rpm']), spindleDelay: s['gr-delay'], firmwareSpindleDelay: state.spindleOnDelayS || 0, mist: $('gr-mist').checked, flood: $('gr-flood').checked,
       depth: job === 'frame' ? s['gr-frame-depth'] : s['gr-depth'], depthOfCut: job === 'frame' ? s['gr-frame-step'] : s['gr-step'],
       tabs: $('gr-tabs-on').checked ? { count: s['gr-tabs'], width: s['gr-tab-w'], height: s['gr-tab-h'] } : null,
       gears: { A: gearOpts(s, 'a'), B: Object.assign(gearOpts(s, 'b'), isRack() ? { kind: 'rack', rackHeight: s['gr-rack-h'], boreShape: 'round', holeStyle: 'round' }
@@ -6003,10 +6004,11 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // Expert fields behind "More" in their cards (an error opens it).
   function foldExtras() {
-    [[['gr-backlash', 'gr-clearance'], 'More: Backlash, Tip Clearance'], [['gr-delay', 'gr-mist', 'gr-flood'], 'More: Delay, Mist, Flood'],
+    [[['gr-backlash', 'gr-clearance'], 'More: Backlash, Tip Clearance'], state.spindleOnDelayS ? [['gr-mist', 'gr-flood'], 'More: Mist, Flood'] : [['gr-delay', 'gr-mist', 'gr-flood'], 'More: Delay, Mist, Flood'],
      [['gr-tabs', 'gr-tab-w', 'gr-tab-h'], 'More: how many tabs, and their size'], [['gr-direction', 'gr-gap'], 'More: Direction, Gap Between']].forEach(function (q) {
       var fields = q[0].map(function (id) { return $(id) && $(id).closest('.gr-field'); }).filter(Boolean);
       if (!fields.length) return;
+      if (state.spindleOnDelayS) $('gr-delay').closest('.gr-field').hidden = true;
       var row = fields[0].parentNode, d = document.createElement('details'), inner = document.createElement('div');
       d.className = 'gr-more'; d.innerHTML = '<summary>' + q[1] + '</summary>'; inner.className = 'gr-row gr-row-4';
       fields.forEach(function (f) { f.style.gridColumn = ''; inner.appendChild(f); });
@@ -6231,6 +6233,8 @@ if (typeof module !== 'undefined' && module.exports) {
       if (n('132') > 0) state.zTravelMm = n('132');
       if (n('30') >= 5000) state.spindleMax = n('30');
       if (n('31') > 0) state.spindleMin = n('31');
+      // grblHAL's $394: the controller itself waits after M3, so Delay hides.
+      if (n('394') > 0) state.spindleOnDelayS = n('394');
       if (n('130') > 0 && n('131') > 0) state.travel = { x: n('130'), y: n('131') };
     } catch (e) {}
     state.unit = state.imperial ? 'in' : 'mm';
