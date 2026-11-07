@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.3: Review fixes
+
+- **An error's words always show:** leaving a field before its error appears no longer leaves only a red outline;
+  the bubble comes with the error, and after an enlarged picture closes.
+- **Enlarged pictures are quick on the Pi:** a pan redraws nothing and a zoom doesn't write the whole program
+  again (each used to freeze the screen for about a second); no error bubble over the picture; wheel zoom by how
+  far the wheel turns (a trackpad no longer jumps to 20x); Help's figures don't enlarge.
+- **Machine limits** are said rounded down, so the number shown is one the field accepts (196.8 in/min, not 196.9).
+- **A pause while typing** shows errors without ending the edit: pausing at 10 on the way to 100 in Center Distance
+  no longer picks a pair at 10.
+
 ## 0.7.2: Machine limits, feeds style and zoomable pictures
 
 - **Starting feeds style:** the Material label is a menu, as QuickCut's: Average, Conservative or Aggressive.
