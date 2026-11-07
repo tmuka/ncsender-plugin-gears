@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.7.2: Machine limits, feeds style and zoomable pictures
+
+- **Starting feeds style:** the Material label is a menu, as QuickCut's: Average, Conservative or Aggressive.
+  Picking one fills the feeds in again; Plunge Rate starts within the controller's max Z rate ($112).
+- **Fields know the machine's limits** when the controller reports them: Feed Rate over the max feed ($110/$111),
+  Plunge Rate over the max Z rate ($112), Total Depth past the Z travel ($132), Spindle RPM outside the spindle's
+  range ($30/$31). With grblHAL's $394 (the controller waits after M3), Delay hides and the program adds no G4.
+- **Errors in a bubble on the field**, as QuickCut and Spoilboard Toolbox, instead of a box that pushed the card's
+  rows down; while typing they show after a second's pause.
+- **The Tool card and tool menu as QuickCut's:** the card's title names the picked tool (or No tool change); the
+  menu opens on the picked tool, Esc closes the menu and not Gears; picking a tool fills in its starting feeds;
+  Flutes is editable unless the tool table gives the count.
+- **Pictures enlarge:** a click on a blank spot shows a picture over the whole window; the wheel or a pinch zooms,
+  a drag pans, with -, + and Fit. Handles and Turn still work; Esc returns.
+- **1,000 in a field** is refused with why (it could be 1000 or 1.000), not read as 1 (ncsender-unit-input 0.1.4).
+
 ## 0.7.1: Units and math in every field
 
 - **Fields take either unit and simple math** (`1/4"`, `6.35mm`, `1,5mm`, `1in+4mm`, `(1/4"+2mm)/2`, `100ipm`), from
