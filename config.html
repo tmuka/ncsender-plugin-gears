@@ -353,7 +353,7 @@
   .gr-tooth-view .gr-action-text { fill: #ff6b6b; }
   /* A click on a blank spot in a preview enlarges it over the dialog (with
      its Turn bar, for the gears); handles still drag. As QuickCut's. */
-  .gr-preview:not(.gr-help-fig), .gr-tooth-view, .gr-depth-view, .gr-layout { cursor: zoom-in; }
+  .gr-preview:not(.gr-help-fig), .gr-tooth-view:not(.gr-help-fig), .gr-depth-view:not(.gr-help-fig), .gr-layout { cursor: zoom-in; }
   .gr-big .gr-preview, svg.gr-big { cursor: zoom-out; }
   .gr-view-card.gr-big { position: absolute !important; inset: 16px; z-index: 50; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); padding-top: 40px; }
   .gr-view-card.gr-big .gr-preview { flex: 1 1 auto; min-height: 0; height: auto !important; }
@@ -3307,7 +3307,9 @@ if (typeof module !== 'undefined' && module.exports) {
         // ($132), the spindle's range ($30/$31; 0 starts none).
         var lim = id === 'gr-feed' ? [state.maxFeedMm, 'the machine\u2019s max feed ($110/$111)'] : id === 'gr-plunge' ? [state.maxPlungeMm, 'the machine\u2019s max Z rate ($112)']
           : id === 'gr-depth' ? [state.zTravelMm, 'the machine\u2019s Z travel ($132)'] : null;
-        if (lim && lim[0] > 0 && v > lim[0] + 0.5) errs[id] = f[3] + ' is more than ' + lim[1] + ', ' + (f[0] === 'feed' ? +(lim[0] / K()).toFixed(state.imperial ? 1 : 0) : round(lim[0] / K())) + u;
+        // Said rounded down, so the number shown is one that's accepted.
+        var dn = function (x, d) { var q = Math.pow(10, d); return Math.floor(x * q + 1e-9) / q; };
+        if (lim && lim[0] > 0 && v > lim[0] + 0.5) errs[id] = f[3] + ' is more than ' + lim[1] + ', ' + dn(lim[0] / K(), f[0] === 'feed' ? (state.imperial ? 1 : 0) : (state.imperial ? 4 : 3)) + u;
         if (id === 'gr-rpm' && v > 0 && state.spindleMax > 0 && v > state.spindleMax) errs[id] = f[3] + ' is more than the spindle\u2019s max ($30), ' + state.spindleMax;
         else if (id === 'gr-rpm' && v > 0 && state.spindleMin > 0 && v < state.spindleMin) errs[id] = f[3] + ' is less than the spindle\u2019s min ($31), ' + state.spindleMin + ' (0: no spindle)';
       }
@@ -3385,7 +3387,7 @@ if (typeof module !== 'undefined' && module.exports) {
       // While a field is being typed in, no new error shows anywhere and one showing keeps its words (it clears
       // when fixed): half-typed values (1, 10, 100 on the way to 100mm) would flash errors and shift the page.
       // Leaving the field, or Enter, shows them as they are.
-      if (state.typing && !all) msg = msg && el.dataset.err ? el.dataset.err : null;
+      if (state.typing && !all && !state.errorsNow) msg = msg && el.dataset.err ? el.dataset.err : null;
       if (old) old.remove();
       if (el.id === 'gr-ratio' && $('gr-teeth-b').dataset.touched) el.dataset.touched = '1';
       var show = msg && (all || el.dataset.touched);
@@ -3403,8 +3405,11 @@ if (typeof module !== 'undefined' && module.exports) {
   var errBubble = null, errLeft = null;
   function errorBubbleTarget() {
     var ok = function (el) { return el && ROOT.contains(el) && el.dataset.err && el.offsetParent !== null; };
+    if (ROOT.querySelector('.gr-big')) return null;
     var a = document.activeElement;
-    return ok(a) ? a : ok(errLeft) ? errLeft : null;
+    // Else a flagged field on this tab (after an enlarged picture, say), so its words are never lost.
+    var any = Array.prototype.filter.call(ROOT.querySelectorAll('.gr-content.active .gr-input[data-err]'), ok)[0];
+    return ok(a) ? a : ok(errLeft) ? errLeft : any || null;
   }
   function updateErrorBubble() {
     var el = ROOT.isConnected ? errorBubbleTarget() : null;
@@ -3436,7 +3441,8 @@ if (typeof module !== 'undefined' && module.exports) {
   function wireErrorBubble() {
     ROOT.addEventListener('focusin', updateErrorBubble);
     ROOT.addEventListener('focusout', function (e) {
-      if (e.target.dataset && e.target.dataset.err) errLeft = e.target;
+      // The field just left, flagged or not yet: its error may come a moment later, with the redraw.
+      if (e.target.classList && e.target.classList.contains('gr-input')) errLeft = e.target;
       setTimeout(updateErrorBubble, 0);
     });
     ROOT.addEventListener('scroll', updateErrorBubble, true);
@@ -5227,9 +5233,13 @@ if (typeof module !== 'undefined' && module.exports) {
     return out.map(function (t) { return t.charAt(0).toUpperCase() + t.slice(1); });
   }
   function updateNote() {
+    // Only a zoom since the last one: the layout drawn again from the program it wrote.
+    if (state.zoomOnly && Date.now() - state.zoomOnly < 2000 && state.lastNote && state.lastNote.view === state.view) { state.zoomOnly = 0; drawLayout(state.lastNote.view, state.lastNote.p); return; }
+    state.zoomOnly = 0;
     var view = state.view;
     if (view === 'help') return;
     var note = $('gr-note-' + view), btn = $('gr-gen-' + view), p = programFor(view);
+    state.lastNote = { view: view, p: p };
     drawLayout(view, p);
     // The footer's problem is a link to the field it's about.
     var target = p.bad.length ? p.bad[0] : p.res && p.res.problems.length ? problemField(p.res.problems[0]) : null;
@@ -6114,6 +6124,11 @@ if (typeof module !== 'undefined' && module.exports) {
       if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair();
     }
   }
+  // A redraw now, the edit still going (a pause's errors).
+  function touchNow() {
+    clearTimeout(touchTimer); touchTimer = null;
+    if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair();
+  }
   function touch() {
     clearTimeout(touchTimer);
     // While typing, after a pause (or on leaving the field): redrawing between keys made typing lag on the Pi.
@@ -6212,9 +6227,12 @@ if (typeof module !== 'undefined' && module.exports) {
     var mid = { x: m.a * z.cx + m.e, y: m.d * z.cy + m.f }, k = m.a * s / s0;
     svg.grZoom = s <= 1 ? null : { s: s, cx: p.x - (at.x - mid.x) / k, cy: p.y - (at.y - mid.y) / k };
     showZoom(svg);
-    // Words and handles drawn again for the new zoom once it settles.
+    // Words and handles drawn again for the new zoom once it settles; a pan
+    // (the same zoom) needs nothing. Nothing else changed, so the run note's
+    // program isn't written again: the Cut card's layout is drawn from the last one.
+    if (Math.abs(s - s0) < 1e-9) return;
     clearTimeout(zoomRedraw);
-    zoomRedraw = setTimeout(touch, 200);
+    zoomRedraw = setTimeout(function () { state.zoomOnly = Date.now(); touch(); }, 200);
   }
   function svgPoint(svg, x, y) {
     var pt = svg.createSVGPoint(); pt.x = x; pt.y = y;
@@ -6237,7 +6255,9 @@ if (typeof module !== 'undefined' && module.exports) {
       if (!svg) return;
       e.preventDefault();
       if (!e.deltaY) return;
-      zoomAt(svg, viewZoom(svg) * (e.deltaY < 0 ? 1.25 : 0.8), svgPoint(svg, e.clientX, e.clientY), { x: e.clientX, y: e.clientY });
+      // By how far the wheel turned: a mouse notch (about 100) 1.25 times, a trackpad's small steps a little each.
+      var dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+      zoomAt(svg, viewZoom(svg) * Math.pow(1.25, -Math.max(-3, Math.min(3, dy / 100))), svgPoint(svg, e.clientX, e.clientY), { x: e.clientX, y: e.clientY });
     }, { passive: false });
     // Pointers down on a blank spot of the enlarged drawing: one pans, two pinch.
     var pts = new Map(), gesture = null;
@@ -6281,6 +6301,8 @@ if (typeof module !== 'undefined' && module.exports) {
     var before = svg.getScreenCTM() ? svg.getScreenCTM().a : 0;
     watchZoom(svg, false);
     el.classList.toggle('gr-big', big);
+    // An error bubble hides over the enlarged picture and comes back after.
+    setTimeout(updateErrorBubble, 0);
     var k = before > 0 && svg.getScreenCTM() ? svg.getScreenCTM().a / before : 1;
     svg.grTextScale = big && k > BIG_TEXT_MAX ? BIG_TEXT_MAX / k : 1;
     svg.style.setProperty('--gr-ts', svg.grTextScale);
@@ -6312,7 +6334,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var down = null;
     ROOT.addEventListener('pointerdown', function (e) { down = { x: e.clientX, y: e.clientY }; }, true);
     ROOT.addEventListener('click', function (e) {
-      var svg = e.target.closest && e.target.closest('svg.gr-preview:not(.gr-help-fig), svg.gr-tooth-view, svg.gr-depth-view, svg.gr-layout');
+      var svg = e.target.closest && e.target.closest('svg.gr-preview:not(.gr-help-fig), svg.gr-tooth-view:not(.gr-help-fig), svg.gr-depth-view:not(.gr-help-fig), svg.gr-layout');
       if (!svg || !ROOT.contains(svg)) return;
       if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return;
       if (e.target.closest('[data-handle], [data-axle-handle], [data-axle-hole], [data-axle-num], a, .gr-link')) return;
@@ -6345,10 +6367,11 @@ if (typeof module !== 'undefined' && module.exports) {
       var el = e.target;
       if (!el.classList || !el.classList.contains('gr-input')) return;
       var v = el.value;
-      pause = setTimeout(function () { if (document.activeElement === el && el.value === v) { el.dataset.touched = '1'; typed(); } }, TYPING_PAUSE_MS);
+      // Errors only: the edit isn't done (a pause at 10 on the way to 100 mustn't pick a pair at 10).
+      pause = setTimeout(function () { if (document.activeElement === el && el.value === v && state.typing) { el.dataset.touched = '1'; state.errorsNow = true; touchNow(); } }, TYPING_PAUSE_MS);
     });
     ROOT.addEventListener('input', function (e) {
-      if (e.isTrusted && e.target.classList && e.target.classList.contains('gr-input') && e.target.type !== 'range') state.typing = true;
+      if (e.isTrusted && e.target.classList && e.target.classList.contains('gr-input') && e.target.type !== 'range') { state.typing = true; state.errorsNow = false; }
       if (e.target.id === 'gr-turn' || e.target.id === 'gt-turn') { state.turn = +e.target.value; $('gr-turn').value = $('gt-turn').value = state.turn; spin(); return; }
       if (/^gt-(ratio|min|max)$/.test(e.target.id)) state.trainAutoPick = true;
       if (e.target.id === 'gr-pl-ratio' || e.target.id === 'gr-planets') state.plAutoPick = true;
