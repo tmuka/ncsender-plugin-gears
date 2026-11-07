@@ -182,7 +182,7 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   Manager and each one is kept in File Manager's Gears folder; **Load** fills the form back in from any of them.
   **Named sets** in the same panel keep settings under a name (the program's name to start with) without making
   a program.
-- **Enlarge a picture:** click a blank spot on any picture (the gears, the teeth close up, the side view, the cuts from above) to see it over the whole window; click a blank spot again or press Esc to return. Turn, Animate and the drag dots still work on it.
+- **Enlarge a picture:** click a blank spot on any picture (the gears, the teeth close up, the side view, the cuts from above) to see it over the whole window; click a blank spot again or press Esc to return. There, as on Spoilboard Toolbox's map, the mouse wheel zooms at the pointer, two fingers pinch, and zoomed in a drag moves it; or use **−**, **+** and **Fit** at the top. Words and dots stay a readable size. Turn, Animate and the drag dots still work on it.
 - **Drag the preview:** Gear B's center sets the Center Distance and the top of Gear A its outside diameter; the
   value shows as you drag and the pairs are worked out when you let go (in Add a Gear to This Set, the nearest
   distance whole teeth allow). A tap goes to the field. Two gears only, not a rack or ring.

@@ -357,8 +357,12 @@
   .gr-big .gr-preview, svg.gr-big { cursor: zoom-out; }
   .gr-view-card.gr-big { position: absolute !important; inset: 16px; z-index: 50; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); padding-top: 40px; }
   .gr-view-card.gr-big .gr-preview { flex: 1 1 auto; min-height: 0; height: auto !important; }
+  svg.gr-big, .gr-big svg.gr-preview { touch-action: none; }
   svg.gr-big { position: absolute; top: 16px; left: 16px; width: calc(100% - 32px); height: calc(100% - 32px) !important; margin: 0; z-index: 50;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); padding-top: 40px; box-sizing: border-box; }
+  .gr-zoom-bar { position: absolute; top: 22px; right: 30px; z-index: 52; display: inline-flex; align-items: center; gap: 4px; }
+  .gr-zoom-bar .gr-secondary { min-width: 44px; }
+  .gr-zoom-level { min-width: 2.6em; text-align: center; }
   .gr-big-hint { position: absolute; top: 26px; left: 0; right: 0; z-index: 51; text-align: center; font-size: 0.8rem; color: var(--color-text-secondary); pointer-events: none; }
   .gr-tooth-view .gr-bit-text { fill: var(--color-accent); }
   .gt-preset { width: auto; max-width: 340px; }
@@ -818,7 +822,7 @@
           <li><b>Start from the Center Distance</b>: type where the axles go, then the <b>Ratio</b> (how it should turn) or <b>Gear A Outside Ø</b> (how big Gear A is), and pick one of the pairs that mesh there: <b>Coarse</b> (fewest, biggest teeth: strongest, easiest to cut), <b>Balanced</b> or <b>Fine</b> (the most teeth the bit can cut: smoother). Each says its teeth, tooth size, pressure angle (20&deg;, or 25&deg; for a small gear when the bit allows), the ratio it really makes, the outside diameters and the biggest bit that cuts it. Typing in the card picks Balanced (or the kind you last tapped) straight away, filling in the Teeth card so the gears always mesh at that distance; tap another to change it. A blank Ratio is the one the teeth make now. Everything in the Teeth card can still be changed. A small gear&rsquo;s teeth may be undercut (thin at the root): the list says so; a longer distance gives it more teeth.</li>
           <li><b>Add a Gear to This Set</b> (the same card&rsquo;s title menu): a new gear that meshes with one you&rsquo;ve cut. Gears mesh when they have the same tooth size and pressure angle; the center distance only follows from the teeth, so those two are kept from the Teeth card (Load the pair&rsquo;s program first if you&rsquo;ve changed them). Pick the gear you have in <b>Meshes With</b> and type where the new axle goes: only whole teeth fit, so it lists the nearest distances that work (each tooth moves it half a module) and picks the nearest. The new gear becomes Gear B (the one you have moves to Gear A with its bore and holes), and Cut is set to Gear B only.</li>
           <li><b>Load</b> and <b>Save to File Manager</b> (beside Generate): with the switch on, each program is also saved in File Manager&rsquo;s Gears folder. Every program carries the settings it was made with, and Load fills the form from one, to cut a pair again or add a gear to it. The program&rsquo;s first lines also say its tooth size and pressure angle. In the same panel, <b>Save as a Set</b> keeps the settings you have under a name (the program&rsquo;s name to start with, selected so typing replaces it), without a program; tap a set to load it, or its bin to delete it (with Undo).</li>
-          <li><b>Enlarge a picture</b>: click a blank spot on any picture (the gears, the teeth close up, the side view, the cuts from above) to see it over the whole window; click a blank spot again or press Esc to return. Turn, Animate and the dots still work on it.</li>
+          <li><b>Enlarge a picture</b>: click a blank spot on any picture (the gears, the teeth close up, the side view, the cuts from above) to see it over the whole window; click a blank spot again or press Esc to return. There, as on Spoilboard Toolbox&rsquo;s map, the mouse wheel zooms at the pointer, two fingers pinch, and zoomed in a drag moves it; or use <b>&minus;</b>, <b>+</b> and <b>Fit</b> at the top. Words and dots stay a readable size. Turn, Animate and the dots still work on it.</li>
           <li><b>Drag the preview</b>: the dot at Gear B&rsquo;s center sets the <b>Center Distance</b>, the dot on top of Gear A its outside diameter (Start from the Center Distance). The value shows as you drag; the pairs are worked out when you let go, as if you&rsquo;d typed it (in Add a Gear to This Set, the nearest distance whole teeth allow is picked). A tap on a dot goes to its field. Not for a rack or a ring.</li>
           <li><b>Gear Train</b> (its own tab): pairs in a row for more ratio than one pair makes, each stage&rsquo;s driven gear on one axle with the next stage&rsquo;s driver (glue or pin them together, or fix both to the shaft). Type the <b>Ratio</b> (turns of axle 1 for one turn of the last: 60 for 60:1) and it lists the trains that make it within <b>Fewest</b> and <b>Most Teeth</b>: the fewest stages first, more only when they make the biggest gear smaller (or, when no train makes it exactly, come at least twice as near); exactly when whole teeth allow, else within 0.5%. Every stage turns the way the whole train does: no speed-up inside a reduction. Or type the stages yourself, and <b>Add a Stage</b> or remove one. Drag the axles in the picture to fold the train round (or type each stage&rsquo;s <b>Angle</b>; <b>Fold Compact</b> finds the smallest fold, <b>Straighten</b> puts them back in a line), start from a <b>Preset</b>, or tick <b>Last Axle on the First</b> for a same-center pair, as a clock&rsquo;s hands (see Gear trains, plainly). Every gear is bored to the <b>Axle Ø</b>; the bigger gear of each stage gets <b>Wheel Spokes</b>. The preview turns the train and warns when a gear reaches another axle&rsquo;s shaft (the frame&rsquo;s holes aren&rsquo;t drilled for such a train; the gears can still be cut). <b>Cut</b> all the gears in one program (packed to use the least stock: each gear placed where the stock needed stays smallest, Gap Between apart, within the machine&rsquo;s travel, turned along its longer axis when that fits better; the Cut card&rsquo;s layout shows it), one stage&rsquo;s two gears nested, one gear, or the frame&rsquo;s axle holes where the layout puts them, axle 1 at X0 Y0 (with the Frame Holes tab&rsquo;s depths). The tooth size, pressure angle, bit, feeds, depth, tabs and X0 Y0 are the Gear Pair tab&rsquo;s.</li>
           <li><b>Center Distance</b>: blank is the gears' own. Type the distance the axles must be: a little wider spreads the gears to it (more backlash, which the facts show; too wide or too close is refused with the range that works), or press <b>Fit Tooth Size</b> to make the teeth mesh at exactly that distance. Frame Holes drills the axles at it. An idea: Spoilboard Toolbox's center-to-center spacing of your spoilboard's holes or threaded inserts is a distance to fit to, to try a pair on bolts in the spoilboard (for a test only: a bolt's thread wears a bore).</li>
@@ -3910,10 +3914,10 @@ if (typeof module !== 'undefined' && module.exports) {
     out.push('<g class="gr-carrier"><circle class="gr-pitch" cx="0" cy="0" r="' + a.toFixed(3) + '"/></g>');
     var sh = GC.gearHoles(o.gears.A, S, o, 'Sun').holes, ph = GC.gearHoles(o.gears.B, P, o, 'Planet').holes;
     out.push('<g class="gr-gear" data-gear="S"><g class="gr-spin"><path class="gr-body' + (cutting('A') ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(S.draw) + sh.map(holeD).join('') + '"/>' +
-      '<circle class="gr-mark" cx="' + S.basics.rp.toFixed(3) + '" cy="0" r="' + (o.module * 0.35).toFixed(3) + '"/></g></g>');
+      '<circle class="gr-mark" cx="' + S.basics.rp.toFixed(3) + '" cy="0" r="' + (o.module * 0.35 * textScale(svg)).toFixed(3) + '"/></g></g>');
     for (var k = 0; k < pl.planets; k++) {
       out.push('<g class="gr-gear gr-planet" data-planet="' + k + '"><line class="gr-dim gr-arm" x1="0" y1="0" x2="0" y2="0"/><g class="gr-spin"><path class="gr-body' + (cutting('B') && (job !== 'B' || k === 0) ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(P.draw) + ph.map(holeD).join('') + '"/>' +
-        '<circle class="gr-mark" cx="' + P.basics.rp.toFixed(3) + '" cy="0" r="' + (o.module * 0.35).toFixed(3) + '"/></g></g>');
+        '<circle class="gr-mark" cx="' + P.basics.rp.toFixed(3) + '" cy="0" r="' + (o.module * 0.35 * textScale(svg)).toFixed(3) + '"/></g></g>');
     }
     out.push('<text x="0" y="' + (b.rOut + pad * 0.7).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">Sun ' + pl.sun + ' · ' + (pl.planets > 0 ? pl.planets : '?') + ' planets of ' + pl.planet + ' · ring ' + pl.ring + '</text>');
     // The ring's outside diameter above; the circle the planets' axles sit on (the carrier's holes) at the right.
@@ -4289,7 +4293,7 @@ if (typeof module !== 'undefined' && module.exports) {
           var r = q.diameter / 2; return ' M' + (q.dx + r).toFixed(3) + ' ' + (-q.dy).toFixed(3) + ' a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0 a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0'; }).join('') + '"/>');
       if (showPath && cut) out.push('<path class="gr-path" d="' + d(g.path) + '"/>');
       // A mark on tooth 0, to follow it round.
-      out.push('<circle class="gr-mark" cx="' + (g.basics.rp).toFixed(3) + '" cy="0" r="' + (g.basics.m * 0.35).toFixed(3) + '"/>');
+      out.push('<circle class="gr-mark" cx="' + (g.basics.rp).toFixed(3) + '" cy="0" r="' + (g.basics.m * 0.35 * textScale(svg)).toFixed(3) + '"/>');
       out.push('</g><circle class="gr-pitch" cx="0" cy="0" r="' + g.basics.rp + '"/>');
       out.push('<text x="0" y="' + (g.basics.ra + pad * 0.75) + '" text-anchor="middle" font-size="' + fs + '">' + key + ' · ' + o.gears[key].teeth + ' teeth</text></g>');
     };
@@ -4299,7 +4303,7 @@ if (typeof module !== 'undefined' && module.exports) {
     out.push(pairDims(o, A, B, cd, fs, pad, rMax));
     // Handles: Gear B's center sets the Center Distance; the top of Gear A
     // its outside diameter (Start from the Center Distance only).
-    var vb = svg.viewBox.baseVal, px = svg.clientWidth > 50 && svg.clientHeight > 50 ? Math.max(vb.width / svg.clientWidth, vb.height / svg.clientHeight) : vb.width / 800;
+    var vb = svg.viewBox.baseVal, px = (svg.clientWidth > 50 && svg.clientHeight > 50 ? Math.max(vb.width / svg.clientWidth, vb.height / svg.clientHeight) : vb.width / 800) / viewZoom(svg);
     var handle = function (name, x, y, title) {
       out.push('<g data-handle="' + name + '"><title>' + title + '</title><circle class="gr-handle-hit" cx="' + x.toFixed(3) + '" cy="' + y.toFixed(3) + '" r="' + (22 * px).toFixed(3) + '"/>' +
         '<circle class="gr-handle" cx="' + x.toFixed(3) + '" cy="' + y.toFixed(3) + '" r="' + (8 * px).toFixed(3) + '"/></g>');
@@ -4470,7 +4474,7 @@ if (typeof module !== 'undefined' && module.exports) {
     out.push('<g class="gr-gear" data-gear="A"><g class="gr-spin">');
     out.push('<path class="gr-body' + (job === 'B' ? ' gr-off' : '') + '" fill-rule="evenodd" d="' + d(A.draw) + holePath(gh) + '"/>');
     if (showPath && job !== 'B') out.push('<path class="gr-path" d="' + d(A.path) + '"/>');
-    out.push('<circle class="gr-mark" cx="' + rp.toFixed(3) + '" cy="0" r="' + (A.basics.m * 0.35).toFixed(3) + '"/>');
+    out.push('<circle class="gr-mark" cx="' + rp.toFixed(3) + '" cy="0" r="' + (A.basics.m * 0.35 * textScale(svg)).toFixed(3) + '"/>');
     out.push('</g><circle class="gr-pitch" cx="0" cy="0" r="' + rp + '"/>');
     out.push('<text x="0" y="' + (-raA - pad * 0.35).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">A · ' + o.gears.A.teeth + ' teeth</text></g>');
     out.push('<g class="gr-gear" data-gear="B" transform="translate(' + xoff.toFixed(3) + ' ' + rp.toFixed(3) + ')"><g class="gr-slide">');
@@ -4505,13 +4509,13 @@ if (typeof module !== 'undefined' && module.exports) {
     out.push('<g class="gr-gear" data-gear="B"><g class="gr-spin">');
     out.push('<path class="gr-body gr-b' + (job === 'A' ? ' gr-off' : '') + '" fill-rule="evenodd" d="' + d(R.draw) + ' ' + d(R.drawOpening) + rh.map(circ).join('') + '"/>');
     if (showPath && job !== 'A') out.push('<path class="gr-path" d="' + d(R.path) + '"/>');
-    out.push('<circle class="gr-mark" cx="' + (b.rp + b.m).toFixed(3) + '" cy="0" r="' + (b.m * 0.35).toFixed(3) + '"/>');
+    out.push('<circle class="gr-mark" cx="' + (b.rp + b.m).toFixed(3) + '" cy="0" r="' + (b.m * 0.35 * textScale(svg)).toFixed(3) + '"/>');
     out.push('</g><circle class="gr-pitch" cx="0" cy="0" r="' + b.rp + '"/>');
     out.push('<text x="0" y="' + (b.rOut + pad * 0.7).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">Ring · ' + b.z + ' teeth</text></g>');
     out.push('<g class="gr-gear" data-gear="A" transform="translate(' + cd.toFixed(3) + ' 0)"><g class="gr-spin">');
     out.push('<path class="gr-body' + (job === 'B' ? ' gr-off' : '') + '" fill-rule="evenodd" d="' + d(A.draw) + gh.map(holeD).join('') + '"/>');
     if (showPath && job !== 'B') out.push('<path class="gr-path" d="' + d(A.path) + '"/>');
-    out.push('<circle class="gr-mark" cx="' + A.basics.rp.toFixed(3) + '" cy="0" r="' + (A.basics.m * 0.35).toFixed(3) + '"/>');
+    out.push('<circle class="gr-mark" cx="' + A.basics.rp.toFixed(3) + '" cy="0" r="' + (A.basics.m * 0.35 * textScale(svg)).toFixed(3) + '"/>');
     out.push('</g><circle class="gr-pitch" cx="0" cy="0" r="' + A.basics.rp + '"/>');
     out.push('<text x="0" y="' + (A.basics.ra + fs * 1.1).toFixed(3) + '" text-anchor="middle" font-size="' + fs + '">A · ' + o.gears.A.teeth + ' teeth</text></g>');
     out.push('<line class="gr-dim" x1="0" y1="0" x2="' + cd.toFixed(3) + '" y2="0" stroke-dasharray="2 3"/>');
@@ -4881,13 +4885,13 @@ if (typeof module !== 'undefined' && module.exports) {
         var wheel = g.teeth > (g.role === 'driver' ? t.stages[g.stage].driven : t.stages[g.stage].driver);
         var gh = GC.gearHoles(trainBody(s, g.teeth, wheel, L.concentric.some(function (c) { return c[1] === g.axle; })), info, oBase, 'Gear').holes;
         out.push('<path class="gr-body' + (g.stage % 2 ? ' gr-b' : '') + (cutting(g) || job === 'frame' ? '' : ' gr-off') + '" fill-rule="evenodd" d="' + d(info.draw) + holesPath(gh) + '"/>');
-        out.push('<circle class="gr-mark" cx="' + info.basics.rp.toFixed(3) + '" cy="0" r="' + (s.module * 0.35).toFixed(3) + '"/>');
+        out.push('<circle class="gr-mark" cx="' + info.basics.rp.toFixed(3) + '" cy="0" r="' + (s.module * 0.35 * textScale(svg)).toFixed(3) + '"/>');
       }
       out.push('</g></g>');
     });
     // Axles: their holes, numbers, and a handle on each after the first to
     // swing it round the one before (its stage's angle).
-    var vb = svg.viewBox.baseVal, px = svg.clientWidth > 50 ? Math.max(vb.width / svg.clientWidth, vb.height / svg.clientHeight) : vb.width / 800;
+    var vb = svg.viewBox.baseVal, px = (svg.clientWidth > 50 ? Math.max(vb.width / svg.clientWidth, vb.height / svg.clientHeight) : vb.width / 800) / viewZoom(svg);
     L.axles.forEach(function (q, i) {
       var on = L.concentric.some(function (c) { return c[1] === i; });
       out.push('<circle class="gr-hole" data-axle-hole="' + i + '" cx="' + q.x.toFixed(3) + '" cy="' + (-q.y).toFixed(3) + '" r="' + Math.max(0.5, (s['gt-axle'] || 0) / 2).toFixed(3) + '"' + (job === 'frame' ? ' style="stroke:var(--color-accent);stroke-width:2"' : '') + '/>');
@@ -6158,21 +6162,144 @@ if (typeof module !== 'undefined' && module.exports) {
   // Its drawing grows to fill the dialog, but its words and measurements
   // only to 1.3 times their size: each drawing's text size times textScale.
   var BIG_TEXT_MAX = 1.3;
-  function textScale(svg) { return svg.grTextScale || 1; }
+  function textScale(svg) { return (svg.grTextScale || 1) / viewZoom(svg); }
+  // Enlarged, as Spoilboard Toolbox's map: the mouse wheel zooms at the
+  // cursor, a pinch between the fingers, and zoomed in a drag on a blank
+  // spot moves it; or the bar's - + and Fit. The drawing sets its own
+  // viewBox each time it's drawn; the zoom is applied on top of that.
+  var ZOOM_MAX = 20;
+  function viewZoom(svg) { return svg.grZoom ? svg.grZoom.s : 1; }
+  function showZoom(svg) {
+    var b = svg.grBase, z = svg.grZoom;
+    if (!b) return;
+    var vb = !z || z.s <= 1 ? [b.x, b.y, b.w, b.h]
+      : [Math.min(Math.max(z.cx, b.x), b.x + b.w) - b.w / z.s / 2, Math.min(Math.max(z.cy, b.y), b.y + b.h) - b.h / z.s / 2, b.w / z.s, b.h / z.s];
+    svg.grShown = vb.join(' ');
+    svg.setAttribute('viewBox', svg.grShown);
+    var m = svg.getScreenCTM();
+    svg.grA = m ? m.a : 0;
+    svg.style.setProperty('--gr-ts', textScale(svg));
+    var lv = $('gr-zoom-level');
+    if (lv) lv.textContent = (Math.round(viewZoom(svg) * 10) / 10) + '\u00d7';
+  }
+  function watchZoom(svg, on) {
+    if (svg.grZoomWatch) { svg.grZoomWatch.disconnect(); svg.grZoomWatch = null; }
+    if (svg.grBase) svg.setAttribute('viewBox', [svg.grBase.x, svg.grBase.y, svg.grBase.w, svg.grBase.h].join(' '));
+    svg.grBase = null; svg.grZoom = null; svg.grShown = null;
+    if (!on) return;
+    var take = function () {
+      var v = svg.getAttribute('viewBox');
+      if (!v || v === svg.grShown) return;
+      var n = v.split(/[\s,]+/).map(Number), m = svg.getScreenCTM();
+      svg.grBase = { x: n[0], y: n[1], w: n[2], h: n[3] };
+      // Drawn again with smaller words, the drawing's own box changes a
+      // little: the zoom keeps the same scale on screen, so nothing moves
+      // under the cursor.
+      if (svg.grZoom && svg.grA && m && m.a > 0) svg.grZoom.s = Math.max(1, svg.grA / m.a);
+      showZoom(svg);
+    };
+    take();
+    svg.grZoomWatch = new MutationObserver(take);
+    svg.grZoomWatch.observe(svg, { attributes: true, attributeFilter: ['viewBox'] });
+  }
+  // Zoom to s with the drawing's point p (user units) at the screen point at.
+  var zoomRedraw = null;
+  function zoomAt(svg, s, p, at) {
+    var b = svg.grBase, m = svg.getScreenCTM();
+    if (!b || !m) return;
+    s = Math.min(ZOOM_MAX, Math.max(1, s));
+    var s0 = viewZoom(svg), z = svg.grZoom || { s: 1, cx: b.x + b.w / 2, cy: b.y + b.h / 2 };
+    var mid = { x: m.a * z.cx + m.e, y: m.d * z.cy + m.f }, k = m.a * s / s0;
+    svg.grZoom = s <= 1 ? null : { s: s, cx: p.x - (at.x - mid.x) / k, cy: p.y - (at.y - mid.y) / k };
+    showZoom(svg);
+    // Words and handles drawn again for the new zoom once it settles.
+    clearTimeout(zoomRedraw);
+    zoomRedraw = setTimeout(touch, 200);
+  }
+  function svgPoint(svg, x, y) {
+    var pt = svg.createSVGPoint(); pt.x = x; pt.y = y;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  // The bar's buttons: twice or half, about the middle of the view; Fit.
+  function zoomBy(f) {
+    var big = ROOT.querySelector('.gr-big'), svg = big && (big.matches('svg') ? big : big.querySelector('svg.gr-preview'));
+    if (!svg || !svg.grBase) return;
+    var r = svg.getBoundingClientRect(), at = { x: r.left + r.width / 2, y: r.top + (r.height + parseFloat(getComputedStyle(svg).paddingTop || 0)) / 2 };
+    zoomAt(svg, f ? viewZoom(svg) * f : 1, svgPoint(svg, at.x, at.y), at);
+  }
+  function wireZoom() {
+    var bigSvg = function (t) {
+      var svg = t.closest && t.closest('svg.gr-big, .gr-big svg.gr-preview');
+      return svg && ROOT.contains(svg) ? svg : null;
+    };
+    ROOT.addEventListener('wheel', function (e) {
+      var svg = bigSvg(e.target);
+      if (!svg) return;
+      e.preventDefault();
+      if (!e.deltaY) return;
+      zoomAt(svg, viewZoom(svg) * (e.deltaY < 0 ? 1.25 : 0.8), svgPoint(svg, e.clientX, e.clientY), { x: e.clientX, y: e.clientY });
+    }, { passive: false });
+    // Pointers down on a blank spot of the enlarged drawing: one pans, two pinch.
+    var pts = new Map(), gesture = null;
+    var start = function (svg) {
+      var list = Array.from(pts.values());
+      if (list.length === 1) gesture = { svg: svg, s: viewZoom(svg), p: svgPoint(svg, list[0].x, list[0].y) };
+      else {
+        var a = list[0], b = list[1], mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        gesture = { svg: svg, s: viewZoom(svg), p: svgPoint(svg, mid.x, mid.y), d: Math.hypot(a.x - b.x, a.y - b.y) || 1 };
+      }
+    };
+    ROOT.addEventListener('pointerdown', function (e) {
+      var svg = bigSvg(e.target);
+      if (!svg || e.target.closest('[data-handle], [data-axle-handle]') || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      if (gesture && gesture.svg !== svg) return;
+      // A first finger (or the mouse) starts afresh: one whose up was lost is dropped.
+      if (e.isPrimary) { pts.clear(); gesture = null; }
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pts.size > 2) return;
+      try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+      start(svg);
+    });
+    ROOT.addEventListener('pointermove', function (e) {
+      if (!gesture || !pts.has(e.pointerId)) return;
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      var list = Array.from(pts.values()), svg = gesture.svg;
+      if (list.length === 1) { if (!gesture.ignore && viewZoom(svg) > 1) zoomAt(svg, gesture.s, gesture.p, list[0]); return; }
+      var a = list[0], b = list[1];
+      zoomAt(svg, gesture.s * Math.hypot(a.x - b.x, a.y - b.y) / gesture.d, gesture.p, { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    });
+    // A pinch ends when either finger lifts; the other doesn't start a drag.
+    var end = function (e) {
+      if (!pts.delete(e.pointerId)) return;
+      if (!pts.size) gesture = null; else if (gesture.d) gesture.ignore = true;
+    };
+    ROOT.addEventListener('pointerup', end);
+    ROOT.addEventListener('pointercancel', end);
+  }
   function setPreviewEnlarged(el, big) {
     var svg = el.matches('svg') ? el : el.querySelector('svg.gr-preview');
     var before = svg.getScreenCTM() ? svg.getScreenCTM().a : 0;
+    watchZoom(svg, false);
     el.classList.toggle('gr-big', big);
     var k = before > 0 && svg.getScreenCTM() ? svg.getScreenCTM().a / before : 1;
     svg.grTextScale = big && k > BIG_TEXT_MAX ? BIG_TEXT_MAX / k : 1;
     svg.style.setProperty('--gr-ts', svg.grTextScale);
+    watchZoom(svg, big);
     var hint = $('gr-big-hint');
     if (big && !hint) {
       hint = document.createElement('div');
       hint.id = 'gr-big-hint'; hint.className = 'gr-big-hint';
-      hint.textContent = 'Click a blank spot or press Esc to return';
+      hint.textContent = 'Scroll or pinch to zoom, drag to move; click a blank spot or press Esc to return';
       ROOT.appendChild(hint);
-    } else if (!big && hint) hint.remove();
+      var bar = document.createElement('div');
+      bar.id = 'gr-zoom-bar'; bar.className = 'gr-zoom-bar';
+      bar.innerHTML = '<button type="button" class="gr-secondary" data-zoom="0.5" aria-label="Zoom out" title="Zoom out (or the mouse wheel, or pinch).">&minus;</button>' +
+        '<span class="gr-hint gr-zoom-level" id="gr-zoom-level">1&times;</span>' +
+        '<button type="button" class="gr-secondary" data-zoom="2" aria-label="Zoom in" title="Zoom in (or the mouse wheel, or pinch).">+</button>' +
+        '<button type="button" class="gr-secondary" data-zoom="0" title="Show all of it again.">Fit</button>';
+      bar.addEventListener('click', function (e) { var b = e.target.closest('[data-zoom]'); if (b) zoomBy(+b.dataset.zoom); });
+      ROOT.appendChild(bar);
+    } else if (!big && hint) { hint.remove(); if ($('gr-zoom-bar')) $('gr-zoom-bar').remove(); }
     // Handles are sized to the screen: drawn again at the new size.
     touch();
   }
@@ -6203,6 +6330,7 @@ if (typeof module !== 'undefined' && module.exports) {
     wireArrowKeySteps();
     wireErrorBubble();
     wirePreviewEnlarge();
+    wireZoom();
     ROOT.querySelectorAll('.gr-nav-btn').forEach(function (b) { b.addEventListener('click', function () { showView(b.dataset.view); }); });
     $('gr-help-back').addEventListener('click', function () { showView(lastView); });
     $('gr-close').addEventListener('click', function () { save(true); window.postMessage({ type: 'close-plugin-dialog' }, '*'); });
