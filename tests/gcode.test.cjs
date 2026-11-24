@@ -450,3 +450,34 @@ test("the controller's spindle delay ($394) replaces the G4 wait", () => {
   assert.doesNotMatch(gcode, /^G4 /m);
   assert.match(gcode, /^M3 S18000\n; The controller waits 3 s \(\$394\)$/m);
 });
+
+test('Safe Z: $SAFEZ where ncSender knows it, else the G53 move as before', () => {
+  const tc = { ...base, toolNumber: 2 };
+  const old = GC.generate({ ...tc, safeZHeightMm: -5 }).gcode;
+  assert.strictEqual(GC.generate({ ...tc, safeZHeightMm: -5, safeZCommand: false }).gcode, old);
+  assert.match(old, /^G53 G0 Z-5\.000 ; Safe Z$/m);
+  assert.match(GC.generate(tc).gcode, /^G53 G0 Z0 ; Safe Z$/m);
+  const gcode = GC.generate({ ...tc, safeZHeightMm: -5, safeZCommand: true }).gcode;
+  assert.doesNotMatch(gcode, /G53/);
+  assert.strictEqual(gcode.match(/^\$SAFEZ ; Safe Z$/gm).length, 2);
+  assert.match(gcode, /^M6 T2 ; Tool change\nG21 G90\n\$SAFEZ$/m);
+  assert.strictEqual(gcode, old.replace(/G53 G0 Z-5\.000/g, '$SAFEZ'));
+});
+
+test('safeZVersionOk: ncSender 2.0.228 on, Pro 2.0.326 on, dev builds; else no', () => {
+  const ok = GC.safeZVersionOk;
+  assert.strictEqual(ok('community', '2.0.227'), false);
+  assert.strictEqual(ok('community', '2.0.228'), true);
+  assert.strictEqual(ok('community', '2.1.0'), true);
+  assert.strictEqual(ok(undefined, '2.0.230'), true);
+  assert.strictEqual(ok('pro', '2.0.325'), false);
+  assert.strictEqual(ok('pro', '2.0.326'), true);
+  assert.strictEqual(ok('pro', 'v2.0.329'), true);
+  assert.strictEqual(ok('pro', '2.0.326-beta.1'), false);
+  assert.strictEqual(ok('pro', '2.0.327-beta.1'), true);
+  assert.strictEqual(ok('community', '2.0.100-dev'), true);
+  assert.strictEqual(ok('community', 'dev'), true);
+  assert.strictEqual(ok('community', 'garbage'), false);
+  assert.strictEqual(ok('community', ''), false);
+  assert.strictEqual(ok('community', null), false);
+});

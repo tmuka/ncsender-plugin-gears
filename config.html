@@ -3105,7 +3105,10 @@ if (typeof module !== 'undefined' && module.exports) {
     L.push('');
     L.push('G21 ; mm');
     L.push('G17 G90 G94');
-    var safe = typeof o.safeZHeightMm === 'number' && isFinite(o.safeZHeightMm) ? 'G53 G0 Z' + f3(o.safeZHeightMm) : 'G53 G0 Z0';
+    // $SAFEZ: ncSender raises Z to its Safe Z setting when the line runs, in
+    // the program's units (o.safeZCommand: this ncSender knows it).
+    var safe = o.safeZCommand ? '$SAFEZ'
+      : typeof o.safeZHeightMm === 'number' && isFinite(o.safeZHeightMm) ? 'G53 G0 Z' + f3(o.safeZHeightMm) : 'G53 G0 Z0';
     L.push(safe + ' ; Safe Z');
     if (o.toolNumber > 0) { L.push('M6 T' + o.toolNumber + ' ; Tool change'); L.push('G21 G90'); L.push(safe); }
     if (o.mist) L.push('M7');
@@ -3181,7 +3184,25 @@ if (typeof module !== 'undefined' && module.exports) {
              extent: { x0: ext.x0 + sx, y0: ext.y0 + sy, x1: ext.x1 + sx, y1: ext.y1 + sy } };
   }
 
-  return { generate: generate, gapMinimum: gapMinimum, nestedDistance: nestedDistance, nestTurn: nestTurn, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners,
+  // ncSender's $SAFEZ raises Z to the Safe Z setting, in machine coordinates
+  // and in the program's own units. It arrived in ncSender 2.0.228 and
+  // ncSender Pro 2.0.326; older versions pass it on to the controller, which
+  // rejects it. edition: /api/app-info's; version: the running version
+  // (/api/updates/check's currentVersion). When in doubt, the answer is no.
+  function safeZVersionOk(edition, version) {
+    var v = String(version || '');
+    if (v === 'dev' || /-dev\b/.test(v)) return true;
+    var m = /^v?(\d+)\.(\d+)\.(\d+)(-.*)?$/.exec(v.trim());
+    if (!m) return false;
+    var min = edition === 'pro' ? [2, 0, 326] : [2, 0, 228];
+    for (var i = 0; i < 3; i++) {
+      var d = Number(m[i + 1]) - min[i];
+      if (d) return d > 0;
+    }
+    return !m[4]; // a beta of the first version that has it may not
+  }
+
+  return { generate: generate, safeZVersionOk: safeZVersionOk, gapMinimum: gapMinimum, nestedDistance: nestedDistance, nestTurn: nestTurn, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners,
            ringNests: ringNests, packRows: packRows, packCircles: packCircles, boreOutline: boreOutline, boreReach: boreReach, bone: bone, rackHoles: rackHoles, ringHoles: ringHoles, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE };
 });
 /* END lib/gear-gcode.cjs */</script>
@@ -3198,7 +3219,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var parseUnitValue = NcUnitInput.parseUnitValue;
   var ROOT = document.querySelector('.gr-wrapper');
 
-  var state = { imperial: false, unit: 'mm', safeZHeightMm: null, maxFeedMm: null, spindleMax: null, spindleMin: null,
+  var state = { imperial: false, unit: 'mm', safeZHeightMm: null, safeZCommand: false, maxFeedMm: null, spindleMax: null, spindleMin: null,
                 view: 'pair', feedsAuto: false, turn: 0, animating: false, cache: {}, written: {}, filled: {}, size: null, travel: null,
                 sets: initialConfig && Array.isArray(initialConfig.sets) ? initialConfig.sets.filter(function (x) { return x && x.name && x.v; }) : [],
                 standard: initialConfig && initialConfig.standard && initialConfig.standard.module > 0 ? initialConfig.standard : null };
@@ -3372,7 +3393,7 @@ if (typeof module !== 'undefined' && module.exports) {
       toolNumber: bitToolNumber(),
       frame: { A: s['gr-frame-a'], B: s['gr-frame-b'] },
       origin: job === 'frame' ? 'center' : $('gr-origin').value, direction: $('gr-direction').value, gap: s['gr-gap'],
-      imperial: state.imperial, safeZHeightMm: state.safeZHeightMm, stepoverPct: 40, holeCut: $('gr-hole-cut').value
+      imperial: state.imperial, safeZHeightMm: state.safeZHeightMm, safeZCommand: state.safeZCommand, stepoverPct: 40, holeCut: $('gr-hole-cut').value
     };
   }
 
@@ -6460,7 +6481,25 @@ if (typeof module !== 'undefined' && module.exports) {
     $('gr-gen-frame').addEventListener('click', function () { generate('frame'); });
   }
 
+  // Resolves true when this ncSender runs $SAFEZ (GC.safeZVersionOk).
+  // /api/app-info (2.0.76 on) names the edition; /api/updates/check reports
+  // the running version even when it can't reach GitHub. Gives up after 5 s.
+  function ncSenderHasSafeZ(base) {
+    var get = function (path) {
+      return fetch((base || '') + path).then(function (r) {
+        if (!r.ok) throw new Error(path + ': ' + r.status);
+        return r.json();
+      });
+    };
+    var check = Promise.all([get('/api/app-info'), get('/api/updates/check')])
+      .then(function (r) { return GC.safeZVersionOk(r[0] && r[0].edition, r[1] && r[1].currentVersion); })
+      .catch(function () { return false; });
+    var late = new Promise(function (resolve) { setTimeout(function () { resolve(false); }, 5000); });
+    return Promise.race([check, late]);
+  }
+
   async function init() {
+    ncSenderHasSafeZ(BASE_URL).then(function (yes) { state.safeZCommand = yes; });
     try {
       var s = await (await fetch(BASE_URL + '/api/settings')).json();
       state.imperial = (s.unitsPreference || 'metric') === 'imperial';

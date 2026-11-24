@@ -10,7 +10,7 @@ GPL-3.0: it reuses QuickCut's code (siganberg/ncsender-plugin-quickcut, GPL-3.0 
 | --- | --- |
 | `config.html` | The dialog: markup, styles, the UI script. ncSender runs it inline, so `lib/*.cjs` are copied into it between `/* BEGIN lib/x.cjs */` markers. |
 | `lib/gear-geometry.cjs` | Rack-generated involute teeth (`gear`), the smallest module a bit can cut (`minModule`), pair facts (`pair`), the outward offset with loop trimming (`offsetOutward`), simplification. mm, radians. |
-| `lib/gear-gcode.cjs` | The program: holes (cleared), teeth (offset path, depth passes, ramps, tabs on tips), both gears, frame holes (two, or a train's `axles`). |
+| `lib/gear-gcode.cjs` | The program: holes (cleared), teeth (offset path, depth passes, ramps, tabs on tips), both gears, frame holes (two, or a train's `axles`). Safe Z is `$SAFEZ` where ncSender knows it (`safeZVersionOk`: 2.0.228 on, Pro 2.0.326 on; config.html asks at start), else `G53 G0 Z<Safe Z>` as before. |
 | `lib/starting-feeds.cjs` | Copied from QuickCut; keep in step with it. |
 | `ncsender-unit-input` | The fields' units and math (`1/4"`, `6.35mm`, `1in+4mm`): tmuka/ncsender-unit-input, a dev dependency pinned to a tag in package.json; its `dist/unit-input.global.js` is copied into config.html (`window.NcUnitInput`). `npm install` first. |
 | `.scripts/inline.cjs` | Copies the libs (and the unit-input library) into config.html; `--check` fails when a copy is stale (`npm test` runs it). |
