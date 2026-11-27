@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.5: New icon
 
 - New icon: a blueprint of two meshing gears.
 
