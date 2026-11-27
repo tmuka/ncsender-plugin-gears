@@ -8,6 +8,10 @@
   `(Gear A teeth: 36, 133.000 mm across the tips, 3 tabs 1.5 mm high on tips)`, and a spoke window's and a rack's
   (`3 bottom tabs 1.5 mm high`) are shorter. An inch machine's note is a line of its own.
 
+## 0.7.5: New icon
+
+- New icon: a blueprint of two meshing gears.
+
 ## 0.7.4: Faster narrow holes, Safe Z at run time
 
 - **A hole barely wider than the bit no longer crawls down:** its helix was 5° on a circle too small for the
