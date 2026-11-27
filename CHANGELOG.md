@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.6: Every line fits Grbl
 
 - **Every program line fits Grbl's buffer:** comments are 79 characters or fewer (a long one, such as a gear
   train's names or a note, wraps onto lines starting with two spaces), plain ASCII (no curly apostrophes) and never
