@@ -2231,7 +2231,23 @@ if (typeof module !== 'undefined' && module.exports) {
   var MIN_RAMP = 1;
   var f3 = function (v) { return (Math.abs(v) < 5e-4 ? 0 : v).toFixed(3); };
   var f4 = function (v) { return (Math.abs(v) < 5e-5 ? 0 : v).toFixed(4); };
-  var comment = function (t) { return '(' + String(t).replace(/[()]/g, function (c) { return c === '(' ? '[' : ']'; }) + ')'; };
+  // A comment for every firmware: printable ASCII, no realtime characters
+  // (! ? ~), parentheses made brackets, and lines of 79 characters or fewer
+  // (Grbl's line buffer). A long one wraps at spaces; the lines after the
+  // first start with two spaces, so the first still names the section.
+  var COMMENT_WIDTH = 79, ASCII = { '\u2018': "'", '\u2019': "'", '\u201c': '"', '\u201d': '"', '\u2013': '-', '\u2014': '-', '\u00d7': 'x', '\u00b0': ' deg', '\u00f7': '/', '\u00d8': 'dia ', '(': '[', ')': ']', '!': '.', '?': '', '~': '-' };
+  var comment = function (t) {
+    var s = String(t).replace(/\s+/g, ' ').replace(/[^ -}]|[()!?~]/g, function (c) { return ASCII[c] != null ? ASCII[c] : ''; }).replace(/\s+/g, ' ').trim();
+    var out = [], lead = '';
+    while (s.length > COMMENT_WIDTH - 2 - lead.length) {
+      var room = COMMENT_WIDTH - 2 - lead.length, cut = s.lastIndexOf(' ', room);
+      if (cut < room / 2) cut = room;
+      out.push('(' + lead + s.slice(0, cut).trim() + ')');
+      s = s.slice(cut).trim(); lead = '  ';
+    }
+    out.push('(' + lead + s + ')');
+    return out.join('\n');
+  };
 
   // The depths of the passes, each no deeper than step, with one at the
   // tabs' top so they come out the height asked.
@@ -2512,7 +2528,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var hex = h.shape === 'hex', G = o.direction === 'climb' ? 'G3' : 'G2', ccw = o.direction === 'climb';
     var r = o.bitDiameter / 2, R = h.diameter / 2 - r, step = Math.max(0.05, o.bitDiameter * (o.stepoverPct || 40) / 100);
     var levels = depthLevels(h.depth, o.depthOfCut, null);
-    L.push(comment(h.label + ': ' + (h.shape === 'window' ? 'between spokes ' + h.win.w.toFixed(2) + ' mm wide, from ' + h.win.Ri.toFixed(2) + ' to ' + h.win.Ro.toFixed(2) + ' mm out' : h.diameter.toFixed(2) + ' mm') + (hex ? ' across the flats' : h.shape === 'dflat' ? ', ' + h.flat.toFixed(2) + ' mm across the flat' :
+    L.push(comment(h.label + ': ' + (h.shape === 'window' ? h.win.w.toFixed(2) + ' mm wide, ' + h.win.Ri.toFixed(2) + '-' + h.win.Ro.toFixed(2) + ' mm out' : h.diameter.toFixed(2) + ' mm') + (hex ? ' across the flats' : h.shape === 'dflat' ? ', ' + h.flat.toFixed(2) + ' mm across the flat' :
       h.shape === 'keyway' ? ', keyway ' + h.keyWidth.toFixed(2) + ' mm wide, ' + h.keyDepth.toFixed(2) + ' mm deep' : '') + ', ' + h.depth.toFixed(2) + ' mm deep'));
     if (h.shape === 'dflat') { dHole(L, h, o, levels); return; }
     if (cutOut(L, h, o)) return;
@@ -3162,7 +3178,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var levels = depthLevels(o.depth, o.depthOfCut, tabTop);
       var start = pointAt(sg, s0);
       L.push(comment(isRack ? 'Rack teeth: ' + info.basics.z + ', ' + info.basics.length.toFixed(3) + ' mm long, ' + (info.basics.top - info.basics.bottom).toFixed(3) + ' mm tall' + (tabs.length ? ', ' + tabs.length + ' tabs ' + (+o.tabs.height.toFixed(3)) + ' mm high on its bottom edge' : '')
-        : nameOf(pl.key) + ' teeth: ' + info.basics.z + ', outside diameter ' + (2 * info.basics.ra).toFixed(3) + ' mm' + (tabs.length ? ', ' + tabs.length + ' tabs ' + (+o.tabs.height.toFixed(3)) + ' mm high on tooth tips' : '')));
+        : nameOf(pl.key) + ' teeth: ' + info.basics.z + ', ' + (2 * info.basics.ra).toFixed(3) + ' mm across the tips' + (tabs.length ? ', ' + tabs.length + ' tabs ' + (+o.tabs.height.toFixed(3)) + ' mm high on tips' : '')));
       L.push('G0 X' + f4(start.x) + ' Y' + f4(start.y));
       L.push('G0 Z' + f3(o.hop));
       var prev = 0;

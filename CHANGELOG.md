@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Every program line fits Grbl's buffer:** comments are 79 characters or fewer (a long one, such as a gear
+  train's names or a note, wraps onto lines starting with two spaces), plain ASCII (no curly apostrophes) and never
+  hold `!`, `?` or `~`. The teeth header was 81 characters with 36 teeth and tabs; it now reads
+  `(Gear A teeth: 36, 133.000 mm across the tips, 3 tabs 1.5 mm high on tips)`, and a spoke window's is shorter.
+
 ## 0.7.3: Review fixes
 
 - **An error's words always show:** leaving a field before its error appears no longer leaves only a red outline;
