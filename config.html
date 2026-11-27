@@ -6083,9 +6083,12 @@ if (typeof module !== 'undefined' && module.exports) {
     touch();
   }
   // Before Generate: the tool table read again, so a changed one counts.
+  // Without a tool changer it's only for the bit's kind (compression or
+  // down-cut), so Generate waits at most 2 s for it.
   async function refreshTools() {
-    try { await readTools(); } catch (e) { return; }
-    if (!state.atc) return;
+    var read = readTools().then(function () { return true; }, function () { return false; });
+    if (!state.atc) { await Promise.race([read, new Promise(function (ok) { setTimeout(ok, 2000); })]); return; }
+    if (!(await read)) return;
     showBitTool();
   }
 

@@ -13,7 +13,8 @@ function run(gcode) {
   let x = 0, y = 0, z = 50, f = 0, section = '';
   const moves = [];
   for (const raw of gcode.split('\n')) {
-    if (/^\(/.test(raw)) { section = raw; continue; }
+    // A warning isn't a section: the moves after it stay in the one before.
+    if (/^\(/.test(raw)) { if (!/^\(WARNING/.test(raw)) section = raw; continue; }
     const l = raw.replace(/;.*$/, '').trim();
     const v = (a) => { const m = l.match(new RegExp('\\b' + a + '(-?[\\d.]+)')); return m ? +m[1] : null; };
     if (v('F') != null) f = v('F');
@@ -520,8 +521,9 @@ test('a narrow hole comes down at the Plunge Rate at the speed its circle allows
   for (const m of descent(wide, 'Bore')) assert.ok(Math.abs((m.z0 - m.z) / m.len - GC.RAMP_SLOPE) < 0.01, m.line);
   // Compression and down-cut bits: 5° and a warning; others no warning.
   for (const bitCut of ['compression', 'down']) {
-    const o = { ...narrow, bitCut }, gc = GC.generate(o).gcode;
-    for (const m of descent(o, 'Bore')) assert.ok((m.z0 - m.z) / m.len <= GC.RAMP_SLOPE * 1.01, m.line);
+    const o = { ...narrow, bitCut }, gc = GC.generate(o).gcode, dd = descent(o, 'Bore');
+    assert.ok(dd.length > 10, 'a helix');
+    for (const m of dd) assert.ok((m.z0 - m.z) / m.len <= GC.RAMP_SLOPE * 1.01, m.line);
     assert.match(gc, new RegExp('WARNING: ' + (bitCut === 'down' ? 'down-cut' : 'compression') + ' bit in a narrow hole'));
   }
   assert.doesNotMatch(GC.generate(narrow).gcode, /WARNING/);
