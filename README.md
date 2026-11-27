@@ -132,7 +132,10 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   middle, so nothing comes loose.
 - **Cutting:** each gear's holes, then its teeth from outside a bit radius out; depth passes, each
   ramped down along the path at 5° or less (Z never faster than the Plunge Rate), and **Holding Tabs**
-  on tooth tips, where they're easy to sand off. Conventional or Climb.
+  on tooth tips, where they're easy to sand off. Conventional or Climb. A hole barely wider than the bit
+  comes down at the Plunge Rate instead of a slow 5° helix on its tiny circle (straight down when that's steeper
+  than 45°), at the speed the machine's acceleration (`$120`/`$121`) allows on that circle; a compression or
+  down-cut bit (by its tool type or name) keeps the 5° ramp, with a warning in the program.
 - **Both gears in one program**, nested to save stock: Gear B turned so its teeth face Gear A's spaces, **Gap Between**
   apart where they come closest: at least the bit's diameter and a tenth (blank), or more for a screw or clamp, or
   sturdier tabs. Or either one alone; X0 Y0 at the gear's center or the front-left corner of the cuts.

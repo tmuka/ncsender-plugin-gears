@@ -13,7 +13,8 @@ function run(gcode) {
   let x = 0, y = 0, z = 50, f = 0, section = '';
   const moves = [];
   for (const raw of gcode.split('\n')) {
-    if (/^\(/.test(raw)) { if (!/^\( /.test(raw)) section = raw; continue; }  // '(  ' continues a long comment
+    // A warning isn't a section: the moves after it stay in the one before; '(  ' continues a long comment.
+    if (/^\(/.test(raw)) { if (!/^\(WARNING|^\( /.test(raw)) section = raw; continue; }
     const l = raw.replace(/;.*$/, '').trim();
     const v = (a) => { const m = l.match(new RegExp('\\b' + a + '(-?[\\d.]+)')); return m ? +m[1] : null; };
     if (v('F') != null) f = v('F');
@@ -485,7 +486,7 @@ test('safeZVersionOk: ncSender 2.0.228 on, Pro 2.0.326 on, dev builds; else no',
 test('every line fits Grbl: 79 characters or fewer, printable ASCII, no ! ? ~', () => {
   const long = 'Gear 3, the driven gear of stage 2 (the minute hand’s wheel) – 40 teeth! ~ Why? ×2';
   const many = [36, 12, 40, 10, 48, 8].map((z, i) => ({ label: (i % 2 ? 'Pinion ' : long + ' ') + (i + 1), body: { teeth: z, bore: 6, boreShape: i % 2 ? 'dflat' : 'keyway', flat: 5, keyWidth: 4, keyDepth: 1, holes: i % 2 ? 0 : 4 } }));
-  const progs = [base, { ...base, job: 'B', toolNumber: 12, mist: true, flood: true, firmwareSpindleDelay: 4, safeZCommand: true }, { ...base, job: 'both', imperial: true, origin: 'front-left' }, { ...base, job: 'frame' }, { ...base, job: 'both', module: 25.4 / 3, clearance: null, gears: { A: { teeth: 12, bore: 0, holes: 0 }, B: { teeth: 6, bore: 6, boreShape: 'dflat', flat: 5.461, holes: 0 } } },
+  const progs = [base, { ...base, job: 'B', toolNumber: 12, mist: true, flood: true, firmwareSpindleDelay: 4, safeZCommand: true }, { ...base, job: 'both', imperial: true, origin: 'front-left' }, { ...base, job: 'frame' }, { ...base, bitCut: 'compression', machineAccelMm: 700, gears: { A: { teeth: 36, bore: 3.875, holes: 0 }, B: base.gears.B } }, { ...base, job: 'both', module: 25.4 / 3, clearance: null, gears: { A: { teeth: 12, bore: 0, holes: 0 }, B: { teeth: 6, bore: 6, boreShape: 'dflat', flat: 5.461, holes: 0 } } },
     { ...base, job: 'both', gears: { A: { teeth: 36, bore: 14, boreShape: 'hex', holes: 6, holeStyle: 'spokes' }, B: { teeth: 18, bore: 10, boreShape: 'keyway', keyWidth: 3.3, keyDepth: 1.5, holes: 0 } } },
     { ...base, job: 'both', gears: { A: { teeth: 18, bore: 8, holes: 0 }, B: { kind: 'rack', teeth: 12, rackHeight: 12, bore: 4, holes: 3 } } },
     { ...base, job: 'both', gears: { A: { teeth: 14, bore: 8, holes: 0 }, B: { teeth: 40, kind: 'ring', rim: 12, bore: 4, holes: 4 } } },
@@ -506,4 +507,56 @@ test('every line fits Grbl: 79 characters or fewer, printable ASCII, no ! ? ~', 
   }
   // The base settings' teeth header fits on one line.
   assert.match(GC.generate(base).gcode, /^\(Gear A teeth: 36, 133\.000 mm across the tips, 3 tabs 1\.5 mm high on tips\)\n/m);
+});
+
+// A bore just over the bit (QuickCut PR #59): the helix that crawled at 5°.
+test('a narrow hole comes down at the Plunge Rate at the speed its circle allows; wider ones keep 5°; compression and down-cut bits keep 5° with a warning', () => {
+  // 1/8" bit, 3.875 mm bore: the helix is 0.35 mm round, under half the bit's radius.
+  const narrow = { ...base, machineAccelMm: 700, gears: { A: { teeth: 36, bore: 3.875, holes: 0 }, B: base.gears.B } };
+  const descent = (o, label) => run(GC.generate(o).gcode).filter((m) => new RegExp(label, 'i').test(m.section) && m.g > 0 && m.z < m.z0 - 1e-6 && m.z0 <= 0);
+  // Z speed the machine reaches: the feed, capped on a circle by sqrt(a r).
+  const zRate = (m, a) => {
+    const r = m.g > 1 ? Math.hypot(+/I(-?[\d.]+)/.exec(m.line)[1], +/J(-?[\d.]+)/.exec(m.line)[1]) : 0;
+    const v = r > 0 && a ? Math.min(m.f, Math.sqrt(a * r) * 60) : m.f;
+    return v * (m.z0 - m.z) / Math.hypot(m.len, m.z0 - m.z);
+  };
+  // The whole descent's Z rate: its drop over its time.
+  const avgRate = (ms, a) => ms.reduce((s, m) => s + m.z0 - m.z, 0) / ms.reduce((s, m) => s + (m.z0 - m.z) / zRate(m, a), 0);
+  const plunge = Math.min(narrow.plungeFeedRate, narrow.feedRate);
+  let d = descent(narrow, 'Bore');
+  assert.ok(d.length > 0 && d.every((m) => m.g > 1), 'a helix');
+  for (const m of d) assert.ok(zRate(m, 700) <= narrow.plungeFeedRate * 1.02, m.line);
+  assert.ok(avgRate(d, 700) > 0.7 * plunge, `Z at ${avgRate(d, 700).toFixed(0)}`);
+  // Without $120/$121, the feed is the speed.
+  d = descent({ ...narrow, machineAccelMm: null }, 'Bore');
+  assert.ok(avgRate(d) > 0.7 * plunge && d.every((m) => zRate(m) <= plunge * 1.02), `Z at ${avgRate(d).toFixed(0)}`);
+  // Steeper than 45°: straight down at min(Plunge, Feed), then the rings cut the lap.
+  const steep = { ...narrow, plungeFeedRate: 1500 }, sd = descent(steep, 'Bore');
+  assert.ok(sd.length > 0 && sd.every((m) => m.g === 1 && m.len < 1e-9 && m.f === 1372), sd.map((m) => m.line).join('\n'));
+  assert.ok(run(GC.generate(steep).gcode).some((m) => /bore/i.test(m.section) && m.g > 1 && m.z0 === m.z && m.z === -steep.depth), 'a lap at the bottom');
+  // A D bore and a hex bore that narrow too.
+  for (const g of [{ teeth: 36, bore: 3.875, boreShape: 'dflat', flat: 3.6, holes: 0 }, { teeth: 36, bore: 3.875, boreShape: 'hex', holes: 0 }]) {
+    const o = { ...narrow, gears: { A: g, B: base.gears.B } };
+    assert.deepEqual(GC.generate(o).problems, []);
+    const dd = descent(o, 'Bore');
+    assert.ok(dd.length > 0);
+    assert.ok(avgRate(dd, 700) > 0.7 * plunge, `${g.boreShape}: Z at ${avgRate(dd, 700).toFixed(0)}`);
+  }
+  // A wider helix (an 8 mm bore: 0.95 mm round) keeps 5°.
+  const wide = { ...narrow, gears: { A: { teeth: 36, bore: 8, holes: 0 }, B: base.gears.B } };
+  for (const m of descent(wide, 'Bore')) assert.ok(Math.abs((m.z0 - m.z) / m.len - GC.RAMP_SLOPE) < 0.01, m.line);
+  // Compression and down-cut bits: 5° and a warning; others no warning.
+  for (const bitCut of ['compression', 'down']) {
+    const o = { ...narrow, bitCut }, gc = GC.generate(o).gcode, dd = descent(o, 'Bore');
+    assert.ok(dd.length > 10, 'a helix');
+    for (const m of dd) assert.ok((m.z0 - m.z) / m.len <= GC.RAMP_SLOPE * 1.01, m.line);
+    assert.match(gc, new RegExp('WARNING: ' + (bitCut === 'down' ? 'down-cut' : 'compression') + ' bit in a narrow hole'));
+  }
+  assert.doesNotMatch(GC.generate(narrow).gcode, /WARNING/);
+  assert.doesNotMatch(GC.generate({ ...wide, bitCut: 'compression' }).gcode, /WARNING/);
+  // The rule itself.
+  const o = { bitDiameter: 12.7, feedRate: 2000, plungeFeedRate: 500, machineAccelMm: 700 };
+  assert.ok(Math.abs(GC.helixSlope(o, 0.35) - 500 / (Math.sqrt(700 * 0.35) * 60)) < 1e-9);
+  assert.equal(GC.helixSlope(o, 3.2), GC.RAMP_SLOPE);
+  assert.equal(GC.helixSlope({ ...o, bitCut: 'down' }, 0.35), GC.RAMP_SLOPE);
 });

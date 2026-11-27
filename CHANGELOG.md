@@ -8,6 +8,15 @@
   `(Gear A teeth: 36, 133.000 mm across the tips, 3 tabs 1.5 mm high on tips)`, and a spoke window's and a rack's
   (`3 bottom tabs 1.5 mm high`) are shorter. An inch machine's note is a line of its own.
 
+## 0.7.4: Faster narrow holes, Safe Z at run time
+
+- **A hole barely wider than the bit no longer crawls down:** its helix was 5° on a circle too small for the
+  machine to run at the feed (a 1/8" bit in a 3.9 mm bore came down near 80 mm/min). Under half the bit's radius
+  it now comes down at the Plunge Rate, at the speed `$120`/`$121` allow on that circle, or straight down when
+  steeper than 45°. Compression and down-cut bits keep 5°, with a warning. As QuickCut's (PR #59).
+- **Safe Z follows ncSender's setting at run time:** programs retract with `$SAFEZ` on ncSender 2.0.228 and later
+  (Pro 2.0.326 and later), so a changed Safe Z needs no new program; older versions keep `G53 G0 Z<Safe Z>`.
+
 ## 0.7.3: Review fixes
 
 - **An error's words always show:** leaving a field before its error appears no longer leaves only a red outline;
