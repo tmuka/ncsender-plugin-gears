@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- New icon: a blueprint of two meshing gears.
+
 ## 0.7.4: Faster narrow holes, Safe Z at run time
 
 - **A hole barely wider than the bit no longer crawls down:** its helix was 5° on a circle too small for the
