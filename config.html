@@ -2253,6 +2253,44 @@ if (typeof module !== 'undefined' && module.exports) {
     return Math.max(1, Math.min(feed, Math.round(plunge * Math.sqrt(1 + slope * slope) / slope)));
   }
 
+  // A hole's helix on a radius under half the bit's: the bit's bottom
+  // covers the middle all the way down, so it's plunging, and the 5 degree
+  // ramp only slows it (a small circle can't be run at the feed either:
+  // the machine's acceleration caps it near sqrt(a * r)). Its slope brings
+  // Z down at the Plunge Rate (never faster than the feed) at the speed the
+  // machine reaches on that circle (o.machineAccelMm, mm/s2, from $120 and
+  // $121; the feed when unknown); steeper than 45 degrees it plunges
+  // straight instead, and the rings after cut the lap. Not for a
+  // compression or down-cut bit (o.bitCut): its chips go down, and in a
+  // narrow hole they pack under it, so it keeps the ramp. As QuickCut's.
+  function narrowHelix(o, rh) { return rh > 0 && rh < o.bitDiameter / 4; }
+  function packsChips(o) { return o.bitCut === 'compression' || o.bitCut === 'down'; }
+  function helixSlope(o, rh) {
+    if (!narrowHelix(o, rh) || packsChips(o) || !(o.plungeFeedRate > 0) || !(o.feedRate > 0)) return RAMP_SLOPE;
+    var v = o.feedRate;
+    if (o.machineAccelMm > 0) v = Math.min(v, Math.sqrt(o.machineAccelMm * rh) * 60);
+    return Math.max(RAMP_SLOPE, Math.min(o.plungeFeedRate, o.feedRate) / v);
+  }
+  // Down from prev to target round a circle of radius rh about (cx, cy),
+  // from (cx + rh, cy), in G2 or G3: a helix as above, or a plunge when the
+  // lap is too short to ramp on or the helix would be steeper than 45°.
+  function descend(L, cx, cy, rh, prev, target, o, G) {
+    var lapLen = TAU * rh, slope = helixSlope(o, rh);
+    if (lapLen < MIN_RAMP) { L.push('G1 Z' + f3(target) + ' F' + o.plungeFeedRate); return; }
+    if (slope > 1) { L.push('G1 Z' + f3(target) + ' F' + Math.min(o.plungeFeedRate, o.feedRate)); return; }
+    var turns = Math.min(64, Math.max(1, Math.ceil((prev - target) / (lapLen * slope) - 1e-9)));
+    var hf = ' F' + slopeFeed((prev - target) / turns / lapLen, o.feedRate, o.plungeFeedRate);
+    for (var t = 1; t <= turns; t++) {
+      var mid = prev + (target - prev) * (t - 0.5) / turns, end = prev + (target - prev) * t / turns;
+      L.push(G + ' X' + f4(cx - rh) + ' Y' + f4(cy) + ' I' + f4(-rh) + ' J0 Z' + f3(mid) + hf);
+      L.push(G + ' X' + f4(cx + rh) + ' Y' + f4(cy) + ' I' + f4(rh) + ' J0 Z' + f3(t === turns ? target : end) + hf);
+    }
+  }
+  // The warning a compression or down-cut bit gets in a narrow hole.
+  function packWarning(L, o, rh) {
+    if (packsChips(o) && narrowHelix(o, rh) && TAU * rh >= MIN_RAMP) L.push('(WARNING: ' + (o.bitCut === 'down' ? 'down-cut' : 'compression') + ' bit in a narrow hole: chips pack, 5 deg ramp)');
+  }
+
   // A closed path as segments with their lengths, for walking along it.
   function segmentsOf(path) {
     var segs = [], total = 0;
@@ -2419,28 +2457,20 @@ if (typeof module !== 'undefined' && module.exports) {
   // of the bit's center out to the edge.
   function windowHole(L, h, o, levels) {
     var r = o.bitDiameter / 2, win = h.win, mid = windowMiddle(win), step = Math.max(0.05, o.bitDiameter * (o.stepoverPct || 40) / 100);
-    var rh = Math.max(0, Math.min(r * 0.6, mid.T - r)), G2 = o.direction === 'climb' ? 'G3' : 'G2', lapLen = TAU * rh, prev = 0;
+    var rh = Math.max(0, Math.min(r * 0.6, mid.T - r)), G2 = o.direction === 'climb' ? 'G3' : 'G2', prev = 0;
     var c = turnPts([{ x: mid.rho, y: 0 }], win.angle)[0], cx = h.x + c.x, cy = h.y + c.y;
     var ds = [];
     for (var d = Math.max(r, mid.T - rh); d > r + 1e-6; d -= step) ds.push(d);
     ds.push(r);
     var laps = ds.map(function (d) { return windowLap(win, d); }).filter(Boolean);
+    packWarning(L, o, rh);
     L.push('G0 X' + f4(cx + rh) + ' Y' + f4(cy));
     L.push('G0 Z' + f3(o.hop));
     L.push('G1 Z0.000 F' + o.plungeFeedRate);
     levels.forEach(function (dd) {
       var target = -dd;
       L.push('G1 X' + f4(cx + rh) + ' Y' + f4(cy) + ' F' + o.feedRate);
-      if (lapLen < MIN_RAMP) L.push('G1 Z' + f3(target) + ' F' + o.plungeFeedRate);
-      else {
-        var turns = Math.min(64, Math.max(1, Math.ceil((prev - target) / (lapLen * RAMP_SLOPE) - 1e-9)));
-        var hf = ' F' + slopeFeed((prev - target) / turns / lapLen, o.feedRate, o.plungeFeedRate);
-        for (var q = 1; q <= turns; q++) {
-          var mz = prev + (target - prev) * (q - 0.5) / turns, ez = prev + (target - prev) * q / turns;
-          L.push(G2 + ' X' + f4(cx - rh) + ' Y' + f4(cy) + ' I' + f4(-rh) + ' J0 Z' + f3(mz) + hf);
-          L.push(G2 + ' X' + f4(cx + rh) + ' Y' + f4(cy) + ' I' + f4(rh) + ' J0 Z' + f3(q === turns ? target : ez) + hf);
-        }
-      }
+      descend(L, cx, cy, rh, prev, target, o, G2);
       // Each lap from its point nearest the middle, so the step out is short.
       laps.forEach(function (pts) {
         var k = 0, best = Infinity;
@@ -2530,23 +2560,14 @@ if (typeof module !== 'undefined' && module.exports) {
       });
       return;
     }
-    var rh = Math.min(R, r * 0.6), lapLen = TAU * rh, prev = 0;
+    var rh = Math.min(R, r * 0.6), prev = 0;
+    packWarning(L, o, rh);
     L.push('G0 X' + f4(h.x + rh) + ' Y' + f4(h.y));
     L.push('G1 Z0.000 F' + o.plungeFeedRate);
     levels.forEach(function (d) {
       var target = -d;
       L.push('G1 X' + f4(h.x + rh) + ' Y' + f4(h.y) + ' F' + o.feedRate);
-      if (lapLen < MIN_RAMP) {
-        L.push('G1 Z' + f3(target) + ' F' + o.plungeFeedRate);
-      } else {
-        var turns = Math.min(64, Math.max(1, Math.ceil((prev - target) / (lapLen * RAMP_SLOPE) - 1e-9)));
-        var hf = ' F' + slopeFeed((prev - target) / turns / lapLen, o.feedRate, o.plungeFeedRate);
-        for (var t = 1; t <= turns; t++) {
-          var mid = prev + (target - prev) * (t - 0.5) / turns, end = prev + (target - prev) * t / turns;
-          L.push(G + ' X' + f4(h.x - rh) + ' Y' + f4(h.y) + ' I' + f4(-rh) + ' J0 Z' + f3(mid) + hf);
-          L.push(G + ' X' + f4(h.x + rh) + ' Y' + f4(h.y) + ' I' + f4(rh) + ' J0 Z' + f3(t === turns ? target : end) + hf);
-        }
-      }
+      descend(L, h.x, h.y, rh, prev, target, o, G);
       // Rings out to the edge, then once round it.
       var rings = [];
       for (var rr = rh; rr < R - 1e-6; rr += step) rings.push(rr);
@@ -2627,7 +2648,8 @@ if (typeof module !== 'undefined' && module.exports) {
   function dHole(L, h, o, levels) {
     var r = o.bitDiameter / 2, Rc = h.diameter / 2 - r, fc = h.flat - h.diameter / 2 - r, T = (fc + Rc) / 2;
     var step = Math.max(0.05, o.bitDiameter * (o.stepoverPct || 40) / 100), rh = Math.min(r * 0.6, T), cx = (fc - Rc) / 2;
-    var G = o.direction === 'climb' ? 'G3' : 'G2', lapLen = TAU * rh, prev = 0;
+    var G = o.direction === 'climb' ? 'G3' : 'G2', prev = 0;
+    packWarning(L, o, rh);
     var ts = [];
     for (var t = Math.max(0, T - rh); t > 1e-6; t -= step) ts.push(t);
     ts.push(0);
@@ -2649,16 +2671,7 @@ if (typeof module !== 'undefined' && module.exports) {
     levels.forEach(function (d) {
       var target = -d;
       L.push('G1 X' + f4(h.x + cx + rh) + ' Y' + f4(h.y) + ' F' + o.feedRate);
-      if (lapLen < MIN_RAMP) L.push('G1 Z' + f3(target) + ' F' + o.plungeFeedRate);
-      else {
-        var turns = Math.min(64, Math.max(1, Math.ceil((prev - target) / (lapLen * RAMP_SLOPE) - 1e-9)));
-        var hf = ' F' + slopeFeed((prev - target) / turns / lapLen, o.feedRate, o.plungeFeedRate);
-        for (var q = 1; q <= turns; q++) {
-          var mid = prev + (target - prev) * (q - 0.5) / turns, end = prev + (target - prev) * q / turns;
-          L.push(G + ' X' + f4(h.x + cx - rh) + ' Y' + f4(h.y) + ' I' + f4(-rh) + ' J0 Z' + f3(mid) + hf);
-          L.push(G + ' X' + f4(h.x + cx + rh) + ' Y' + f4(h.y) + ' I' + f4(rh) + ' J0 Z' + f3(q === turns ? target : end) + hf);
-        }
-      }
+      descend(L, h.x + cx, h.y, rh, prev, target, o, G);
       ts.forEach(function (t, i) {
         var rg = ring(t);
         lap2(L, h, rg.pts, i === ts.length - 1 ? rg.bones : null, o, r, true);
@@ -3203,7 +3216,7 @@ if (typeof module !== 'undefined' && module.exports) {
   }
 
   return { generate: generate, safeZVersionOk: safeZVersionOk, gapMinimum: gapMinimum, nestedDistance: nestedDistance, nestTurn: nestTurn, plan: plan, depthLevels: depthLevels, slopeFeed: slopeFeed, gearHoles: gearHoles, frameHole: frameHole, hexCorners: hexCorners,
-           ringNests: ringNests, packRows: packRows, packCircles: packCircles, boreOutline: boreOutline, boreReach: boreReach, bone: bone, rackHoles: rackHoles, ringHoles: ringHoles, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE };
+           ringNests: ringNests, packRows: packRows, packCircles: packCircles, boreOutline: boreOutline, boreReach: boreReach, bone: bone, rackHoles: rackHoles, ringHoles: ringHoles, windowLap: windowLap, windowMiddle: windowMiddle, RAMP_SLOPE: RAMP_SLOPE, helixSlope: helixSlope };
 });
 /* END lib/gear-gcode.cjs */</script>
 
@@ -3219,7 +3232,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var parseUnitValue = NcUnitInput.parseUnitValue;
   var ROOT = document.querySelector('.gr-wrapper');
 
-  var state = { imperial: false, unit: 'mm', safeZHeightMm: null, safeZCommand: false, maxFeedMm: null, spindleMax: null, spindleMin: null,
+  var state = { imperial: false, unit: 'mm', safeZHeightMm: null, safeZCommand: false, maxFeedMm: null, machineAccelMm: null, spindleMax: null, spindleMin: null,
                 view: 'pair', feedsAuto: false, turn: 0, animating: false, cache: {}, written: {}, filled: {}, size: null, travel: null,
                 sets: initialConfig && Array.isArray(initialConfig.sets) ? initialConfig.sets.filter(function (x) { return x && x.name && x.v; }) : [],
                 standard: initialConfig && initialConfig.standard && initialConfig.standard.module > 0 ? initialConfig.standard : null };
@@ -3390,7 +3403,7 @@ if (typeof module !== 'undefined' && module.exports) {
         : isRing() ? { kind: 'ring', rim: s['gr-ring-w'], boreShape: 'round', holeStyle: 'round' } : {}) },
       centerDistance: s['gr-cd'] > 0 && !isRack() && !isRing() && !isPlanet() ? s['gr-cd'] : null,
       planetary: isPlanet() ? { planets: s['gr-planets'], sun: s['gr-teeth-a'], planet: s['gr-teeth-b'], ring: s['gr-teeth-a'] + 2 * s['gr-teeth-b'], rim: s['gr-ring-w'] } : null,
-      toolNumber: bitToolNumber(),
+      toolNumber: bitToolNumber(), machineAccelMm: state.machineAccelMm, bitCut: bitCutKind(),
       frame: { A: s['gr-frame-a'], B: s['gr-frame-b'] },
       origin: job === 'frame' ? 'center' : $('gr-origin').value, direction: $('gr-direction').value, gap: s['gr-gap'],
       imperial: state.imperial, safeZHeightMm: state.safeZHeightMm, safeZCommand: state.safeZCommand, stepoverPct: 40, holeCut: $('gr-hole-cut').value
@@ -5860,7 +5873,7 @@ if (typeof module !== 'undefined' && module.exports) {
     // Gears are cut with an end mill: flat (or ball) ones that aren't keyhole, roundover, surfacing and the like; the rest behind Show All.
     var notGear = /keyhole|round ?over|radius|surfac|groove|chamfer|engrav|thread|dovetail|flush|bowl|cove|crown|face mill|v ?bit/i;
     state.tools = (tools || []).filter(function (t) { return t.type !== 'probe'; })
-      .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '', notes: (t.metadata && t.metadata.notes) || '', flutes: (t.metadata && t.metadata.flutes) || 0,
+      .map(function (t) { return { n: byId ? t.toolId : t.toolNumber, mm: t.diameter, name: t.name || '', type: t.type || '', notes: (t.metadata && t.metadata.notes) || '', flutes: (t.metadata && t.metadata.flutes) || 0,
         gear: (t.type === 'flat' || t.type === 'ball') && !notGear.test((t.name || '') + ' ' + ((t.metadata && t.metadata.notes) || '')) && t.diameter <= 12.7 }; })
       .filter(function (t) { return t.n > 0 && t.mm > 0; })
       // The tool in the spindle first, then the rest by number.
@@ -5871,6 +5884,17 @@ if (typeof module !== 'undefined' && module.exports) {
     var t = state.cutTool, near = function (mm) { return t && Math.abs(mm - t.mm) < 0.002; };
     if (!state.atc || !t || !near(read('gr-bit'))) return 0;
     return (state.tools || []).some(function (x) { return x.n === t.n && near(x.mm); }) ? t.n : 0;
+  }
+  // Which way the cutting tool's flutes send chips, for a narrow hole's
+  // helix: 'compression' or 'down' (down-cut) by its type or name, else ''.
+  // The tool: the one picked with a tool changer, else the one in the
+  // spindle when the Bit Diameter is its size. As QuickCut's.
+  function bitCutKind() {
+    var n = bitToolNumber() || (!state.atc && state.loadedTool) || 0;
+    var t = n && (state.tools || []).filter(function (x) { return x.n === n; })[0];
+    if (!t || Math.abs(t.mm - read('gr-bit')) >= 0.002 || !(t.type || t.name)) return '';
+    if (t.type === 'compression' || /\bcompression\b/i.test(t.name)) return 'compression';
+    return /^down[-_ ]?cut$/i.test(t.type) || /\bdown[- ]?cut\b/i.test(t.name) ? 'down' : '';
   }
   async function loadedBit() {
     var note = $('gr-tool-note');
@@ -6059,9 +6083,12 @@ if (typeof module !== 'undefined' && module.exports) {
     touch();
   }
   // Before Generate: the tool table read again, so a changed one counts.
+  // Without a tool changer it's only for the bit's kind (compression or
+  // down-cut), so Generate waits at most 2 s for it.
   async function refreshTools() {
-    if (!state.atc) return;
-    try { await readTools(); } catch (e) { return; }
+    var read = readTools().then(function () { return true; }, function () { return false; });
+    if (!state.atc) { await Promise.race([read, new Promise(function (ok) { setTimeout(ok, 2000); })]); return; }
+    if (!(await read)) return;
     showBitTool();
   }
 
@@ -6465,6 +6492,8 @@ if (typeof module !== 'undefined' && module.exports) {
     $('gt-preset').addEventListener('change', function () { applyPreset($('gt-preset').value); });
     if (state.atc) wireToolMenu();
     else {
+      // The spindle's tool, for whether it's a compression or down-cut bit.
+      readTools().then(touch, function () {});
       $('gr-bit-label').addEventListener('click', function (e) { e.preventDefault(); loadedBit(); });
       $('gr-bit-label').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadedBit(); } });
     }
@@ -6512,6 +6541,8 @@ if (typeof module !== 'undefined' && module.exports) {
       var n = function (k) { return parseFloat(fw[k] && fw[k].value); };
       if (n('110') > 0 && n('111') > 0) state.maxFeedMm = Math.min(n('110'), n('111'));
       if (n('112') > 0) state.maxPlungeMm = n('112');
+      // X and Y acceleration (mm/s2): how fast a small helix can go round.
+      if (n('120') > 0 && n('121') > 0) state.machineAccelMm = Math.min(n('120'), n('121'));
       if (n('132') > 0) state.zTravelMm = n('132');
       if (n('30') >= 5000) state.spindleMax = n('30');
       if (n('31') > 0) state.spindleMin = n('31');

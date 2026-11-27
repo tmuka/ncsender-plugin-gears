@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **A hole barely wider than the bit no longer crawls down:** its helix was 5° on a circle too small for the
+  machine to run at the feed (a 1/8" bit in a 3.9 mm bore came down near 80 mm/min). Under half the bit's radius
+  it now comes down at the Plunge Rate, at the speed `$120`/`$121` allow on that circle, or straight down when
+  steeper than 45°. Compression and down-cut bits keep 5°, with a warning. As QuickCut's (PR #59).
+
 ## 0.7.3: Review fixes
 
 - **An error's words always show:** leaving a field before its error appears no longer leaves only a red outline;
