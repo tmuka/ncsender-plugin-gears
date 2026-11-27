@@ -99,7 +99,7 @@ test('a whole train in one program: every gear, packed apart, safe', () => {
   // Biggest first; every pair of gears at least the least gap apart, tip to tip.
   const ra = (z) => 3.5 * (z + 2) / 2;
   assert.match(r.gcode, /\(Gears: a gear train, 4 gears: 8, 24, 8, 32 teeth\)/);
-  assert.match(r.gcode, /X0 Y0: Gear 4 of 32’s center/);
+  assert.match(r.gcode, /X0 Y0: Gear 4 of 32's center/);
   const teeth = r.parts.map((q) => r.info[q.key].basics.z);
   assert.deepStrictEqual(teeth, [32, 24, 8, 8]);
   for (let i = 0; i < r.parts.length; i++) for (let j = i + 1; j < r.parts.length; j++) {
@@ -238,7 +238,7 @@ test('a planetary set nested: the sun and planets cut inside the ring’s openin
   assert.match(r.gcode, /\(Gears: a planetary set, 4 gears/);
   const order = r.gcode.split('\n').filter((l) => /teeth:/.test(l)).map((l) => l.replace(/^\((\w+).*/, '$1'));
   assert.equal(order[order.length - 1], 'Ring', 'the parts inside first, the ring last');
-  assert.match(r.gcode, /X0 Y0: Ring’s center/, 'X0 Y0 named as the piece there: the ring, not the sun beside its middle');
+  assert.match(r.gcode, /X0 Y0: Ring's center/, 'X0 Y0 named as the piece there: the ring, not the sun beside its middle');
   // The stock is the ring's: nothing outside it.
   assert.ok(Math.abs((r.extent.x1 - r.extent.x0) - 2 * (ring.basics.rOut + 3.175)) < 0.1);
   const zs2 = r.gcode.split('\n').map((l) => /Z(-?[\d.]+)/.exec(l)).filter(Boolean).map((q) => +q[1]);
