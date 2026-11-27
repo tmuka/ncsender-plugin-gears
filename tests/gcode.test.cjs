@@ -485,7 +485,7 @@ test('safeZVersionOk: ncSender 2.0.228 on, Pro 2.0.326 on, dev builds; else no',
 test('every line fits Grbl: 79 characters or fewer, printable ASCII, no ! ? ~', () => {
   const long = 'Gear 3, the driven gear of stage 2 (the minute hand’s wheel) – 40 teeth! ~ Why? ×2';
   const many = [36, 12, 40, 10, 48, 8].map((z, i) => ({ label: (i % 2 ? 'Pinion ' : long + ' ') + (i + 1), body: { teeth: z, bore: 6, boreShape: i % 2 ? 'dflat' : 'keyway', flat: 5, keyWidth: 4, keyDepth: 1, holes: i % 2 ? 0 : 4 } }));
-  const progs = [base, { ...base, job: 'B' }, { ...base, job: 'both', imperial: true, origin: 'front-left' }, { ...base, job: 'frame' }, { ...base, job: 'both', module: 25.4 / 3, clearance: null, gears: { A: { teeth: 12, bore: 0, holes: 0 }, B: { teeth: 6, bore: 6, boreShape: 'dflat', flat: 5.461, holes: 0 } } },
+  const progs = [base, { ...base, job: 'B', toolNumber: 12, mist: true, flood: true, firmwareSpindleDelay: 4, safeZCommand: true }, { ...base, job: 'both', imperial: true, origin: 'front-left' }, { ...base, job: 'frame' }, { ...base, job: 'both', module: 25.4 / 3, clearance: null, gears: { A: { teeth: 12, bore: 0, holes: 0 }, B: { teeth: 6, bore: 6, boreShape: 'dflat', flat: 5.461, holes: 0 } } },
     { ...base, job: 'both', gears: { A: { teeth: 36, bore: 14, boreShape: 'hex', holes: 6, holeStyle: 'spokes' }, B: { teeth: 18, bore: 10, boreShape: 'keyway', keyWidth: 3.3, keyDepth: 1.5, holes: 0 } } },
     { ...base, job: 'both', gears: { A: { teeth: 18, bore: 8, holes: 0 }, B: { kind: 'rack', teeth: 12, rackHeight: 12, bore: 4, holes: 3 } } },
     { ...base, job: 'both', gears: { A: { teeth: 14, bore: 8, holes: 0 }, B: { teeth: 40, kind: 'ring', rim: 12, bore: 4, holes: 4 } } },
@@ -495,7 +495,8 @@ test('every line fits Grbl: 79 characters or fewer, printable ASCII, no ! ? ~', 
     const r = GC.generate(o);
     assert.deepStrictEqual(r.problems, [], JSON.stringify(o.job));
     const lines = r.gcode.split('\n');
-    assert.ok(lines.some((l) => /^\( /.test(l)) || o !== progs[progs.length - 1], 'the long comments wrapped');
+    if (o === progs[progs.length - 1]) assert.ok(lines.some((l) => /^\( /.test(l)), 'the long comments wrapped');
+    else if (!o.many) assert.ok(!lines.slice(lines.indexOf('G21 ; mm')).some((l) => /^\( /.test(l)), 'usual section headers fit one line: ' + lines.filter((l) => /^\( /.test(l)));
     for (const l of lines) {
       assert.ok(l.length <= 79, `${l.length} chars: ${l}`);
       assert.match(l, /^[ -~]*$/, 'printable ASCII: ' + l);
