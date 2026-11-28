@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **Big and many-flute bits turn slower rather than rub:** a bit whose chip needs more than 4000 mm/min (a 1/4"
+  4-flute, a 1/2" 2-flute in MDF) used to keep the material's RPM and get a thinner chip, which rubs and burns.
+  Starting feeds now turn it slower, down to 12000 RPM or the spindle's minimum (`$31`), and give a bit that still
+  needs more the feed it needs, up to the machine's max (`$110`/`$111`). 1/8" and 1/4" bits with one or two flutes
+  get the same numbers as before. As QuickCut's (0.2.7).
+
 ## 0.7.7: Plus and minus buttons
 
 - **− and + buttons on every number field**, for the Pi's touchscreen, as ncSender's probe dialog (the unit-input

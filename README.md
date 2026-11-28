@@ -208,7 +208,8 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   root).
 - **Starting feeds** from the **Material** and **Flutes** (the same table as QuickCut and Spoilboard
   Toolbox, after [ncCAM](https://github.com/siganberg/ncsender-plugin-nccam)'s formula), kept within
-  the machine's max feed and spindle range.
+  the machine's max feed and spindle range. A bit whose chip would need more than 4000 mm/min turns slower
+  instead (to 12000 RPM or the spindle's minimum), and past that gets more feed, up to the machine's max.
 - **Ø means diameter** (Axle Ø, Outside Ø across the tooth tips); a zero with a slash or dot in the number boxes
   is just 0.
 - **Units:** follows ncSender's (mm or inches); module is in mm either way. Any length or feed field takes
