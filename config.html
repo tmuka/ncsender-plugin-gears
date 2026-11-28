@@ -6388,7 +6388,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var next = current + (evt.key === 'ArrowUp' ? step : -step);
       var min = stage ? 6 : f ? (unit ? f[1] / K() : f[1]) : size ? 0.01 : -Infinity;
       if (isFinite(min) && next < min - 1e-12) {
-        if (!Number.isInteger(min)) { evt.preventDefault(); return; }
+        if (!Number.isInteger(min)) { evt.preventDefault(); evt.stopPropagation(); return; }
         next = min;
       }
       next = parseFloat(next.toFixed(state.imperial && unit ? 4 : 3));
@@ -6397,6 +6397,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (String(next) === el.value) return;
       el.value = next;
       el.dataset.touched = '1';
+      if (FEED_FIELDS.test(el.id)) state.feedsAuto = false;
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }, true);
   }
@@ -6414,8 +6415,10 @@ if (typeof module !== 'undefined' && module.exports) {
     if (el.classList.contains('gt-teeth')) return { step: 1, min: 6, max: 400 };
     if (el.classList.contains('gt-angle')) return { step: 15, min: -180, max: 180 };
     if (id === 'gr-size') {
-      var mode = $('gr-size-mode').value, ends = MODULE_RANGE.map(function (x) { return sizeText(x, mode); }).sort(function (a, b) { return a - b; });
-      return { step: mode === 'module' ? 0.25 : mode === 'dp' ? 1 : imp ? 0.03125 : 0.5, min: ends[0], max: ends[1] };
+      var mode = $('gr-size-mode').value, ends = MODULE_RANGE.map(function (x) { return +sizeText(x, mode); }).sort(function (a, b) { return a - b; });
+      // A whole Diametral Pitch, as the shop standards name them.
+      if (mode === 'dp') return { step: 1, min: Math.ceil(ends[0]), max: Math.floor(ends[1]) };
+      return { step: mode === 'module' ? 0.25 : imp ? 0.03125 : 0.5, min: ends[0], max: ends[1] };
     }
     if (!f) return null;
     if (f[0] === 'whole') return { step: 1, min: f[1], max: f[2] };
@@ -6431,7 +6434,10 @@ if (typeof module !== 'undefined' && module.exports) {
   // gears' own distance): a press starts from that, not from nothing.
   function blankStart(el) {
     if (el.value.trim() !== '') return;
-    var v = parseFloat(el.placeholder);
+    // The placeholder's value before any words in brackets: "1/2 in", "3.3 (least)".
+    var f = FIELDS[el.id], unit = f && (f[0] === 'length' || f[0] === 'feed') ? f[0] : null, t = String(el.placeholder || '').replace(/\s*\(.*$/, '').trim();
+    var v = !t ? NaN : unit ? parseUnitValue(t, state.imperial, unit) : Number(t);
+    if (v == null || !isFinite(v)) v = NaN; else if (unit) v = round(v);
     if (!isFinite(v) && el.id === 'gr-cd') {
       var m = moduleFromSize(), za = read('gr-teeth-a'), zb = read('gr-teeth-b');
       if (m > 0 && za > 0 && zb > 0) v = show((za + zb) * m / 2);
@@ -6439,19 +6445,26 @@ if (typeof module !== 'undefined' && module.exports) {
     if (!isFinite(v) && el.id === 'gr-clearance' && moduleFromSize() > 0) v = show(moduleFromSize() / 4);
     if (isFinite(v)) el.value = v;
   }
-  var steppers = null;
+  var steppers = null, FEED_FIELDS = /^gr-(rpm|feed|plunge|step|frame-step)$/;
   function stepperSelector() {
-    return Object.keys(FIELDS).map(function (id) { return 'input#' + id; }).concat('input#gr-size', 'input.gt-teeth', 'input.gt-angle').join(', ');
+    // The stages' fields are wired by wireStageSteppers (they're drawn again and again).
+    return Object.keys(FIELDS).map(function (id) { return 'input#' + id; }).concat('input#gr-size').join(', ');
   }
   function wireStepButtons() {
     // On the way down, before the button's own press: a blank field's start, and a press counts as touched.
-    ROOT.addEventListener('pointerdown', function (e) {
+    function before(e) {
       var b = e.target.closest && e.target.closest('.nc-step-btn'), el = b && b.parentNode.querySelector('input');
-      if (!el || b.disabled || e.button !== 0) return;
+      if (!el || b.disabled) return;
+      // A field still being typed in is done (the buttons take no focus): its units converted, its errors shown.
+      var a = document.activeElement;
+      if (a && a !== el && a.classList && a.classList.contains('gr-input')) a.blur();
       blankStart(el);
       el.dataset.touched = '1';
-      if (/^gr-(rpm|feed|plunge|step|frame-step)$/.test(el.id)) state.feedsAuto = false;
-    }, true);
+      if (FEED_FIELDS.test(el.id)) state.feedsAuto = false;
+    }
+    ROOT.addEventListener('pointerdown', function (e) { if (e.button === 0) before(e); }, true);
+    // A click with no press (a keyboard on the button, a screen reader): the library steps once.
+    ROOT.addEventListener('click', function (e) { if (e.detail === 0) before(e); }, true);
     steppers = NcUnitInput.wireSteppers(ROOT, { selector: stepperSelector(), imperial: function () { return state.imperial; }, stepOf: stepOf });
   }
   // The stages are drawn again and again: their new fields get buttons too.
