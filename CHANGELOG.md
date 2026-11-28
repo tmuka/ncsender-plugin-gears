@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.7: Plus and minus buttons
 
 - **− and + buttons on every number field**, for the Pi's touchscreen, as ncSender's probe dialog (the unit-input
   library's `wireSteppers`, v0.1.6). A press goes to the next whole step, sized to the field (a bore by 0.5 mm or

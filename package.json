@@ -1,6 +1,6 @@
 {
   "name": "ncsender-plugin-gears",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "license": "GPL-3.0-only",
   "description": "ncSender plugin: design and cut meshing spur gears",
   "private": true,
