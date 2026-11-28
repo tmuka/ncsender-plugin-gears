@@ -3460,7 +3460,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // Fields: id -> [kind, min, max, label, default in mm (lengths) or as is].
   var FIELDS = {
-    'gr-bit': ['length', 0.2, 50, 'Bit Diameter', 3.175], 'gr-feed': ['feed', 10, 20000, 'Feed Rate', null], 'gr-plunge': ['feed', 5, 10000, 'Plunge Rate', null],
+    'gr-bit': ['length', 0.2, 50, 'Bit Diameter', 3.175], 'gr-feed': ['feed', 10, 50000, 'Feed Rate', null], 'gr-plunge': ['feed', 5, 10000, 'Plunge Rate', null],
     'gr-rpm': ['count', 0, 60000, 'Spindle RPM', null], 'gr-delay': ['count', 0, 60, 'Delay', 2],
     'gr-backlash': ['length', 0, 5, 'Backlash', 0.3], 'gr-clearance': ['length', 0, 10, 'Tip Clearance', null],
     'gr-teeth-a': ['whole', 6, 400, 'Gear A Teeth', 36], 'gr-teeth-b': ['whole', 6, 400, 'Gear B Teeth', 18],

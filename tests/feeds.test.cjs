@@ -18,6 +18,18 @@ test('startingFeeds: Conservative / Aggressive, the Z rate, and the same numbers
   assert.equal(bigNoMax.feedMm, 4000, 'no more than 4000 without the machine\u2019s max');
   assert.equal(startingFeeds(25.4, 2, 'mdf', { maxFeed: 10000, minRpm: 15000 }).rpm, 15000, 'not under the spindle\u2019s minimum');
   assert.ok(!startingFeeds(6.35, 2, 'mdf', { maxFeed: 10000 }).rpmLowered, 'a 1/4" bit keeps 18000');
+  // Plastics and aluminum keep their chip when the spindle slows; a slow machine ($110 under 4000) slows it too.
+  for (const m of ['hdpe', 'acrylic', 'polycarbonate', 'aluminum']) {
+    const r = startingFeeds(12.7, 4, m, {});
+    assert.ok(r.rpmLowered && r.rpm >= 12000 && r.feedMm <= 4000, m + ': ' + r.rpm + ' ' + r.feedMm);
+    assert.ok(r.chipMm >= startingFeeds(3.175, 2, m, {}).chipMm, m + ' keeps a chip as thick as a small bit\u2019s');
+  }
+  const slow = startingFeeds(6.35, 2, 'mdf', { maxFeed: 1000 });
+  assert.deepStrictEqual([slow.rpm, slow.feedMm, slow.rpmLowered], [12000, 1000, true]);
+  // The plunge: 30% of the feed, never more than 30% of the starting feed (1200) nor $112.
+  assert.equal(startingFeeds(25.4, 2, 'mdf', { maxFeed: 10000 }).plungeMm, 1200);
+  assert.equal(startingFeeds(25.4, 2, 'mdf', { maxFeed: 10000, maxPlunge: 800 }).plungeMm, 800);
+  assert.equal(startingFeeds(3.175, 2, 'mdf', {}).plungeMm, Math.round(startingFeeds(3.175, 2, 'mdf', {}).feedMm * 0.3));
   const qc = path.join(__dirname, '..', '..', 'ncsender-plugin-quickcut', 'lib', 'starting-feeds.cjs');
   if (!fs.existsSync(qc)) { t.skip('no QuickCut checkout beside this one'); return; }
   const other = require(qc).startingFeeds;
