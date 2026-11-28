@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **− and + buttons on every number field**, for the Pi's touchscreen, as ncSender's probe dialog (the unit-input
+  library's `wireSteppers`, v0.1.6). A press goes to the next whole step, sized to the field (a bore by 0.5 mm or
+  1/32", the backlash by 0.05 mm or 0.002", a tooth count by 1); holding repeats. A blank field (Center Distance,
+  Tip Clearance) starts from the value it would use. The arrow keys keep Gears' own steps.
+
 ## 0.7.6: Every line fits Grbl
 
 - **Every program line fits Grbl's buffer:** comments are 79 characters or fewer (a long one, such as a gear

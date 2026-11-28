@@ -108,6 +108,14 @@
   .gr-input:focus, .gr-select:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent); }
   .gr-input.gr-bad { border-color: #ff6b6b; }
   .gr-input:disabled { opacity: 0.5; }
+  /* - value + (wireSteppers): the box takes the field's frame, height and corners; its error and focus look too. */
+  .nc-step { height: auto; min-height: 38px; border-radius: 8px; }
+  .nc-step > .gr-input { padding: 9px 2px; text-align: center; text-overflow: ellipsis; }
+  .nc-step > .gr-input:disabled { opacity: 1; }
+  .nc-step:focus-within { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent); }
+  .nc-step:has(> .gr-bad), .nc-step:has(> .gr-bad):focus-within { border-color: #ff6b6b; }
+  .nc-step:has(> input[hidden]) { display: none; }
+  .nc-step-btn { flex-basis: 30px !important; }
   .gr-label-select {
     align-self: flex-start; -webkit-appearance: none; appearance: none; padding: 0 14px 0 0; border: none; cursor: pointer;
     background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2393a2b4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 1px center / 9px 6px;
@@ -904,9 +912,10 @@ var MM_PER_INCH = 25.4;
 function parseUnitValue(text, isImperial, kind) {
   // A decimal comma (1,5mm, ,25in) reads as a point, but not one before
   // exactly three digits: 1,000 or 2,540 may be a thousands separator, and
-  // 1 or 2.54 instead would be quietly wrong, so that's unreadable.
+  // 1 or 2.54 instead would be quietly wrong, so that's unreadable. After a
+  // 0 (0,125) it can only be a decimal.
   text = String(text == null ? '' : text);
-  if (/\d,\d{3}(?!\d)/.test(text)) return null;
+  if (THOUSANDS.test(text)) return null;
   text = text.replace(/,/g, '.');
   var one = parseUnitQuantity(text, isImperial, kind);
   return one !== null ? one : parseUnitMath(text, isImperial, kind);
@@ -915,11 +924,16 @@ function parseUnitValue(text, isImperial, kind) {
 // digits: a message to show the operator, e.g. "1,000 could be 1000 or
 // 1.000: write 1000, or 1,0 for a decimal". null otherwise.
 function unitValueProblem(text) {
-  var m = /(\d+),(\d{3})(?!\d)/.exec(String(text == null ? '' : text));
+  var m = THOUSANDS.exec(String(text == null ? '' : text));
   if (!m) return null;
-  return m[0] + ' could be ' + m[1] + m[2] + ' or ' + m[1] + '.' + m[2] + ': write ' + m[1] + m[2] + ', or ' +
-    m[1] + ',' + (m[2].replace(/0+$/, '') || '0') + ' for a decimal';
+  // The decimal with the comma shortened (1,0), or with a point when it can't be (1.125).
+  var short = m[3].replace(/0+$/, '') || '0';
+  return m[2] + ',' + m[3] + ' could be ' + m[2] + m[3] + ' or ' + m[2] + '.' + m[3] + ': write ' + m[2] + m[3] + ', or ' +
+    (short.length < 3 ? m[2] + ',' + short : m[2] + '.' + m[3]) + ' for a decimal';
 }
+// A comma that may be a thousands separator: digits not starting with 0, a
+// comma, exactly three digits.
+var THOUSANDS = /(^|[^\d])([1-9]\d*),(\d{3})(?!\d)/;
 // mm per unit (per minute for feeds) of the units a field takes.
 function unitMmPer(kind) {
   var MM_PER = { mm: 1, cm: 10, 'in': 25.4, inch: 25.4, inches: 25.4, '"': 25.4 };
@@ -1124,6 +1138,7 @@ function wireUnitFields(root, opts) {
     if (!el || el.disabled || el.readOnly) return;
     if (evt.key === 'Enter') { normalize(el); return; }
     if (opts.arrows === false || (evt.key !== 'ArrowUp' && evt.key !== 'ArrowDown')) return;
+    if (el.parentNode && el.parentNode.classList && el.parentNode.classList.contains('nc-step')) return; // wireSteppers steps it
     var imp = imperial();
     var current = parseUnitValue(el.value, imp, el.getAttribute('data-unit'));
     if (current == null || !isFinite(current)) current = 0;
@@ -1150,7 +1165,153 @@ function wireUnitFields(root, opts) {
   };
 }
 
-return { MM_PER_INCH: MM_PER_INCH, parseUnitValue: parseUnitValue, unitValueProblem: unitValueProblem, unitMmPer: unitMmPer, parseUnitMath: parseUnitMath, parseUnitQuantity: parseUnitQuantity, roundDisplay: roundDisplay, mmToDisplay: mmToDisplay, displayToMm: displayToMm, formatMm: formatMm, textToMm: textToMm, roundInches: roundInches, wireUnitFields: wireUnitFields };
+// The stepper's look, as ncSender's probe dialog (ProbeStepper): the frame is
+// the field, the input inside it between the - and + buttons. ncSender's dialog
+// rules beat plugin classes, hence !important on the buttons. wireSteppers adds
+// it once to the page (opts.css false to style it yourself).
+var STEPPER_CSS = '.nc-step{display:flex;align-items:stretch;width:100%;height:36px;box-sizing:border-box;' +
+  'border:1px solid var(--color-border,#888);border-radius:var(--radius-small,4px);background:var(--color-surface,#fff);overflow:hidden}' +
+  '.nc-step:focus-within{border-color:var(--color-accent,#1abc9c)}' +
+  '.nc-step:has([aria-invalid="true"]){border-color:#d32f2f}' +
+  '.nc-step.is-disabled{opacity:.55}' +
+  '.nc-step>input{flex:1 1 0;min-width:0;width:auto;height:100%;margin:0;border:0 !important;border-radius:0;' +
+  'background:transparent;padding:0 4px;text-align:center;box-shadow:none !important;outline:none}' +
+  '.nc-step-btn{flex:0 0 34px;border:0 !important;padding:0 !important;margin:0;border-radius:0 !important;min-width:0 !important;' +
+  'background:color-mix(in srgb,var(--color-text-secondary,#888) 20%,var(--color-surface,#fff)) !important;' +
+  'color:var(--color-text-primary,#222) !important;font-family:inherit;font-size:1.25rem !important;font-weight:700;line-height:1;' +
+  'cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}' +
+  '.nc-step-btn:active:not(:disabled){background:color-mix(in srgb,var(--color-accent,#1abc9c) 35%,var(--color-surface,#fff)) !important}' +
+  '.nc-step-btn:disabled{opacity:.4;cursor:default}';
+
+/**
+ * - value + buttons around number fields, for a touch screen (as ncSender's
+ * probe dialog). For every field matching opts.selector (default
+ * 'input[data-unit], input[data-step]') under root:
+ *   - the buttons take no keyboard focus (tabindex -1): Tab still goes from
+ *     field to field;
+ *   - a press steps to the next whole step (4.3 + 1 -> 5), holding repeats
+ *     faster; Up / Down step too (Shift x10);
+ *   - each step fires `input` on the field, the end of a press `change`.
+ * Step, min and max: opts.stepOf(el, imperial) -> { step, min, max } in the
+ * units shown, else the field's data-step (or step), data-min (or min) and
+ * data-max (or max); step 1 when none. Typed units are read first (data-unit).
+ * Wire wireUnitFields too for typed units: it leaves the arrows to this.
+ * Returns { refresh, unwire }: refresh() after changing a field's value,
+ * disabled or limits from code (input and change events refresh by themselves).
+ */
+function wireSteppers(root, opts) {
+  opts = opts || {};
+  var doc = root.ownerDocument || document;
+  function imperial() {
+    return typeof opts.imperial === 'function' ? !!opts.imperial() : !!opts.imperial;
+  }
+  function attrNum(el, a, b) {
+    var t = el.getAttribute(a) != null ? el.getAttribute(a) : el.getAttribute(b);
+    var v = t == null || t === '' ? NaN : parseFloat(t);
+    return isFinite(v) ? v : null;
+  }
+  function spec(el) {
+    var s = (opts.stepOf && opts.stepOf(el, imperial())) ||
+      { step: attrNum(el, 'data-step', 'step'), min: attrNum(el, 'data-min', 'min'), max: attrNum(el, 'data-max', 'max') };
+    return { step: s.step > 0 ? s.step : 1, min: s.min == null ? -Infinity : s.min, max: s.max == null ? Infinity : s.max };
+  }
+  function valueOf(el) {
+    var t = el.value.trim();
+    if (!t) return null;
+    var v = el.getAttribute('data-unit') ? parseUnitValue(t, imperial(), el.getAttribute('data-unit')) : Number(t.replace(',', '.'));
+    return v == null || !isFinite(v) ? null : v;
+  }
+  function decimals(step) {
+    var s = String(step);
+    return s.indexOf('.') < 0 ? 0 : s.length - s.indexOf('.') - 1;
+  }
+  function fire(el, type) {
+    el.dispatchEvent(new Event(type, { bubbles: true }));
+  }
+  function bump(el, dir, times) {
+    if (el.disabled || el.readOnly) return false;
+    var s = spec(el), step = s.step * (times || 1), cur = valueOf(el);
+    var next = cur == null ? (dir > 0 ? Math.max(step, s.min) : s.min) :
+      (dir > 0 ? Math.floor(cur / step + 1e-6) + 1 : Math.ceil(cur / step - 1e-6) - 1) * step;
+    if (!isFinite(next)) return false;
+    next = Math.min(s.max, Math.max(s.min, next));
+    var text = String(Number(next.toFixed(decimals(s.step) + 2)));
+    if (text === el.value.trim()) return false;
+    el.value = text;
+    fire(el, 'input');
+    return true;
+  }
+  function refresh(box) {
+    var el = box.input, s = spec(el), v = valueOf(el);
+    box.minus.disabled = el.disabled || (v != null && v <= s.min + 1e-9);
+    box.plus.disabled = el.disabled || (v != null && v >= s.max - 1e-9);
+    box.el.classList.toggle('is-disabled', !!el.disabled);
+  }
+  var timer = null, held = null;
+  function release() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (held) { var el = held; held = null; fire(el, 'change'); }
+  }
+  function button(text, dir, el) {
+    var b = doc.createElement('button');
+    b.type = 'button'; b.className = 'nc-step-btn'; b.textContent = text; b.tabIndex = -1;
+    b.setAttribute('aria-label', (dir > 0 ? 'Increase ' : 'Decrease ') + (el.getAttribute('aria-label') || el.id || 'value'));
+    b.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0 || b.disabled) return;
+      e.preventDefault(); release(); held = el; bump(el, dir);
+      var delay = 400;
+      var again = function () {
+        if (!bump(el, dir)) return release();
+        delay = Math.max(50, delay * 0.8); timer = setTimeout(again, delay);
+      };
+      timer = setTimeout(again, delay);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (t) { b.addEventListener(t, release); });
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    // A click with no pointer press (a screen reader, a keyboard on the button): one step.
+    b.addEventListener('click', function (e) { if (e.detail === 0 && bump(el, dir)) fire(el, 'change'); });
+    return b;
+  }
+  function onKey(e) {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+    e.preventDefault();
+    if (bump(e.target, e.key === 'ArrowUp' ? 1 : -1, e.shiftKey ? 10 : 1)) fire(e.target, 'change');
+  }
+  if (opts.css !== false && doc.head && !doc.getElementById('nc-step-css')) {
+    var style = doc.createElement('style');
+    style.id = 'nc-step-css'; style.textContent = STEPPER_CSS;
+    doc.head.appendChild(style);
+  }
+  var boxes = [];
+  Array.prototype.forEach.call(root.querySelectorAll(opts.selector || 'input[data-unit], input[data-step]'), function (el) {
+    if (el.parentNode && el.parentNode.classList && el.parentNode.classList.contains('nc-step')) return; // wired already
+    var box = { el: doc.createElement('div'), input: el, minus: button('−', -1, el), plus: button('+', 1, el) };
+    box.el.className = 'nc-step';
+    el.parentNode.insertBefore(box.el, el);
+    box.el.appendChild(box.minus); box.el.appendChild(el); box.el.appendChild(box.plus);
+    el.addEventListener('keydown', onKey);
+    boxes.push(box);
+  });
+  // Disabled and at-the-limit states follow the fields, however they change.
+  function sync() { boxes.forEach(refresh); }
+  root.addEventListener('input', sync); root.addEventListener('change', sync);
+  sync();
+  return {
+    refresh: sync,
+    unwire: function () {
+      release();
+      root.removeEventListener('input', sync); root.removeEventListener('change', sync);
+      boxes.forEach(function (box) {
+        box.input.removeEventListener('keydown', onKey);
+        box.el.parentNode.insertBefore(box.input, box.el);
+        box.el.parentNode.removeChild(box.el);
+      });
+      boxes = [];
+    }
+  };
+}
+
+return { MM_PER_INCH: MM_PER_INCH, parseUnitValue: parseUnitValue, unitValueProblem: unitValueProblem, unitMmPer: unitMmPer, parseUnitMath: parseUnitMath, parseUnitQuantity: parseUnitQuantity, roundDisplay: roundDisplay, mmToDisplay: mmToDisplay, displayToMm: displayToMm, formatMm: formatMm, textToMm: textToMm, roundInches: roundInches, wireUnitFields: wireUnitFields, STEPPER_CSS: STEPPER_CSS, wireSteppers: wireSteppers };
 })();
 if (typeof window !== 'undefined') window.NcUnitInput = NcUnitInput;
 /* END ncsender-unit-input */</script>
@@ -4673,6 +4834,7 @@ if (typeof module !== 'undefined' && module.exports) {
   function stageCount() { return ROOT.querySelectorAll('#gt-stage-list .gt-stage').length; }
   function renderStages(stages) {
     var list = $('gt-stage-list');
+    unwireStageSteppers();
     list.innerHTML = stages.map(function (st, i) {
       var n = i + 1, v = function (x) { return x == null || isNaN(x) ? '' : x; };
       return '<div class="gr-row gr-row-4 gt-stage">' +
@@ -4685,6 +4847,7 @@ if (typeof module !== 'undefined' && module.exports) {
     list.querySelectorAll('.gt-remove').forEach(function (b) {
       b.addEventListener('click', function () { var st = readStages().stages; st.splice(+b.dataset.i, 1); renderStages(st); touch(); });
     });
+    wireStageSteppers();
   }
   // The stages as typed, and what's wrong with them (by field id).
   function readStages() {
@@ -6193,11 +6356,12 @@ if (typeof module !== 'undefined' && module.exports) {
   function touchNow() {
     clearTimeout(touchTimer); touchTimer = null;
     if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair();
+    refreshSteppers();
   }
   function touch() {
     clearTimeout(touchTimer);
     // While typing, after a pause (or on leaving the field): redrawing between keys made typing lag on the Pi.
-    touchTimer = setTimeout(function () { touchTimer = null; if (state.dragging) { touch(); return; } if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); }, state.typing ? 700 : 120);
+    touchTimer = setTimeout(function () { touchTimer = null; if (state.dragging) { touch(); return; } if (state.view === 'frame') drawFrame(); else if (state.view === 'train') updateTrain(); else updatePair(); refreshSteppers(); }, state.typing ? 700 : 120);
   }
   // Up / Down arrows step a number field, as in QuickCut (and Chrome
   // DevTools): plain 1, Shift 10, Alt (Option) 0.1, Ctrl (Command) 0.001,
@@ -6206,6 +6370,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // minimum: stopped at it when it's a whole number, else not moved (an odd
   // minimum would knock the value off the step). Over the maximum is left
   // to the field's own check.
+  // Caught on the way down, before the - + buttons' own arrows (wireSteppers'), which step only 1 and 10.
   function wireArrowKeySteps() {
     ROOT.addEventListener('keydown', function (evt) {
       if (evt.key !== 'ArrowUp' && evt.key !== 'ArrowDown') return;
@@ -6228,12 +6393,75 @@ if (typeof module !== 'undefined' && module.exports) {
       }
       next = parseFloat(next.toFixed(state.imperial && unit ? 4 : 3));
       evt.preventDefault();
+      evt.stopPropagation();
       if (String(next) === el.value) return;
       el.value = next;
       el.dataset.touched = '1';
       el.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    }, true);
   }
+  // - value + buttons on every number field, for the Pi's touchscreen (as
+  // ncSender's probe dialog; the unit-input library's wireSteppers). A press
+  // goes to the next whole step, holding repeats; the arrows stay Gears' own
+  // (above). Steps in the units shown, sized to the field: a bore by 0.5 mm
+  // or 1/32", the backlash by 0.05 mm or 0.002", a distance by 1 mm or 1/16".
+  var STEP_LENGTHS = {
+    fine: [0.05, 0.002, /^gr-(backlash|clearance)$/],
+    big: [1, 0.0625, /^gr-(cd|fit-w|fit-h|design-od|match-od|rack-h|ring-w)$/]
+  };
+  function stepOf(el, imp) {
+    var id = el.id, f = FIELDS[id];
+    if (el.classList.contains('gt-teeth')) return { step: 1, min: 6, max: 400 };
+    if (el.classList.contains('gt-angle')) return { step: 15, min: -180, max: 180 };
+    if (id === 'gr-size') {
+      var mode = $('gr-size-mode').value, ends = MODULE_RANGE.map(function (x) { return sizeText(x, mode); }).sort(function (a, b) { return a - b; });
+      return { step: mode === 'module' ? 0.25 : mode === 'dp' ? 1 : imp ? 0.03125 : 0.5, min: ends[0], max: ends[1] };
+    }
+    if (!f) return null;
+    if (f[0] === 'whole') return { step: 1, min: f[1], max: f[2] };
+    if (f[0] === 'count') return { step: id === 'gr-rpm' ? 1000 : /ratio/.test(id) && id !== 'gt-ratio' ? 0.5 : 1, min: f[1], max: f[2] };
+    var step = f[0] === 'feed' ? (imp ? 5 : 50) : null;
+    if (step == null) {
+      var size = STEP_LENGTHS.fine[2].test(id) ? STEP_LENGTHS.fine : STEP_LENGTHS.big[2].test(id) ? STEP_LENGTHS.big : [0.5, 0.03125];
+      step = imp ? size[1] : size[0];
+    }
+    return { step: step, min: f[1] / K(), max: f[2] / K() };
+  }
+  // A blank field shows what it will use (its placeholder's number, or the
+  // gears' own distance): a press starts from that, not from nothing.
+  function blankStart(el) {
+    if (el.value.trim() !== '') return;
+    var v = parseFloat(el.placeholder);
+    if (!isFinite(v) && el.id === 'gr-cd') {
+      var m = moduleFromSize(), za = read('gr-teeth-a'), zb = read('gr-teeth-b');
+      if (m > 0 && za > 0 && zb > 0) v = show((za + zb) * m / 2);
+    }
+    if (!isFinite(v) && el.id === 'gr-clearance' && moduleFromSize() > 0) v = show(moduleFromSize() / 4);
+    if (isFinite(v)) el.value = v;
+  }
+  var steppers = null;
+  function stepperSelector() {
+    return Object.keys(FIELDS).map(function (id) { return 'input#' + id; }).concat('input#gr-size', 'input.gt-teeth', 'input.gt-angle').join(', ');
+  }
+  function wireStepButtons() {
+    // On the way down, before the button's own press: a blank field's start, and a press counts as touched.
+    ROOT.addEventListener('pointerdown', function (e) {
+      var b = e.target.closest && e.target.closest('.nc-step-btn'), el = b && b.parentNode.querySelector('input');
+      if (!el || b.disabled || e.button !== 0) return;
+      blankStart(el);
+      el.dataset.touched = '1';
+      if (/^gr-(rpm|feed|plunge|step|frame-step)$/.test(el.id)) state.feedsAuto = false;
+    }, true);
+    steppers = NcUnitInput.wireSteppers(ROOT, { selector: stepperSelector(), imperial: function () { return state.imperial; }, stepOf: stepOf });
+  }
+  // The stages are drawn again and again: their new fields get buttons too.
+  var stageSteppers = null;
+  function unwireStageSteppers() { if (stageSteppers) { stageSteppers.unwire(); stageSteppers = null; } }
+  function wireStageSteppers() {
+    if (steppers) stageSteppers = NcUnitInput.wireSteppers($('gt-stage-list'), { selector: 'input.gt-teeth, input.gt-angle', imperial: function () { return state.imperial; }, stepOf: stepOf, css: false });
+  }
+  // After a value, limit or disabled state changes from code (units, the size mode, a load).
+  function refreshSteppers() { if (steppers) steppers.refresh(); }
   // How long a pause in typing counts as done: then the errors held show.
   var TYPING_PAUSE_MS = 1000;
   // Clicking a blank spot on a preview enlarges it over the dialog; a blank
@@ -6415,6 +6643,8 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   function wire() {
     wireArrowKeySteps();
+    wireStepButtons();
+    wireStageSteppers();
     wireErrorBubble();
     wirePreviewEnlarge();
     wireZoom();

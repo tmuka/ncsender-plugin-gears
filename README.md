@@ -215,6 +215,10 @@ marble machines and kinetic art. Not for anything that could hurt someone if a t
   either unit and simple math: `1/4"`, `6.35mm`, `1-1/2 in`, `1in+4mm`, `(1/4"+2mm)/2`, `100ipm`
   ([ncsender-unit-input](https://github.com/tmuka/ncsender-unit-input)). Programs are written in mm,
   and an inch machine gets G20 back at the end.
+- **− and + beside every number:** for the touchscreen. A press goes to the next whole step (a bore by 0.5 mm
+  or 1/32", the backlash by 0.05 mm or 0.002", a distance by 1 mm or 1/16", a tooth count by 1); holding it
+  repeats faster. A blank field starts from the value it shows. The Up and Down arrow keys still step 1 (Shift
+  10, Alt 0.1, Ctrl 0.001).
 
 ## The fine print
 
